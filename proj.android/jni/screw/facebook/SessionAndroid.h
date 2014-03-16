@@ -22,8 +22,6 @@ public:
 	virtual void open() override;
 	virtual void close() override;
 
-	void initActiveSession(Session::State state, const string &appid);
-	void updateState(Session::State state);
 };
 
 } /* namespace jni */

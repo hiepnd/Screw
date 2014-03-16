@@ -36,6 +36,7 @@ Session::~Session() {
 
 void Session::init(State state, const string &appId) {
 	CCASSERT(!_initialized, "Must be initialized only once");
+	CCASSERT(appId != "", "Application ID must not be empty");
     CCLOG("Session::init - state = %d, appid = %s", state, appId.c_str());
 	_initialized = true;
 	_state = state;
@@ -50,7 +51,6 @@ Session *Session::getActiveSession() {
 	return _activeSession;
 }
 void Session::initActiveSession(State state, const string &appid) {
-	CCLOG("Session::initActiveSession - state = %d, appid = %s", state, appid.c_str());
     CCASSERT(VALIDATE_STATE(state), "Invalid state");
 	getActiveSession()->init(state, appid);
 }
@@ -75,8 +75,8 @@ string &Session::getAppId() {
 	return _appId;
 }
 
-bool Session::isSessionOpened() {
-	return _state == State::OPENED || State::OPENED_TOKEN_UPDATED;
+bool Session::isOpened() {
+	return _state == State::OPENED || _state == State::OPENED_TOKEN_UPDATED;
 }
 
 void Session::updateState(Session::State state) {

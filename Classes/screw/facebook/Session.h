@@ -39,7 +39,7 @@ public:
     void setStatusCallback(const SessionStatusCallback &callback);
     State getState();
     string &getAppId();
-    bool isSessionOpened();
+    bool isOpened();
 
     void open();
     void close();

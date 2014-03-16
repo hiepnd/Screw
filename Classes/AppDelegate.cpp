@@ -30,8 +30,6 @@ bool AppDelegate::applicationDidFinishLaunching() {
     // run
     director->runWithScene(scene);
 
-    auto ff = [](){};
-
     return true;
 }
 

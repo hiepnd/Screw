@@ -1,8 +1,11 @@
 package screw.facebook;
 
+import org.cocos2dx.lib.Cocos2dxHelper;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 
 import com.facebook.*;
@@ -11,11 +14,13 @@ public class Facebook  {
 	private static boolean _started = false;
 	private static Activity _activity = null;
 	private static SessionStatusCallback _statusCallback = new SessionStatusCallback();
+	private static Handler _handler;
 	
 	public static void start(Activity activity, Bundle savedInstanceState) {
 		assert _started = false : "Facebook must be start only once";
 		_started = true;
 		_activity = activity;
+		_handler = new Handler();
 		
 		//Create Session Session
 		Session session = Session.getActiveSession();
@@ -27,12 +32,6 @@ public class Facebook  {
                 session = new Session(_activity);
             }
             Session.setActiveSession(session);
-            /** Open session if it's already loaded 
-            if (session.getState().equals(SessionState.CREATED_TOKEN_LOADED)) {
-                session.openForRead(new Session.OpenRequest(_activity).setCallback(_statusCallback));
-            }
-            */
-            Log.d("Facebook", "Initializing");
             nativeInitSession(getNativeState(session.getState()), session.getApplicationId());
         }
 	}
@@ -53,20 +52,53 @@ public class Facebook  {
 		_activity = null;
 	}
 	
+	public static void openSession() {
+		_handler.post(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				Session.OpenRequest request = new Session.OpenRequest(_activity);
+				request.setCallback(_statusCallback);
+				Session.getActiveSession().openForRead(request);
+			}
+		});
+	}
+	
+	public static void closeSession() {
+		_handler.post(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				Session.getActiveSession().closeAndClearTokenInformation();
+				Session session = new Session(_activity);
+				Session.setActiveSession(session);
+			}
+		});
+	}
+	
 	static public class SessionStatusCallback implements Session.StatusCallback {
 
 		@Override
 		public void call(Session session, SessionState state,
 				Exception exception) {
 			// TODO Auto-generated method stub
-			nativeUpdateSessionState(getNativeState(state));
+			final SessionState _state = state;
+			Cocos2dxHelper.runOnGLThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					nativeUpdateSessionState(getNativeState(_state));
+				}
+			});
 		}
 	}
 	
 	/* JNI */
 	static private native void nativeInitSession(int state, String appid);
 	static private native void nativeUpdateSessionState(int state);
-	static public native void nativeFoo(int bar);
 	
 	static private int getNativeState(SessionState state) {
 		int code = -1;

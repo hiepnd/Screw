@@ -10,6 +10,7 @@ import screw.facebook.*;
 public class Cocos2dxActivity extends NativeActivity{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		System.loadLibrary("cocos2dcpp");
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		
@@ -31,16 +32,16 @@ public class Cocos2dxActivity extends NativeActivity{
 		//2.Set the format of window
 		// getWindow().setFormat(PixelFormat.TRANSLUCENT);
 		
+		Log.d("Cocos2dxActivity", "onCreate");
 		Facebook.start(this, savedInstanceState);
 		
 	}
+	
 	@Override
 	protected void onPause() {
 		// TODO Auto-generated method stub
 		super.onPause();
 		Facebook.onApplicationPause();
-		Log.d("xxx","FOOOooo");
-		Facebook.nativeFoo(0);
 	}
 
 	@Override
@@ -48,9 +49,6 @@ public class Cocos2dxActivity extends NativeActivity{
 		// TODO Auto-generated method stub
 		super.onResume();
 		Facebook.onApplicationResume();
-		
-		Log.d("xxx","BArrrrr");
-		Facebook.nativeFoo(0);
 	}
 
 	@Override

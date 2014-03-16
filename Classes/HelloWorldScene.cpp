@@ -1,7 +1,9 @@
 #include "HelloWorldScene.h"
 #include <functional>
+#include "screw/facebook/Session.h"
 
 USING_NS_CC;
+USING_NS_SCREW_FACEBOOK;
 
 Scene* HelloWorld::createScene()
 {
@@ -77,6 +79,30 @@ bool HelloWorld::init()
 
     // add the sprite as a child to this layer
     this->addChild(sprite, 0);
+    
+    auto lbl = LabelTTF::create(Session::getActiveSession()->isOpened() ? "Logout" : "Login", "Arial", 40);
+
+    
+    Session::getActiveSession()->setStatusCallback([lbl](Session *session){
+        CCLOG("Session status callback - state = %d", session->getState());
+        if (session->isOpened()) {
+            lbl->setString("Logout");
+        } else {
+            lbl->setString("Login");
+        }
+    });
+    
+    auto login = MenuItemLabel::create(lbl);
+    login->setCallback([](Object *sender){
+        if (Session::getActiveSession()->isOpened()) {
+            Session::getActiveSession()->close();
+        } else {
+            Session::getActiveSession()->open();
+        }
+    });
+
+    login->setPosition(visibleSize.width/2, visibleSize.height/2);
+    menu->addChild(login);
     
     return true;
 }

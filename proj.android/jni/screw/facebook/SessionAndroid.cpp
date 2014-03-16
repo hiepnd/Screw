@@ -21,18 +21,15 @@ SessionAndroid::~SessionAndroid() {
 }
 
 void SessionAndroid::open() {
-
+	JniMethodInfo methodInfo;
+	JniHelper::getStaticMethodInfo(methodInfo, "screw/facebook/Facebook", "openSession", "()V");
+	methodInfo.env->CallStaticVoidMethod(methodInfo.classID, methodInfo.methodID);
 }
 
 void SessionAndroid::close() {
-
-}
-
-void SessionAndroid::initActiveSession(Session::State state, const string &appid) {
-	screw::facebook::Session::initActiveSession(state, "");
-}
-void SessionAndroid::updateState(Session::State state) {
-	screw::facebook::Session::getActiveSession()->updateState(state);
+	JniMethodInfo methodInfo;
+	JniHelper::getStaticMethodInfo(methodInfo, "screw/facebook/Facebook", "closeSession", "()V");
+	methodInfo.env->CallStaticVoidMethod(methodInfo.classID, methodInfo.methodID);
 }
 
 } /* namespace jni */
@@ -40,15 +37,13 @@ void SessionAndroid::updateState(Session::State state) {
 extern "C" {
 
 JNIEXPORT void JNICALL Java_screw_facebook_Facebook_nativeInitSession (JNIEnv *env, jclass jclass, jint jstate, jstring jappid) {
-	screw::facebook::Session::initActiveSession((screw::facebook::Session::State) jstate, "");
+	const char *appid = env->GetStringUTFChars(jappid, NULL);
+	screw::facebook::Session::initActiveSession((screw::facebook::Session::State) jstate, appid);
+	env->ReleaseStringUTFChars(jappid, appid);
 }
 
 JNIEXPORT void JNICALL Java_screw_facebook_Facebook_nativeUpdateSessionState(JNIEnv *enc, jclass jclass, jint jstate) {
 	screw::facebook::Session::getActiveSession()->updateState((screw::facebook::Session::State) jstate);
-}
-
-JNIEXPORT void JNICALL Java_screw_facebook_Facebook_nativeFoo(JNIEnv *enc, jclass jclass, jint jstate) {
-	printf("Call Foo from JAVA");
 }
 
 }
