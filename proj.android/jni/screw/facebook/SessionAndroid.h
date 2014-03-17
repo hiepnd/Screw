@@ -21,6 +21,8 @@ public:
 
 	virtual void open() override;
 	virtual void close() override;
+	virtual void requestReadPermissions(const list<string> &permission) override;
+	virtual void requestPublishPermissions(const list<string> &permission) override;
 
 };
 

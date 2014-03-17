@@ -34,25 +34,33 @@ Session::~Session() {
     delete _impl;
 }
 
-void Session::init(State state, const string &appId) {
+void Session::init(State state, const string &appId, list<string> permissions) {
 	CCASSERT(!_initialized, "Must be initialized only once");
 	CCASSERT(appId != "", "Application ID must not be empty");
     CCLOG("Session::init - state = %d, appid = %s", state, appId.c_str());
+#ifdef COCOS2D_DEBUG
+    string pstr;
+    for (auto i = permissions.begin(); i != permissions.end(); i++) {
+    	pstr += string(" ") + (*i);
+    }
+    CCLOG("Session::init - permissions = (%s)", pstr.c_str());
+#endif
+
 	_initialized = true;
 	_state = state;
 	_appId = appId;
+	_permissions = permissions;
 }
 
 Session *Session::getActiveSession() {
-	if (!_activeSession) {
-		_activeSession = new Session();
-	}
-
+    CCASSERT(_activeSession, "Try to get activeSession before it is initialized ?");
 	return _activeSession;
 }
-void Session::initActiveSession(State state, const string &appid) {
+void Session::initActiveSession(State state, const string &appid, const list<string> &permissions) {
     CCASSERT(VALIDATE_STATE(state), "Invalid state");
-	getActiveSession()->init(state, appid);
+    CCASSERT(!_activeSession, "It must be null");
+    _activeSession = new Session();
+	_activeSession->init(state, appid, permissions);
 }
 
 void Session::setStatusCallback(const SessionStatusCallback &callback) {
@@ -67,6 +75,15 @@ void Session::close() {
     _impl->close();
 }
 
+void Session::requestReadPermissions(const list<string> &permission) {
+    _impl->requestReadPermissions(permission);
+}
+
+void Session::requestPublishPermissions(const list<string> &permission) {
+    _impl->requestPublishPermissions(permission);
+}
+
+
 Session::State Session::getState() {
 	return _state;
 }
@@ -79,10 +96,42 @@ bool Session::isOpened() {
 	return _state == State::OPENED || _state == State::OPENED_TOKEN_UPDATED;
 }
 
-void Session::updateState(Session::State state) {
+bool Session::isClosed() {
+    return _state == State::CLOSED || _state == State::CLOSED_LOGIN_FAILED;
+}
+
+void Session::requestReadPermission(const string &permission) {
+    list<string> l;
+    l.push_back(permission);
+    this->requestReadPermissions(l);
+}
+
+void Session::requestPublishPermission(const string &permission) {
+    list<string> l;
+    l.push_back(permission);
+    this->requestPublishPermissions(l);
+}
+
+bool Session::hasPermission(const string &permission) {
+    return std::find(_permissions.begin(), _permissions.end(), permission) != _permissions.end();
+}
+
+const list<string> &Session::getPermissions() {
+    return _permissions;
+}
+
+void Session::updateState(Session::State state, const list<string> &permissions) {
 	CCLOG("Session::updateState - state = %d", state);
     CCASSERT(VALIDATE_STATE(state), "Invalid state");
+#ifdef COCOS2D_DEBUG
+    string pstr;
+    for (auto i = permissions.begin(); i != permissions.end(); i++) {
+    	pstr += string(" ") + (*i);
+    }
+    CCLOG("Session::updateState - permissions = (%s)", pstr.c_str());
+#endif
 	_state = state;
+	_permissions = permissions;
 	if (_callback)
 		_callback(this);
 }

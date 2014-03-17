@@ -1,7 +1,9 @@
 #include "AppDelegate.h"
 #include "HelloWorldScene.h"
+#include "screw/facebook/Session.h"
 
 USING_NS_CC;
+USING_NS_SCREW_FACEBOOK;
 
 AppDelegate::AppDelegate() {
 
@@ -24,6 +26,10 @@ bool AppDelegate::applicationDidFinishLaunching() {
     // set FPS. the default value is 1.0/60 if you don't call this
     director->setAnimationInterval(1.0 / 60);
 
+    if (Session::getActiveSession()->getState() == Session::State::CREATED_TOKEN_LOADED) {
+        Session::getActiveSession()->open();
+    }
+    
     // create a scene. it's an autorelease object
     auto scene = HelloWorld::createScene();
 

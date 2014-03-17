@@ -1,11 +1,12 @@
 package org.cocos2dx.cpp;
 
+import com.screw.facebook.*;
+
 import android.app.NativeActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-import screw.facebook.*;
 
 public class Cocos2dxActivity extends NativeActivity{
 	@Override
@@ -33,7 +34,7 @@ public class Cocos2dxActivity extends NativeActivity{
 		// getWindow().setFormat(PixelFormat.TRANSLUCENT);
 		
 		Log.d("Cocos2dxActivity", "onCreate");
-		Facebook.start(this, savedInstanceState);
+		Session.start(this, savedInstanceState);
 		
 	}
 	
@@ -41,20 +42,20 @@ public class Cocos2dxActivity extends NativeActivity{
 	protected void onPause() {
 		// TODO Auto-generated method stub
 		super.onPause();
-		Facebook.onApplicationPause();
+		Session.onApplicationPause();
 	}
 
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
-		Facebook.onApplicationResume();
+		Session.onApplicationResume();
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		// TODO Auto-generated method stub
 		super.onActivityResult(requestCode, resultCode, data);
-		Facebook.onActivityResult(requestCode, resultCode, data);
+		Session.onActivityResult(requestCode, resultCode, data);
 	}
 }

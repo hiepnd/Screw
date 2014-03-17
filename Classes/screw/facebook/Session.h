@@ -28,6 +28,8 @@ public:
     
     virtual void open() = 0;
     virtual void close() = 0;
+    virtual void requestReadPermissions(const list<string> &permission) = 0;
+    virtual void requestPublishPermissions(const list<string> &permission) = 0;
 };
 
 class Session {
@@ -38,24 +40,34 @@ public:
 
     void setStatusCallback(const SessionStatusCallback &callback);
     State getState();
+    const list<string> &getPermissions();
     string &getAppId();
     bool isOpened();
+    bool isClosed();
 
+    /* Need platform dependent implementation */
     void open();
     void close();
+    void requestReadPermissions(const list<string> &permission);
+    void requestPublishPermissions(const list<string> &permission);
+    
+    /* Called soly by iOS/Android implementations */
+	static void initActiveSession(State state, const string &appid, const list<string> &permissions);
+	void updateState(State state, const list<string> &permissions);
 
-    /* Call only by friends */
-	static void initActiveSession(State state, const string &appid);
-	void updateState(State state);
-
+    void requestReadPermission(const string &permission);
+    void requestPublishPermission(const string &permission);
+    bool hasPermission(const string &permission);
+    
 private:
 	Session();
 	virtual ~Session();
-	void init(State state, const string &appId);
+	void init(State state, const string &appId, list<string> permissions);
 
 	static Session  *_activeSession;
 	SessionStatusCallback _callback;
 	SessionImpl     *_impl;
+	list<string>	_permissions;
     State   _state;
 	string  _appId;
 	bool    _initialized;

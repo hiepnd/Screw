@@ -104,6 +104,21 @@ bool HelloWorld::init()
     login->setPosition(visibleSize.width/2, visibleSize.height/2);
     menu->addChild(login);
     
+    auto request = MenuItemFont::create("Request write", [](Object *sender){
+        if (!Session::getActiveSession()->isOpened()) {
+            CCLOG("%s - session not opened, login first", __func__);
+            return;
+        }
+        if (!Session::getActiveSession()->hasPermission("publish_actions")) {
+            Session::getActiveSession()->requestPublishPermission("publish_actions");
+        } else {
+            CCLOG("%s - you already have publish permission", __func__);
+        }
+    });
+    request->setPosition(visibleSize.width/2 + 200, visibleSize.height/2 + 50);
+    menu->addChild(request);
+    
+    
     return true;
 }
 

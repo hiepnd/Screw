@@ -31,7 +31,7 @@ public:
 	GraphUser *getUser();
 	Vector<GraphUser *> getFriends();
     
-    void fetchUserDetails(const std::function<void(bool, GraphUser *)> *handler);
+    void fetchUserDetails(std::function<void(bool, GraphUser *)> handler);
 
 private:
 	State _state;
