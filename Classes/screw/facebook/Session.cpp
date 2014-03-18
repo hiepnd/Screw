@@ -37,13 +37,13 @@ Session::~Session() {
 void Session::init(State state, const string &appId, list<string> permissions) {
 	CCASSERT(!_initialized, "Must be initialized only once");
 	CCASSERT(appId != "", "Application ID must not be empty");
-    CCLOG("Session::init - state = %d, appid = %s", state, appId.c_str());
+    FB_LOG("Session::init - state = %d, appid = %s", state, appId.c_str());
 #ifdef COCOS2D_DEBUG
     string pstr;
     for (auto i = permissions.begin(); i != permissions.end(); i++) {
     	pstr += string(" ") + (*i);
     }
-    CCLOG("Session::init - permissions = (%s)", pstr.c_str());
+    FB_LOG("Session::init - permissions = (%s)", pstr.c_str());
 #endif
 
 	_initialized = true;
@@ -121,14 +121,14 @@ const list<string> &Session::getPermissions() {
 }
 
 void Session::updateState(Session::State state, const list<string> &permissions) {
-	CCLOG("Session::updateState - state = %d", state);
+	FB_LOG("Session::updateState - state = %d", state);
     CCASSERT(VALIDATE_STATE(state), "Invalid state");
 #ifdef COCOS2D_DEBUG
     string pstr;
     for (auto i = permissions.begin(); i != permissions.end(); i++) {
     	pstr += string(" ") + (*i);
     }
-    CCLOG("Session::updateState - permissions = (%s)", pstr.c_str());
+    FB_LOG("Session::updateState - permissions = (%s)", pstr.c_str());
 #endif
 	_state = state;
 	_permissions = permissions;
