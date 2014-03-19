@@ -21,6 +21,10 @@ public class Session  {
 	private static SessionStatusCallback _statusCallback = new SessionStatusCallback();
 	private static Handler _handler;
 	
+	public static Handler getHandler() {
+		return _handler;
+	}
+	
 	public static void start(Activity activity, Bundle savedInstanceState) {
 		assert _started = false : "Facebook must be start only once";
 		_started = true;
@@ -38,8 +42,17 @@ public class Session  {
             }
             com.facebook.Session.setActiveSession(session);
             session.addCallback(_statusCallback);
-            String[] permissions = new String[session.getPermissions().size()];
-            nativeInit(getNativeState(session.getState()), session.getApplicationId(), session.getPermissions().toArray(permissions));
+            final String[] permissions = new String[session.getPermissions().size()];
+            final com.facebook.Session session_ = session;
+            nativeInit(getNativeState(session_.getState()), session_.getApplicationId(), session_.getPermissions().toArray(permissions));
+//            Cocos2dxHelper.runOnGLThread(new Runnable() {
+//				
+//				@Override
+//				public void run() {
+//					// TODO Auto-generated method stub
+//					nativeInit(getNativeState(session_.getState()), session_.getApplicationId(), session_.getPermissions().toArray(permissions));
+//				}
+//			});
         }
 	}
 	

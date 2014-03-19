@@ -27,4 +27,5 @@ public:
 };
 
 } /* namespace jni */
+
 #endif /* FACEBOOK_H_ */

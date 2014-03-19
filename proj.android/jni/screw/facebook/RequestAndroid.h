@@ -7,13 +7,27 @@
 
 #ifndef REQUESTANDROID_H_
 #define REQUESTANDROID_H_
+#include "screw/facebook/Request.h"
+#include "Helper.h"
+#include <map>
+
+using namespace std;
+USING_NS_SCREW_FACEBOOK;
 
 namespace jni {
 
-class RequestAndroid {
+class RequestAndroid : public RequestImpl {
 public:
 	RequestAndroid();
 	virtual ~RequestAndroid();
+
+	virtual void execute(Request *request) override;
+
+	static void receiveResponse(long requestCode, int errorCode, const string &errorMessage, const string &result);
+
+private:
+	static map<int, RequestCallback> _callbacks;
+	static long _requestCode;
 };
 
 } /* namespace jni */

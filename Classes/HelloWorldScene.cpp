@@ -1,6 +1,7 @@
 #include "HelloWorldScene.h"
 #include <functional>
 #include "screw/facebook/Session.h"
+#include "screw/facebook/Request.h"
 
 USING_NS_CC;
 USING_NS_SCREW_FACEBOOK;
@@ -104,6 +105,7 @@ bool HelloWorld::init()
     login->setPosition(visibleSize.width/2, visibleSize.height/2);
     menu->addChild(login);
     
+    //Request write
     auto request = MenuItemFont::create("Request write", [](Object *sender){
         if (!Session::getActiveSession()->isOpened()) {
             CCLOG("%s - session not opened, login first", __func__);
@@ -118,7 +120,24 @@ bool HelloWorld::init()
     request->setPosition(visibleSize.width/2 + 200, visibleSize.height/2 + 50);
     menu->addChild(request);
     
-    
+    //Get detail
+    auto fetch = MenuItemFont::create("Fetch Details", [](Object *sender){
+		if (!Session::getActiveSession()->isOpened()) {
+			CCLOG("%s - session not opened, login first", __func__);
+			return;
+		}
+
+		Request *r = Request::create("me/friends", Value(ValueMap()), Request::Method::GET, nullptr);
+		r->setCallback([](Object *object){
+			CCLOG("Hello - I got result");
+		});
+		r->execute();
+
+	});
+    fetch->setPosition(visibleSize.width/2 + 200, visibleSize.height/2 - 50);
+	menu->addChild(fetch);
+
+
     return true;
 }
 

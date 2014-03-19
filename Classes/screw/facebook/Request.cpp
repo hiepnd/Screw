@@ -8,31 +8,66 @@
 #include "Request.h"
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-//#include "jni/screw/facebook/RequestAndroid.h"
+#include "jni/screw/facebook/RequestAndroid.h"
 #endif
 
 NS_SCREW_FACEBOOK_BEGIN
 
-Request *Request::create(const string &graphPath, const ValueMap &params, Method method, const RequestCallback &callback) {
+Vector<Request *> Request::_requests;
+
+Request *Request::create(const string &graphPath, const Value &params, Method method, const RequestCallback &callback) {
     Request *request = new Request(graphPath, params, method, callback);
     request->autorelease();
     return request;
 }
 
-Request::Request(const string &graphPath, const ValueMap &params, Method method, const RequestCallback &callback):
-_graphPath(graphPath), _params(params), _method(method), _callback(callback)
+Request::Request():
+_graphPath(""), _params(Value(ValueMap())), _method(Method::GET), _callback(nullptr)
 {
-	// TODO Auto-generated constructor stub
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-//    _impl = new RequestAndroid();
+    _impl = new jni::RequestAndroid();
 #endif
+    
+}
 
-
+Request::Request(const string &graphPath, const Value &params, Method method, const RequestCallback &callback):
+Request()
+{
+    _graphPath = graphPath;
+    _params = params;
+    _method = method;
+    _callback = callback;
 }
 
 Request::~Request() {
-	// TODO Auto-generated destructor stub
     delete _impl;
+}
+
+const string &Request::getGraphPath() {
+    return _graphPath;
+}
+const Value &Request::getParams() {
+    return _params;
+}
+
+Request::Method Request::getMethod() {
+    return _method;
+}
+
+const RequestCallback &Request::getCallback() {
+    return _callback;
+}
+
+void Request::setGraphPath(const string &graphPath) {
+    _graphPath = graphPath;
+}
+
+void Request::setParams(const Value &params) {
+    _params = params;
+}
+
+void Request::setMethod(Method method) {
+    _method = method;
 }
 
 void Request::setCallback(const RequestCallback &callback) {
@@ -40,7 +75,18 @@ void Request::setCallback(const RequestCallback &callback) {
 }
 
 void Request::execute() {
-    _impl->execute();
+	FB_LOG("Request::execute - executing ...");
+    CCASSERT(!_requests.contains(this), "Fix me");
+    _requests.pushBack(this);
+    RequestCallback callback = this->getCallback();
+    this->setCallback([=](Object *result){
+        if (callback) {
+            callback(result);
+        }
+        _requests.eraseObject(this);
+    });
+    
+    _impl->execute(this);
 }
 
 NS_SCREW_FACEBOOK_END

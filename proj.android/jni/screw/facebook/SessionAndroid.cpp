@@ -8,6 +8,7 @@
 #include "SessionAndroid.h"
 #include <jni.h>
 #include "cocos/2d/platform/android/jni/JniHelper.h"
+#include "Helper.h"
 
 extern "C" {
 jobjectArray clist2jstringArray(JNIEnv *env, const list<string> &items);
@@ -40,14 +41,14 @@ void SessionAndroid::close() {
 void SessionAndroid::requestReadPermissions(const list<string> &permissions) {
 	JniMethodInfo methodInfo;
 	JniHelper::getStaticMethodInfo(methodInfo, "com/screw/facebook/Session", "requestReadPermissions", "([Ljava/lang/String;)V");
-	jobjectArray jpermissions = clist2jstringArray(methodInfo.env, permissions);
+	jobjectArray jpermissions = Helper::stringList2jStringArray(methodInfo.env, permissions);// clist2jstringArray(methodInfo.env, permissions);
 	methodInfo.env->CallStaticVoidMethod(methodInfo.classID, methodInfo.methodID, jpermissions);
 }
 
 void SessionAndroid::requestPublishPermissions(const list<string> &permissions) {
 	JniMethodInfo methodInfo;
 	JniHelper::getStaticMethodInfo(methodInfo, "com/screw/facebook/Session", "requestPublishPermissions", "([Ljava/lang/String;)V");
-	jobjectArray jpermissions = clist2jstringArray(methodInfo.env, permissions);
+	jobjectArray jpermissions = Helper::stringList2jStringArray(methodInfo.env, permissions);// clist2jstringArray(methodInfo.env, permissions);
 	methodInfo.env->CallStaticVoidMethod(methodInfo.classID, methodInfo.methodID, jpermissions);
 }
 
@@ -55,43 +56,17 @@ void SessionAndroid::requestPublishPermissions(const list<string> &permissions) 
 } /* namespace jni */
 
 extern "C" {
-list<string> jstringArray2clist(JNIEnv *env, jobjectArray array) ;
-
 JNIEXPORT void JNICALL Java_com_screw_facebook_Session_nativeInit (JNIEnv *env, jclass jclass, jint jstate, jstring jappid, jobjectArray permissions) {
-	const char *appid = env->GetStringUTFChars(jappid, NULL);
-	screw::facebook::Session::initActiveSession((screw::facebook::Session::State) jstate, appid, jstringArray2clist(env, permissions));
-	env->ReleaseStringUTFChars(jappid, appid);
+	/* Init the Helper first */
+	jni::Helper::initialize(env);
 
-	ValueMap m;
-	ccValueMap2AndroidBundle(env, m);
+	const char *appid = env->GetStringUTFChars(jappid, NULL);
+	screw::facebook::Session::initActiveSession((screw::facebook::Session::State) jstate, appid, jni::Helper::jStringArray2StringList(env, permissions));
+	env->ReleaseStringUTFChars(jappid, appid);
 }
 
 JNIEXPORT void JNICALL Java_com_screw_facebook_Session_nativeUpdateState(JNIEnv *env, jclass jclass, jint jstate, jobjectArray permissions) {
-	screw::facebook::Session::getActiveSession()->updateState((screw::facebook::Session::State) jstate, jstringArray2clist(env, permissions));
-}
-
-jobjectArray clist2jstringArray(JNIEnv *env, const list<string> &items) {
-	jclass jstringClass = env->FindClass("java/lang/String");
-	jobjectArray jitems = (jobjectArray)env->NewObjectArray(items.size(), jstringClass, env->NewStringUTF(""));
-	int i = 0;
-	for (auto iter = items.begin(); iter != items.end(); iter++) {
-		jstring s = env->NewStringUTF(iter->c_str());
-		env->SetObjectArrayElement(jitems, i++, s);
-	}
-	return jitems;
-}
-
-list<string> jstringArray2clist(JNIEnv *env, jobjectArray array) {
-	list<string> ll;
-	jsize count = env->GetArrayLength(array);
-	for (int i = 0; i < count; i++) {
-		jstring jstr = (jstring) env->GetObjectArrayElement(array, i);
-		const char *cstr = env->GetStringUTFChars(jstr, NULL);
-		ll.push_back(cstr);
-		env->ReleaseStringUTFChars(jstr, cstr);
-	}
-
-	return ll;
+	screw::facebook::Session::getActiveSession()->updateState((screw::facebook::Session::State) jstate, jni::Helper::jStringArray2StringList(env, permissions));
 }
 
 jobject ccValueMap2AndroidBundle(JNIEnv *env, const ValueMap &vmap) {

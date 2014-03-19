@@ -8,6 +8,8 @@ LOCAL_MODULE_FILENAME := libcocos2dcpp
 
 LOCAL_SRC_FILES := hellocpp/main.cpp \
 				   screw/facebook/SessionAndroid.cpp \
+				   screw/facebook/RequestAndroid.cpp \
+				   screw/facebook/Helper.cpp \
                    ../../Classes/AppDelegate.cpp \
                    ../../Classes/HelloWorldScene.cpp \
                    ../../Classes/screw/data/Data.cpp \

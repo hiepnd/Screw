@@ -22,7 +22,6 @@ NS_SCREW_FACEBOOK_BEGIN
 Session *Session::_activeSession = nullptr;
 
 Session::Session():_state(INVALID), _appId(""), _initialized(false) {
-	// TODO Auto-generated constructor stub
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     _impl = new jni::SessionAndroid();
 #endif
@@ -30,7 +29,6 @@ Session::Session():_state(INVALID), _appId(""), _initialized(false) {
 }
 
 Session::~Session() {
-	// TODO Auto-generated destructor stub
     delete _impl;
 }
 
