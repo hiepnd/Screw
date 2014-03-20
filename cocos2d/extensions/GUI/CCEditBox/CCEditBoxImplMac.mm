@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 #include "CCEditBoxImplMac.h"
+#include "CCDirector.h"
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
 
@@ -63,8 +64,10 @@
 @synthesize editState = editState_;
 @synthesize editBox = editBox_;
 
-- (id) getNSWindow {
-    return glfwGetCocoaWindow(cocos2d::EGLView::getInstance()->getWindow());
+- (id) getNSWindow
+{
+    auto glview = cocos2d::Director::getInstance()->getOpenGLView();
+    return glfwGetCocoaWindow(glview->getWindow());
 }
 
 - (void)dealloc
@@ -155,6 +158,7 @@
         pDelegate->editBoxEditingDidBegin(getEditBoxImplMac()->getEditBox());
     }
     
+#if CC_ENABLE_SCRIPT_BINDING
     cocos2d::extension::EditBox*  pEditBox= getEditBoxImplMac()->getEditBox();
     if (NULL != pEditBox && 0 != pEditBox->getScriptEditBoxHandler())
     {
@@ -162,6 +166,7 @@
         cocos2d::ScriptEvent event(cocos2d::kCommonEvent,(void*)&data);
         cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
     }
+#endif
     return YES;
 }
 
@@ -175,6 +180,7 @@
         pDelegate->editBoxReturn(getEditBoxImplMac()->getEditBox());
     }
     
+#if CC_ENABLE_SCRIPT_BINDING
     cocos2d::extension::EditBox*  pEditBox= getEditBoxImplMac()->getEditBox();
     if (NULL != pEditBox && 0 != pEditBox->getScriptEditBoxHandler())
     {
@@ -186,6 +192,7 @@
         event.data = (void*)&data;
         cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
     }
+#endif
     return YES;
 }
 
@@ -223,6 +230,7 @@
         pDelegate->editBoxTextChanged(getEditBoxImplMac()->getEditBox(), getEditBoxImplMac()->getText());
     }
     
+#if CC_ENABLE_SCRIPT_BINDING
     cocos2d::extension::EditBox*  pEditBox= getEditBoxImplMac()->getEditBox();
     if (NULL != pEditBox && 0 != pEditBox->getScriptEditBoxHandler())
     {
@@ -230,6 +238,7 @@
         cocos2d::ScriptEvent event(cocos2d::kCommonEvent,(void*)&data);
         cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
     }
+#endif
 }
 
 @end
@@ -265,7 +274,7 @@ void EditBoxImplMac::doAnimationWhenKeyboardMove(float duration, float distance)
 
 bool EditBoxImplMac::initWithSize(const Size& size)
 {
-    EGLViewProtocol* eglView = EGLView::getInstance();
+    GLViewProtocol* eglView = Director::getInstance()->getOpenGLView();
 
     NSRect rect = NSMakeRect(0, 0, size.width * eglView->getScaleX(),size.height * eglView->getScaleY());
 
@@ -356,7 +365,7 @@ NSPoint EditBoxImplMac::convertDesignCoordToScreenCoord(const Point& designCoord
     NSRect frame = [_sysEdit.textField frame];
     CGFloat height = frame.size.height;
     
-    EGLViewProtocol* eglView = EGLView::getInstance();
+    GLViewProtocol* eglView = Director::getInstance()->getOpenGLView();
 
     Point visiblePos = Point(designCoord.x * eglView->getScaleX(), designCoord.y * eglView->getScaleY());
     Point screenGLPos = visiblePos + eglView->getViewPortRect().origin;
@@ -369,8 +378,16 @@ NSPoint EditBoxImplMac::convertDesignCoordToScreenCoord(const Point& designCoord
         screenPos.y = screenPos.y / 2.0f;
     }
     
-    CCLOG("[EditBox] pos x = %f, y = %f", screenGLPos.x, screenGLPos.y);
+    CCLOGINFO("[EditBox] pos x = %f, y = %f", screenGLPos.x, screenGLPos.y);
     return screenPos;
+}
+
+void EditBoxImplMac::updatePosition(float dt)
+{
+    if(nullptr != _sysEdit)
+    {
+        adjustTextFieldPosition();
+    }
 }
 
 void EditBoxImplMac::adjustTextFieldPosition()

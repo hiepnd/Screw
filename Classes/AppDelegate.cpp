@@ -17,9 +17,11 @@ bool AppDelegate::applicationDidFinishLaunching() {
 	CCLOG("AppDelegate::applicationDidFinishLaunching");
     // initialize director
     auto director = Director::getInstance();
-    auto eglView = EGLView::getInstance();
-
-    director->setOpenGLView(eglView);
+    auto glview = director->getOpenGLView();
+    if(!glview) {
+        glview = GLView::create("My Game");
+        director->setOpenGLView(glview);
+    }
 	
     // turn on display FPS
     director->setDisplayStats(true);

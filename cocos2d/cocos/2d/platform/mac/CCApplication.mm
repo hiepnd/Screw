@@ -23,6 +23,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
+#include "CCPlatformConfig.h"
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+
 #import "CCApplication.h"
 #import <Cocoa/Cocoa.h>
 #include <algorithm>
@@ -30,13 +33,24 @@ THE SOFTWARE.
 #include "CCGeometry.h"
 #include "CCDirector.h"
 #import "CCDirectorCaller.h"
-#include "CCEGLView.h"
+#include "CCGLView.h"
 
 NS_CC_BEGIN
+
+static long getCurrentMillSecond()
+{
+    long lLastTime = 0;
+    struct timeval stCurrentTime;
+    
+    gettimeofday(&stCurrentTime,NULL);
+    lLastTime = stCurrentTime.tv_sec*1000+stCurrentTime.tv_usec*0.001; //millseconds
+    return lLastTime;
+}
 
 Application* Application::sm_pSharedApplication = 0;
 
 Application::Application()
+: _animationInterval(1.0f/60.0f*1000.0f)
 {
     CCASSERT(! sm_pSharedApplication, "sm_pSharedApplication already exist");
     sm_pSharedApplication = this;
@@ -54,12 +68,28 @@ int Application::run()
     {
         return 0;
     }
-    EGLView* pMainWnd = EGLView::getInstance();
     
-    while (!pMainWnd->windowShouldClose())
+    long lastTime = 0L;
+    long curTime = 0L;
+    
+    auto director = Director::getInstance();
+    auto glview = director->getOpenGLView();
+    
+    // Retain glview to avoid glview being released in the while loop
+    glview->retain();
+    
+    while (!glview->windowShouldClose())
     {
-        Director::getInstance()->mainLoop();
-        pMainWnd->pollEvents();
+        lastTime = getCurrentMillSecond();
+        
+        director->mainLoop();
+        glview->pollEvents();
+
+        curTime = getCurrentMillSecond();
+        if (curTime - lastTime < _animationInterval)
+        {
+            usleep(static_cast<useconds_t>((_animationInterval - curTime + lastTime)*1000));
+        }
     }
 
     /* Only work on Desktop
@@ -67,14 +97,20 @@ int Application::run()
     *  when we want to close the window, we should call Director::end();
     *  then call Director::mainLoop to do release of internal resources
     */
-    Director::getInstance()->end();
-    Director::getInstance()->mainLoop();
+    if (glview->isOpenGLReady())
+    {
+        director->end();
+        director->mainLoop();
+    }
+    
+    glview->release();
+    
     return true;
 }
 
 void Application::setAnimationInterval(double interval)
 {
-    [[CCDirectorCaller sharedDirectorCaller] setAnimationInterval: interval ];
+    _animationInterval = interval*1000.0f;
 }
 
 Application::Platform Application::getTargetPlatform()
@@ -129,6 +165,9 @@ LanguageType Application::getCurrentLanguage()
     }
     else if ([languageCode isEqualToString:@"es"]){
         ret = LanguageType::SPANISH;
+    }
+    else if ([languageCode isEqualToString:@"nl"]){
+        ret = LanguageType::DUTCH;
     }
     else if ([languageCode isEqualToString:@"ru"]){
         ret = LanguageType::RUSSIAN;
@@ -189,3 +228,5 @@ const std::string& Application::getStartupScriptFilename(void)
 }
 
 NS_CC_END
+
+#endif // CC_TARGET_PLATFORM == CC_PLATFORM_MAC

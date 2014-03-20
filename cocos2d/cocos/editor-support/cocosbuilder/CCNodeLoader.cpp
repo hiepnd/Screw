@@ -79,8 +79,8 @@ void NodeLoader::parseProperties(Node * pNode, Node * pParent, CCBReader * ccbRe
                 pNode = ccbNode->getCCBFileNode();
                 
                 // Skip properties that doesn't have a value to override
-                Array *extraPropsNames = (Array*)pNode->getUserObject();
-                Object* pObj = NULL;
+                __Array *extraPropsNames = (__Array*)pNode->getUserObject();
+                Ref* pObj = NULL;
                 bool bFound = false;
                 CCARRAY_FOREACH(extraPropsNames, pObj)
                 {
@@ -761,7 +761,7 @@ BlockData * NodeLoader::parsePropTypeBlock(Node * pNode, Node * pParent, CCBRead
 
     if(selectorTarget != CCBReader::TargetType::NONE)
     {
-        Object * target = NULL;
+        Ref*  target = NULL;
         if(!ccbReader->isJSControlled())
         {
             if(selectorTarget == CCBReader::TargetType::DOCUMENT_ROOT)
@@ -844,7 +844,7 @@ BlockControlData * NodeLoader::parsePropTypeBlockControl(Node * pNode, Node * pP
     {
         if(!ccbReader->isJSControlled())
         {
-            Object * target = NULL;
+            Ref*  target = NULL;
             if(selectorTarget == CCBReader::TargetType::DOCUMENT_ROOT)
             {
                 target = ccbReader->getAnimationManager()->getRootNode();
@@ -1055,9 +1055,9 @@ void NodeLoader::onHandlePropTypeDegrees(Node * pNode, Node * pParent, const cha
     if(strcmp(pPropertyName, PROPERTY_ROTATION) == 0) {
         pNode->setRotation(pDegrees);
     } else if(strcmp(pPropertyName, PROPERTY_ROTATIONX) == 0) {
-        pNode->setRotationX(pDegrees);
+        pNode->setRotationSkewX(pDegrees);
     } else if(strcmp(pPropertyName, PROPERTY_ROTATIONY) == 0) {
-        pNode->setRotationY(pDegrees);
+        pNode->setRotationSkewY(pDegrees);
     }
     else {
         ASSERT_FAIL_UNEXPECTED_PROPERTY(pPropertyName);

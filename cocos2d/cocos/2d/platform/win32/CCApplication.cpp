@@ -22,8 +22,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
+
+#include "CCPlatformConfig.h"
+#if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+
 #include "CCApplication.h"
-#include "CCEGLView.h"
+#include "CCGLView.h"
 #include "CCDirector.h"
 #include <algorithm>
 #include "platform/CCFileUtils.h"
@@ -72,16 +76,21 @@ int Application::run()
         return 0;
     }
 
-    EGLView* pMainWnd = EGLView::getInstance();
+    auto director = Director::getInstance();
+    auto glview = director->getOpenGLView();
 
-    while(!pMainWnd->windowShouldClose())
+    // Retain glview to avoid glview being released in the while loop
+    glview->retain();
+
+    while(!glview->windowShouldClose())
     {
         QueryPerformanceCounter(&nNow);
         if (nNow.QuadPart - nLast.QuadPart > _animationInterval.QuadPart)
         {
             nLast.QuadPart = nNow.QuadPart;
-            Director::getInstance()->mainLoop();
-            pMainWnd->pollEvents();
+            
+            director->mainLoop();
+            glview->pollEvents();
         }
         else
         {
@@ -89,13 +98,14 @@ int Application::run()
         }
     }
 
-    /* Only work on Desktop
-    *  Director::mainLoop is really one frame logic
-    *  when we want to close the window, we should call Director::end();
-    *  then call Director::mainLoop to do release of internal resources
-    */
-    Director::getInstance()->end();
-    Director::getInstance()->mainLoop();
+    // Director should still do a cleanup if the window was closed manually.
+    if (glview->isOpenGLReady())
+    {
+        director->end();
+        director->mainLoop();
+        director = nullptr;
+    }
+    glview->release();
     return true;
 }
 
@@ -147,6 +157,9 @@ LanguageType Application::getCurrentLanguage()
             break;
         case LANG_SPANISH:
             ret = LanguageType::SPANISH;
+            break;
+        case LANG_DUTCH:
+            ret = LanguageType::DUTCH;
             break;
         case LANG_RUSSIAN:
             ret = LanguageType::RUSSIAN;
@@ -245,3 +258,5 @@ static void PVRFrameEnableControlWindow(bool bEnable)
 
     RegCloseKey(hKey);
 }
+
+#endif // CC_TARGET_PLATFORM == CC_PLATFORM_WIN32

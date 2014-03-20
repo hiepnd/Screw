@@ -49,7 +49,7 @@ PhysicsShape::PhysicsShape()
 , _tag(0)
 , _categoryBitmask(UINT_MAX)
 , _collisionBitmask(UINT_MAX)
-, _contactTestBitmask(UINT_MAX)
+, _contactTestBitmask(0)
 , _group(0)
 {
     
@@ -504,8 +504,8 @@ void PhysicsShapeBox::getPoints(Point* points) const
 Size PhysicsShapeBox::getSize() const
 {
     cpShape* shape = _info->getShapes().front();
-    return PhysicsHelper::cpv2size(cpv(cpvdist(cpPolyShapeGetVert(shape, 0), cpPolyShapeGetVert(shape, 1)),
-                                       cpvdist(cpPolyShapeGetVert(shape, 1), cpPolyShapeGetVert(shape, 2))));
+    return PhysicsHelper::cpv2size(cpv(cpvdist(cpPolyShapeGetVert(shape, 1), cpPolyShapeGetVert(shape, 2)),
+                                       cpvdist(cpPolyShapeGetVert(shape, 0), cpPolyShapeGetVert(shape, 1))));
 }
 
 // PhysicsShapePolygon

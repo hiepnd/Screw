@@ -102,6 +102,7 @@ Control::~Control()
 
 void Control::sendActionsForControlEvents(EventType controlEvents)
 {
+	retain();
     // For each control events
     for (int i = 0; i < kControlEventTotalNumber; i++)
     {
@@ -115,6 +116,7 @@ void Control::sendActionsForControlEvents(EventType controlEvents)
                 invocation->invoke(this);
             }
 
+#if CC_ENABLE_SCRIPT_BINDING
             //Call ScriptFunc
             if (kScriptTypeLua == _scriptType)
             {
@@ -122,10 +124,12 @@ void Control::sendActionsForControlEvents(EventType controlEvents)
                 cocos2d::ScriptEvent event(cocos2d::kControlEvent,(void*)&data);
                 cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
             }
+#endif
         }
     }
+	release();
 }
-void Control::addTargetWithActionForControlEvents(Object* target, Handler action, EventType controlEvents)
+void Control::addTargetWithActionForControlEvents(Ref* target, Handler action, EventType controlEvents)
 {
     // For each control events
     for (int i = 0; i < kControlEventTotalNumber; i++)
@@ -153,7 +157,7 @@ void Control::addTargetWithActionForControlEvents(Object* target, Handler action
  * @param controlEvent A control event for which the action message is sent.
  * See "CCControlEvent" for constants.
  */
-void Control::addTargetWithActionForControlEvent(Object* target, Handler action, EventType controlEvent)
+void Control::addTargetWithActionForControlEvent(Ref* target, Handler action, EventType controlEvent)
 {    
     // Create the invocation object
     Invocation *invocation = Invocation::create(target, action, controlEvent);
@@ -163,7 +167,7 @@ void Control::addTargetWithActionForControlEvent(Object* target, Handler action,
     eventInvocationList.pushBack(invocation);
 }
 
-void Control::removeTargetWithActionForControlEvents(Object* target, Handler action, EventType controlEvents)
+void Control::removeTargetWithActionForControlEvents(Ref* target, Handler action, EventType controlEvents)
 {
      // For each control events
     for (int i = 0; i < kControlEventTotalNumber; i++)
@@ -176,7 +180,7 @@ void Control::removeTargetWithActionForControlEvents(Object* target, Handler act
     }
 }
 
-void Control::removeTargetWithActionForControlEvent(Object* target, Handler action, EventType controlEvent)
+void Control::removeTargetWithActionForControlEvent(Ref* target, Handler action, EventType controlEvent)
 {
     // Retrieve all invocations for the given control event
     //<Invocation*>
@@ -184,7 +188,7 @@ void Control::removeTargetWithActionForControlEvent(Object* target, Handler acti
     
     //remove all invocations if the target and action are null
     //TODO: should the invocations be deleted, or just removed from the array? Won't that cause issues if you add a single invocation for multiple events?
-    bool bDeleteObjects=true;
+
     if (!target && !action)
     {
         //remove objects
@@ -213,7 +217,7 @@ void Control::removeTargetWithActionForControlEvent(Object* target, Handler acti
         }
 
         for(const auto &invocation : tobeRemovedInvocations) {
-            eventInvocationList.eraseObject(invocation, bDeleteObjects);
+            eventInvocationList.eraseObject(invocation);
         }
     }
 }

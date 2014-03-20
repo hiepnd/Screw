@@ -501,10 +501,11 @@ Point ProgressTimer::boundaryTexCoord(char index)
     return Point::ZERO;
 }
 
-void ProgressTimer::onDraw()
+void ProgressTimer::onDraw(const kmMat4 &transform, bool transformUpdated)
 {
 
-    CC_NODE_DRAW_SETUP();
+    getShaderProgram()->use();
+    getShaderProgram()->setUniformsForBuiltins(transform);
 
     GL::blendFunc( _sprite->getBlendFunc().src, _sprite->getBlendFunc().dst );
 
@@ -532,32 +533,33 @@ void ProgressTimer::onDraw()
     if(_type == Type::RADIAL)
     {
         glDrawArrays(GL_TRIANGLE_FAN, 0, _vertexDataCount);
-    } 
+        CC_INCREMENT_GL_DRAWN_BATCHES_AND_VERTICES(1,_vertexDataCount);
+    }
     else if (_type == Type::BAR)
     {
         if (!_reverseDirection) 
         {
             glDrawArrays(GL_TRIANGLE_STRIP, 0, _vertexDataCount);
-        } 
+            CC_INCREMENT_GL_DRAWN_BATCHES_AND_VERTICES(1,_vertexDataCount);
+        }
         else 
         {
             glDrawArrays(GL_TRIANGLE_STRIP, 0, _vertexDataCount/2);
             glDrawArrays(GL_TRIANGLE_STRIP, 4, _vertexDataCount/2);
             // 2 draw calls
-            CC_INCREMENT_GL_DRAWS(1);
+            CC_INCREMENT_GL_DRAWN_BATCHES_AND_VERTICES(2,_vertexDataCount);
         }
     }
-    CC_INCREMENT_GL_DRAWS(1);
 }
 
-void ProgressTimer::draw()
+void ProgressTimer::draw(Renderer *renderer, const kmMat4 &transform, bool transformUpdated)
 {
     if( ! _vertexData || ! _sprite)
         return;
 
     _customCommand.init(_globalZOrder);
-    _customCommand.func = CC_CALLBACK_0(ProgressTimer::onDraw, this);
-    Director::getInstance()->getRenderer()->addCommand(&_customCommand);
+    _customCommand.func = CC_CALLBACK_0(ProgressTimer::onDraw, this, transform, transformUpdated);
+    renderer->addCommand(&_customCommand);
 }
 
 

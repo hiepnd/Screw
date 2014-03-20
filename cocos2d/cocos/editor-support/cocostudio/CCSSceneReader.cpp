@@ -23,12 +23,12 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #include "cocostudio/CocoStudio.h"
-#include "gui/CocosGUI.h"
+#include "ui/CocosGUI.h"
 #include "SimpleAudioEngine.h"
 #include "ObjectFactory.h"
 
 using namespace cocos2d;
-using namespace gui;
+using namespace ui;
 
 namespace cocostudio {
 
@@ -172,7 +172,7 @@ Node* SceneReader::createObject(const rapidjson::Value &dict, cocos2d::Node* par
     return nullptr;
 }
 
-void SceneReader::setTarget(const std::function<void(cocos2d::Object* obj, void* doc)>& selector)
+void SceneReader::setTarget(const std::function<void(cocos2d::Ref* obj, void* doc)>& selector)
 {
     _fnSelector = selector;
 }

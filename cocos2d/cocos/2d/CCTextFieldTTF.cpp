@@ -26,7 +26,7 @@ THE SOFTWARE.
 #include "CCTextFieldTTF.h"
 
 #include "CCDirector.h"
-#include "CCEGLView.h"
+#include "CCGLView.h"
 
 NS_CC_BEGIN
 
@@ -126,7 +126,7 @@ bool TextFieldTTF::attachWithIME()
     if (ret)
     {
         // open keyboard
-        EGLView * pGlView = Director::getInstance()->getOpenGLView();
+        GLView * pGlView = Director::getInstance()->getOpenGLView();
         if (pGlView)
         {
             pGlView->setIMEKeyboardState(true);
@@ -141,7 +141,7 @@ bool TextFieldTTF::detachWithIME()
     if (ret)
     {
         // close keyboard
-        EGLView * glView = Director::getInstance()->getOpenGLView();
+        GLView * glView = Director::getInstance()->getOpenGLView();
         if (glView)
         {
             glView->setIMEKeyboardState(false);
@@ -242,7 +242,7 @@ const std::string& TextFieldTTF::getContentText()
     return _inputText;
 }
 
-void TextFieldTTF::draw()
+void TextFieldTTF::draw(Renderer *renderer, const kmMat4 &transform, bool transformUpdated)
 {
     if (_delegate && _delegate->onDraw(this))
     {
@@ -250,14 +250,14 @@ void TextFieldTTF::draw()
     }
     if (_inputText.length())
     {
-        LabelTTF::draw();
+        LabelTTF::draw(renderer, transform, transformUpdated);
         return;
     }
 
     // draw placeholder
     Color3B color = getColor();
     setColor(_colorSpaceHolder);
-    LabelTTF::draw();
+    LabelTTF::draw(renderer, transform, transformUpdated);
     setColor(color);
 }
 

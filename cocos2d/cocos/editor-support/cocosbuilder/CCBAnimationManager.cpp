@@ -188,9 +188,9 @@ CCBAnimationManagerDelegate* CCBAnimationManager::getDelegate()
 
 void CCBAnimationManager::setDelegate(CCBAnimationManagerDelegate *pDelegate)
 {
-    CC_SAFE_RELEASE(dynamic_cast<Object*>(_delegate));
+    CC_SAFE_RELEASE(dynamic_cast<Ref*>(_delegate));
     _delegate = pDelegate;
-    CC_SAFE_RETAIN(dynamic_cast<Object*>(_delegate));
+    CC_SAFE_RETAIN(dynamic_cast<Ref*>(_delegate));
 }
 
 const char* CCBAnimationManager::getRunningSequenceName()
@@ -234,7 +234,7 @@ const Value& CCBAnimationManager::getBaseValue(Node *pNode, const std::string& p
     return props[propName];
 }
     
-void CCBAnimationManager::setObject(Object* obj, Node *pNode, const std::string& propName)
+void CCBAnimationManager::setObject(Ref* obj, Node *pNode, const std::string& propName)
 {
     auto& props = _objects[pNode];
     auto iter = props.find(propName);
@@ -245,7 +245,7 @@ void CCBAnimationManager::setObject(Object* obj, Node *pNode, const std::string&
     obj->retain();
 }
 
-Object* CCBAnimationManager::getObject(Node *pNode, const std::string& propName)
+Ref* CCBAnimationManager::getObject(Node *pNode, const std::string& propName)
 {
     auto& props = _objects[pNode];
     auto iter = props.find(propName);
@@ -420,7 +420,7 @@ ActionInterval* CCBAnimationManager::getAction(CCBKeyframe *pKeyframe0, CCBKeyfr
     return nullptr;
 }
 
-void CCBAnimationManager::setAnimatedProperty(const std::string& propName, Node *pNode, const Value& value, Object* obj, float fTweenDuration)
+void CCBAnimationManager::setAnimatedProperty(const std::string& propName, Node *pNode, const Value& value, Ref* obj, float fTweenDuration)
 {
     if (fTweenDuration > 0)
     {
@@ -488,11 +488,11 @@ void CCBAnimationManager::setAnimatedProperty(const std::string& propName, Node 
             } else if(propName == "rotationX")
             {
                 float rotate = value.asFloat();
-                pNode->setRotationX(rotate);
+                pNode->setRotationSkewX(rotate);
             }else if(propName == "rotationY")
             {
                 float rotate = value.asFloat();
-                pNode->setRotationY(rotate);
+                pNode->setRotationSkewY(rotate);
             }
             else if (propName == "opacity")
             {
@@ -615,7 +615,7 @@ ActionInterval* CCBAnimationManager::getEaseAction(ActionInterval *pAction, CCBK
     }
 }
 
-Object* CCBAnimationManager::actionForCallbackChannel(CCBSequenceProperty* channel) {
+Sequence*  CCBAnimationManager::actionForCallbackChannel(CCBSequenceProperty* channel) {
   
     float lastKeyframeTime = 0;
     
@@ -655,7 +655,7 @@ Object* CCBAnimationManager::actionForCallbackChannel(CCBSequenceProperty* chann
         }
         else
         {
-            Object* target = nullptr;
+            Ref* target = nullptr;
             
             if(selectorTarget == CCBReader::TargetType::DOCUMENT_ROOT)
                 target = _rootNode;
@@ -681,7 +681,7 @@ Object* CCBAnimationManager::actionForCallbackChannel(CCBSequenceProperty* chann
                     }
                     else
                     {
-                        auto savedTarget = std::make_shared<Vector<Object*>>();
+                        auto savedTarget = std::make_shared<Vector<Ref*>>();
                         savedTarget->pushBack(target);
                         
                         auto callback = CallFuncN::create([savedTarget, selCallFunc](Node* sender){
@@ -701,10 +701,10 @@ Object* CCBAnimationManager::actionForCallbackChannel(CCBSequenceProperty* chann
     }
     if(actions.size() < 1) return nullptr;
     
-    return (Object *) Sequence::create(actions);
+    return Sequence::create(actions);
 }
 
-Object* CCBAnimationManager::actionForSoundChannel(CCBSequenceProperty* channel) {
+Sequence*  CCBAnimationManager::actionForSoundChannel(CCBSequenceProperty* channel) {
     
     float lastKeyframeTime = 0;
     
@@ -901,7 +901,7 @@ void CCBAnimationManager::debug()
     
 }
 
-void CCBAnimationManager::setAnimationCompletedCallback(Object *target, SEL_CallFunc callbackFunc) {
+void CCBAnimationManager::setAnimationCompletedCallback(Ref *target, SEL_CallFunc callbackFunc) {
     if (target)
     {
         target->retain();
@@ -1169,7 +1169,7 @@ void CCBRotateXTo::startWithTarget(Node *pNode)
     _target = pNode;
     _elapsed = 0.0f;
     _firstTick = true;
-    _startAngle = _target->getRotationX();
+    _startAngle = _target->getRotationSkewX();
     _diffAngle = _dstAngle - _startAngle;
 }
 
@@ -1190,8 +1190,7 @@ CCBRotateXTo* CCBRotateXTo::reverse() const
 
 void CCBRotateXTo::update(float time)
 {
-    _target->setRotationX(_startAngle + (_diffAngle * time))
-    ;
+    _target->setRotationSkewX(_startAngle + (_diffAngle * time));
 }
 
 
@@ -1257,14 +1256,13 @@ void CCBRotateYTo::startWithTarget(Node *pNode)
     _target = pNode;
     _elapsed = 0.0f;
     _firstTick = true;
-    _startAngle = _target->getRotationY();
+    _startAngle = _target->getRotationSkewY();
     _diffAngle = _dstAngle - _startAngle;
 }
 
 void CCBRotateYTo::update(float time)
 {
-    _target->setRotationY(_startAngle + (_diffAngle * time))
-    ;
+    _target->setRotationSkewY(_startAngle + (_diffAngle * time));
 }
 
 
