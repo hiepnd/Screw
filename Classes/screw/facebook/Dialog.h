@@ -35,6 +35,7 @@ public:
     Dialog();
     ~Dialog();
     Dialog(const string &dialog, const ValueMap &params, const DialogCallback &callback);
+    static Dialog *create(const string &dialog, const ValueMap &params, const DialogCallback &callback);
 	
     const DialogCallback &getCallback() const;
     const string &getDialog() const;

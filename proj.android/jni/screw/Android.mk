@@ -16,6 +16,7 @@ LOCAL_SRC_FILES := facebook/SessionAndroid.cpp \
                    ../../../Classes/screw/facebook/GraphObject.cpp \
                    ../../../Classes/screw/facebook/Request.cpp \
                    ../../../Classes/screw/facebook/Session.cpp \
+                   ../../../Classes/screw/facebook/AppRequests.cpp \
                    ../../../Classes/screw/utils/FileUtils.cpp \
                    ../../../Classes/screw/utils/JsonUtils.cpp \
                    ../../../Classes/screw/utils/ValueUtils.cpp \

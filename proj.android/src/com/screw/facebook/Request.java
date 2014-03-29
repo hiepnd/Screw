@@ -11,7 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 public class Request {
-	private static final boolean DEBUG = com.screw.facebook.Session.DEBUG && false;
+	private static final boolean DEBUG = com.screw.facebook.Session.DEBUG && true;
 	private static final String TAG = "Screw.Request";
 	
 	public static void request(long requestCode, String graphPath,
@@ -27,15 +27,15 @@ public class Request {
 		
 		HttpMethod httpMethod = HttpMethod.GET;
 		switch (method) {
-		case 1:
+		case 0:
 			httpMethod = HttpMethod.GET;
 			break;
 
-		case 2:
+		case 1:
 			httpMethod = HttpMethod.POST;
 			break;
 
-		case 3:
+		case 2:
 			httpMethod = HttpMethod.DELETE;
 			break;
 		}

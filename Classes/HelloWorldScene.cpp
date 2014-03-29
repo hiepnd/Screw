@@ -1,6 +1,6 @@
 #include "HelloWorldScene.h"
 #include <functional>
-#include "screw/screw.h"
+#include "screw.h"
 
 USING_NS_CC;
 USING_NS_SCREW_FACEBOOK;
@@ -153,6 +153,13 @@ bool HelloWorld::init()
             for (GraphRequest *r : requests) {
                 CCLOG("%s, from %s, to %s, message = %s", r->getId().c_str(), r->getFrom()->getName().c_str(),
                       r->getTo()->getName().c_str(), r->getMessage().c_str());
+                
+                string rid = r->getId();
+                Request *rq = Request::requestForDelete(rid);
+                rq->setCallback([=](int error, GraphObject *result){
+                    CCLOG("Delete %s result, error = %d, response = %s", rid.c_str(), error, result ? result->getData().getDescription().c_str() : "");
+                });
+                rq->execute();
             }
         });
 		

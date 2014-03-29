@@ -34,6 +34,12 @@ Dialog::~Dialog() {
     delete _impl;
 }
 
+Dialog *Dialog::create(const string &dialog, const ValueMap &params, const DialogCallback &callback) {
+    Dialog *d = new Dialog(dialog, params, callback);
+    d->autorelease();
+    return d;
+}
+
 Dialog::Dialog(const string &dialog, const ValueMap &params, const DialogCallback &callback) {
     this->setDialog(dialog);
     this->setParams(params);

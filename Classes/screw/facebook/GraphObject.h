@@ -225,6 +225,7 @@ public:
     GO_GET_GRAPH_OBJECT(GraphApplication, Application, "application");
     GO_GET_STRING(DataString, "data");
     GO_GET_STRING(Message, "message");
+    GO_GET_GRAPH_OBJECT(GraphObject, DataObject, "data");
 };
 
 

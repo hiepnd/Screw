@@ -35,6 +35,7 @@
 		4717495318D4E26400473A82 /* Session.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4717495018D4E26400473A82 /* Session.cpp */; };
 		479D623218E503F4008F9DB2 /* ValueUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 479D623018E503F4008F9DB2 /* ValueUtils.cpp */; };
 		479D623A18E579E7008F9DB2 /* Dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 479D623818E579E7008F9DB2 /* Dialog.cpp */; };
+		47ABA27C18E6C75A007E6751 /* AppRequests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 47ABA27B18E6C75A007E6751 /* AppRequests.cpp */; };
 		503AE0F817EB97AB00D1A890 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 503AE0F617EB97AB00D1A890 /* Icon.icns */; };
 		503AE10017EB989F00D1A890 /* AppController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 503AE0FB17EB989F00D1A890 /* AppController.mm */; };
 		503AE10117EB989F00D1A890 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 503AE0FC17EB989F00D1A890 /* main.m */; };
@@ -260,6 +261,8 @@
 		479D623818E579E7008F9DB2 /* Dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Dialog.cpp; sourceTree = "<group>"; };
 		479D623918E579E7008F9DB2 /* Dialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Dialog.h; sourceTree = "<group>"; };
 		47ABA27518E67ECA007E6751 /* screw.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = screw.h; sourceTree = "<group>"; };
+		47ABA27918E6C740007E6751 /* AppRequests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppRequests.h; sourceTree = "<group>"; };
+		47ABA27B18E6C75A007E6751 /* AppRequests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AppRequests.cpp; sourceTree = "<group>"; };
 		503AE0F617EB97AB00D1A890 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
 		503AE0F717EB97AB00D1A890 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		503AE0FA17EB989F00D1A890 /* AppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppController.h; path = ios/AppController.h; sourceTree = SOURCE_ROOT; };
@@ -484,6 +487,8 @@
 				4717493318D4DC8D00473A82 /* GraphObject.h */,
 				4717493418D4DC8D00473A82 /* Request.cpp */,
 				4717493518D4DC8D00473A82 /* Request.h */,
+				47ABA27B18E6C75A007E6751 /* AppRequests.cpp */,
+				47ABA27918E6C740007E6751 /* AppRequests.h */,
 			);
 			path = facebook;
 			sourceTree = "<group>";
@@ -783,6 +788,7 @@
 				4717495318D4E26400473A82 /* Session.cpp in Sources */,
 				4717494318D4DC8D00473A82 /* Request.cpp in Sources */,
 				4717494218D4DC8D00473A82 /* GraphObject.cpp in Sources */,
+				47ABA27C18E6C75A007E6751 /* AppRequests.cpp in Sources */,
 				1AFAF8B816D35DE700DB1158 /* HelloWorldScene.cpp in Sources */,
 				4717494418D4DC8D00473A82 /* FileUtils.cpp in Sources */,
 			);

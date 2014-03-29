@@ -132,7 +132,10 @@ Request *Request::requestForDelete(const string &objectId, const DeleteRequestCa
     Request *request = new Request(objectId);
     request->setMethod(screw::facebook::Request::Method::DELETE);
     if (callback) {
-        
+        RequestCallback wrapper = [=](int error, GraphObject *result){
+            callback(error, error == 0);
+        };
+        request->setCallback(wrapper);
     }
     request->autorelease();
     return request;
