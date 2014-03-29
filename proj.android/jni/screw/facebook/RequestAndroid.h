@@ -7,6 +7,7 @@
 
 #ifndef REQUESTANDROID_H_
 #define REQUESTANDROID_H_
+
 #include "screw/facebook/Request.h"
 #include "Helper.h"
 #include <map>
@@ -23,7 +24,7 @@ public:
 
 	virtual void execute(Request *request) override;
 
-	static void receiveResponse(long requestCode, int errorCode, const string &errorMessage, const string &result);
+	static void onRequestComplete(long requestCode, int errorCode, const string &errorMessage, const string &result);
 
 private:
 	static map<int, RequestCallback> _callbacks;

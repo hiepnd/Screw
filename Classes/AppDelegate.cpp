@@ -1,6 +1,6 @@
 #include "AppDelegate.h"
 #include "HelloWorldScene.h"
-#include "screw/facebook/Session.h"
+#include "screw/screw.h"
 
 USING_NS_CC;
 USING_NS_SCREW_FACEBOOK;

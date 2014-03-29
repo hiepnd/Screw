@@ -11,9 +11,20 @@ import android.os.Bundle;
 import android.util.Log;
 
 public class Request {
-
+	private static final boolean DEBUG = com.screw.facebook.Session.DEBUG && false;
+	private static final String TAG = "Screw.Request";
+	
 	public static void request(long requestCode, String graphPath,
 			Bundle parameters, int method) {
+		if (DEBUG) {
+			Log.d(TAG, "request:\n{\n");
+			Log.d(TAG, "	code = " + requestCode);
+			Log.d(TAG, "	method = " + method);
+			Log.d(TAG, "	graphPath = " + (graphPath == null ? "(null)" : graphPath));
+			Log.d(TAG, "	params = " + (parameters == null ? "(null)" : parameters));
+			Log.d(TAG, "}");
+		}
+		
 		HttpMethod httpMethod = HttpMethod.GET;
 		switch (method) {
 		case 1:
@@ -40,12 +51,16 @@ public class Request {
 				final String errorMessage = response.getError() == null ? "" : response.getError().getErrorMessage();
 				final String responseText = response.getGraphObject() == null ? "" : response.getGraphObject().getInnerJSONObject().toString();
 				
-				if (response.getError() == null) {
-					Log.d("Tao request", responseText);
-				} else {
-					Log.d("Tao request", "Error error: " + errorMessage);
+				if (DEBUG) {
+					Log.d(TAG, "Request #" + requestCode_ + " completed\n{\n");
+					
+					if (response.getError() == null) {
+						Log.d(TAG, "	Data = " + responseText);
+					} else {
+						Log.d(TAG, "	Error error: " + errorMessage);
+					}
+					Log.d(TAG, "}");
 				}
-				
 				Cocos2dxHelper.runOnGLThread(new Runnable() {
 					@Override
 					public void run() {
@@ -65,10 +80,11 @@ public class Request {
 			}
 		});
 		
-		Log.d("Java Request.request", "Executing ...");
+		if (DEBUG) {
+			Log.d(TAG, "Executing request #" + requestCode);
+		}
 	}
 
-//	nativeCallback(JNIEnv *env, jclass jclass, jint requestCode, jint error, jstring errorMessage, jstring result) {
 	static private native void nativeCallback(long requestCode, int errorCode, String errorMessage, String result);
 	
 	static public void test(Bundle params) {

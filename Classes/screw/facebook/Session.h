@@ -7,6 +7,7 @@
 
 #ifndef SESSION_H_
 #define SESSION_H_
+
 #include "../macros.h"
 #include "GraphObject.h"
 #include "../data/Data.h"
@@ -26,7 +27,7 @@ class SessionImpl {
 public:
     virtual ~SessionImpl(){};
     
-    virtual void open() = 0;
+    virtual void open(bool allowUi , const list<string> &permission) = 0;
     virtual void close() = 0;
     virtual void requestReadPermissions(const list<string> &permission) = 0;
     virtual void requestPublishPermissions(const list<string> &permission) = 0;
@@ -41,12 +42,12 @@ public:
     void setStatusCallback(const SessionStatusCallback &callback);
     State getState();
     const list<string> &getPermissions();
-    string &getAppId();
+    const string &getAppId();
     bool isOpened();
     bool isClosed();
 
     /* Need platform dependent implementation */
-    void open();
+    void open(bool allowUi = false, const list<string> &permission = list<string>());
     void close();
     void requestReadPermissions(const list<string> &permission);
     void requestPublishPermissions(const list<string> &permission);

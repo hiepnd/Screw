@@ -7,10 +7,14 @@
 
 #ifndef FACEBOOK_H_
 #define FACEBOOK_H_
+
 #include "../macros.h"
-#include "GraphObject.h"
 #include "../data/Data.h"
 #include "cocos2d.h"
+#include "GraphObject.h"
+#include "Session.h"
+#include "Request.h"
+#include "Dialog.h"
 
 USING_NS_CC;
 USING_NS_SCREW_DATA;

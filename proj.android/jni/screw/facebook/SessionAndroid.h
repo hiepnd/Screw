@@ -7,6 +7,7 @@
 
 #ifndef FACEBOOK_H_
 #define FACEBOOK_H_
+
 #include "screw/facebook/Session.h"
 
 USING_NS_SCREW_FACEBOOK;
@@ -19,7 +20,7 @@ public:
 	SessionAndroid();
 	virtual ~SessionAndroid();
 
-	virtual void open() override;
+	virtual void open(bool allowUi , const list<string> &permission) override;
 	virtual void close() override;
 	virtual void requestReadPermissions(const list<string> &permission) override;
 	virtual void requestPublishPermissions(const list<string> &permission) override;

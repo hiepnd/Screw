@@ -6,6 +6,7 @@ LOCAL_MODULE := cocos2dx_static
 
 LOCAL_MODULE_FILENAME := libcocos2d
 
+
 LOCAL_SRC_FILES := \
 base64.cpp \
 CCAction.cpp \

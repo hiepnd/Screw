@@ -13,16 +13,18 @@ namespace jni {
 bool Helper::_initialized = false;
 //JNIEnv *Helper::_env = NULL;
 
-jclass Helper::_jStringClassID = NULL;
-jclass Helper::_jBundleClassID = NULL;
-jclass Helper::_jSessionClassID = NULL;
-jclass Helper::_jRequestClassID = NULL;
+jclass Helper::jStringClassID = NULL;
+jclass Helper::jBundleClassID = NULL;
+jclass Helper::jSessionClassID = NULL;
+jclass Helper::jRequestClassID = NULL;
+jclass Helper::jDialogClassID = NULL;
 
-jmethodID Helper::_jBundleConstructor = NULL;
-jmethodID Helper::_jBundlePutStringMethodID = NULL;
-jmethodID Helper::_jBundlePutBundleMethodID = NULL;
-jmethodID Helper::_jBundlePutStringArrayMethodID = NULL;
-jmethodID Helper::_jRequestRequestMethodID = NULL;
+jmethodID Helper::jBundleConstructor = NULL;
+jmethodID Helper::jBundlePutStringMethodID = NULL;
+jmethodID Helper::jBundlePutBundleMethodID = NULL;
+jmethodID Helper::jBundlePutStringArrayMethodID = NULL;
+jmethodID Helper::jRequestRequestMethodID = NULL;
+jmethodID Helper::jDialogShowMethodID = NULL;
 
 Helper::Helper() {
 
@@ -37,37 +39,23 @@ void Helper::initialize(JNIEnv *env) {
 	CCLOG("jni::Helper::initializing ...");
 	_initialized = true;
 
-	_jBundleClassID = env->FindClass("android/os/Bundle");
-	_jSessionClassID = env->FindClass("com/screw/facebook/Session");
-	_jRequestClassID = env->FindClass("com/screw/facebook/Request");
-	_jStringClassID = env->FindClass("java/lang/String");
+	jBundleClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("android/os/Bundle")));
+	jSessionClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/facebook/Session")));
+	jRequestClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/facebook/Request")));
+	jDialogClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/facebook/Dialog")));
+	jStringClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("java/lang/String")));
 
-	_jBundleConstructor = env->GetMethodID(_jBundleClassID, "<init>", "()V");
-	_jBundlePutStringMethodID = env->GetMethodID(_jBundleClassID, "putString", "(Ljava/lang/String;Ljava/lang/String;)V");
-	_jBundlePutBundleMethodID = env->GetMethodID(_jBundleClassID, "putBundle", "(Ljava/lang/String;Landroid/os/Bundle;)V");
-	_jBundlePutStringArrayMethodID = env->GetMethodID(_jBundleClassID, "putStringArray", "(Ljava/lang/String;[Ljava/lang/String;)V");
+	jBundleConstructor = env->GetMethodID(jBundleClassID, "<init>", "()V");
+	jBundlePutStringMethodID = env->GetMethodID(jBundleClassID, "putString", "(Ljava/lang/String;Ljava/lang/String;)V");
+	jBundlePutBundleMethodID = env->GetMethodID(jBundleClassID, "putBundle", "(Ljava/lang/String;Landroid/os/Bundle;)V");
+	jBundlePutStringArrayMethodID = env->GetMethodID(jBundleClassID, "putStringArray", "(Ljava/lang/String;[Ljava/lang/String;)V");
 
 	//Java: void request(long requestCode, String graphPath, Bundle parameters, int httpMethod)
-	_jRequestRequestMethodID = env->GetStaticMethodID(_jRequestClassID, "request" ,"(JLjava/lang/String;Landroid/os/Bundle;I)V");
+	jRequestRequestMethodID = env->GetStaticMethodID(jRequestClassID, "request" ,"(JLjava/lang/String;Landroid/os/Bundle;I)V");
 
-	//Test
-	ValueMap mm;
-	mm["k1"] = "v1";
-	mm["k2"] = "v2";
-	ValueVector vv;
-	vv.push_back(Value("e1"));
-	vv.push_back(Value("e2"));
-	vv.push_back(Value("e3"));
-	mm["k3"] = vv;
+	//Java: static void showRequest(long requestCode, String dialog, Bundle params)
+	jDialogShowMethodID = env->GetStaticMethodID(jDialogClassID, "show" ,"(JLjava/lang/String;Landroid/os/Bundle;)V");
 
-	ValueMap mmm;
-	mmm["k4"] = "v4";
-	mmm["k5"] = "v5";
-
-	mm["k4"] = mmm;
-	jobject jBundle = valueMap2jBundle(env, mm);
-	jmethodID jTestMethod = env->GetStaticMethodID(_jRequestClassID, "test", "(Landroid/os/Bundle;)V");
-	env->CallStaticVoidMethod(_jRequestClassID, jTestMethod, jBundle);
 }
 
 jstring Helper::string2jString(JNIEnv *env, const string &str) {
@@ -82,11 +70,12 @@ string Helper::jString2String(JNIEnv *env, jstring jstr) {
 }
 
 jobjectArray Helper::stringList2jStringArray(JNIEnv *env, const list<string> &items) {
-	jobjectArray jitems = (jobjectArray)env->NewObjectArray(items.size(), _jStringClassID, env->NewStringUTF(""));
+	jobjectArray jitems = (jobjectArray)env->NewObjectArray(items.size(), jStringClassID, env->NewStringUTF(""));
 	int i = 0;
 	for (auto iter = items.begin(); iter != items.end(); iter++) {
 		jstring s = env->NewStringUTF(iter->c_str());
 		env->SetObjectArrayElement(jitems, i++, s);
+		env->DeleteLocalRef(s);
 	}
 	return jitems;
 }
@@ -104,17 +93,12 @@ list<string> Helper::jStringArray2StringList(JNIEnv *env, jobjectArray array) {
 	return ll;
 }
 
-jobject Helper::valueMap2jBundle(JNIEnv *env, const ValueMap &m) {
-	jobject jBundle = env->NewObject(_jBundleClassID, _jBundleConstructor);
+ValueMap Helper::jBundle2ValueMap(JNIEnv *env, jobject jbundle) {
 
-//	jstring k1 = env->NewStringUTF("hello");
-//	jstring v1 = env->NewStringUTF("world");
-//
-//	jstring k2 = env->NewStringUTF("I'm");
-//	jstring v2 = env->NewStringUTF("Hiepnd - The Awesome !!!");
-//
-//	env->CallVoidMethod(jBundle, _jBundlePutStringMethodID, k1, v1);
-//	env->CallVoidMethod(jBundle, _jBundlePutStringMethodID, k2, v2);
+}
+
+jobject Helper::valueMap2jBundle(JNIEnv *env, const ValueMap &m) {
+	jobject jBundle = env->NewObject(jBundleClassID, jBundleConstructor);
 
 	for (auto i = m.begin(); i != m.end(); i++) {
 		jstring jkey = env->NewStringUTF(i->first.c_str());
@@ -123,24 +107,28 @@ jobject Helper::valueMap2jBundle(JNIEnv *env, const ValueMap &m) {
 			case Value::Type::MAP:
 			{
 				jobject jvalue = valueMap2jBundle(env, v.asValueMap());
-				env->CallVoidMethod(jBundle, _jBundlePutBundleMethodID, jkey, jvalue);
+				env->CallVoidMethod(jBundle, jBundlePutBundleMethodID, jkey, jvalue);
+				env->DeleteLocalRef(jvalue);
 			}
 				break;
 			case Value::Type::VECTOR:
 			{
 				list<string> ll = valueVector2StringList(v.asValueVector());
 				jobjectArray jvalue = stringList2jStringArray(env, ll);
-				env->CallVoidMethod(jBundle, _jBundlePutStringArrayMethodID, jkey, jvalue);
+				env->CallVoidMethod(jBundle, jBundlePutStringArrayMethodID, jkey, jvalue);
+				env->DeleteLocalRef(jvalue);
 			}
 				break;
 
 			default:
 			{
 				jstring jvalue = env->NewStringUTF(v.asString().c_str());
-				env->CallVoidMethod(jBundle, _jBundlePutStringMethodID, jkey, jvalue);
+				env->CallVoidMethod(jBundle, jBundlePutStringMethodID, jkey, jvalue);
+				env->DeleteLocalRef(jvalue);
 			}
 				break;
 		}
+		env->DeleteLocalRef(jkey);
 	}
 
 	return jBundle;

@@ -7,14 +7,22 @@
 
 #ifndef JSONUTILS_H_
 #define JSONUTILS_H_
+
+#include "cocos2d.h"
+#include <string>
 #include "../macros.h"
+#include <external/json/rapidjson.h>
+#include <external/json/document.h>
+
+using namespace cocos2d;
+using namespace std;
 
 NS_SCREW_UTILS_BEGIN
 
 class JsonUtils {
 public:
-	JsonUtils();
-	virtual ~JsonUtils();
+    static ValueMap parse(const string &jsonString, bool *success = NULL);
+    static bool parse(const string &jsonString, ValueMap &vm);
 };
 
 NS_SCREW_UTILS_END

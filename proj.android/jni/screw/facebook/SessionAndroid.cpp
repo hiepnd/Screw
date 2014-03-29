@@ -26,16 +26,25 @@ SessionAndroid::~SessionAndroid() {
 	// TODO Auto-generated destructor stub
 }
 
-void SessionAndroid::open() {
+void SessionAndroid::open(bool allowUi , const list<string> &permissions) {
+	//Java public static void open(boolean allowUi, String[] permissions)
 	JniMethodInfo methodInfo;
-	JniHelper::getStaticMethodInfo(methodInfo, "com/screw/facebook/Session", "open", "()V");
-	methodInfo.env->CallStaticVoidMethod(methodInfo.classID, methodInfo.methodID);
+	JniHelper::getStaticMethodInfo(methodInfo, "com/screw/facebook/Session", "open", "(Z[Ljava/lang/String;)V");
+	jobjectArray jpermissions = Helper::stringList2jStringArray(methodInfo.env, permissions);
+	methodInfo.env->CallStaticVoidMethod(methodInfo.classID, methodInfo.methodID,
+					(jboolean) allowUi,
+					jpermissions
+				);
+
+	methodInfo.env->DeleteLocalRef(methodInfo.classID);
+	methodInfo.env->DeleteLocalRef(jpermissions);
 }
 
 void SessionAndroid::close() {
 	JniMethodInfo methodInfo;
 	JniHelper::getStaticMethodInfo(methodInfo, "com/screw/facebook/Session", "close", "()V");
 	methodInfo.env->CallStaticVoidMethod(methodInfo.classID, methodInfo.methodID);
+	methodInfo.env->DeleteLocalRef(methodInfo.classID);
 }
 
 void SessionAndroid::requestReadPermissions(const list<string> &permissions) {
@@ -43,6 +52,9 @@ void SessionAndroid::requestReadPermissions(const list<string> &permissions) {
 	JniHelper::getStaticMethodInfo(methodInfo, "com/screw/facebook/Session", "requestReadPermissions", "([Ljava/lang/String;)V");
 	jobjectArray jpermissions = Helper::stringList2jStringArray(methodInfo.env, permissions);// clist2jstringArray(methodInfo.env, permissions);
 	methodInfo.env->CallStaticVoidMethod(methodInfo.classID, methodInfo.methodID, jpermissions);
+
+	methodInfo.env->DeleteLocalRef(methodInfo.classID);
+	methodInfo.env->DeleteLocalRef(jpermissions);
 }
 
 void SessionAndroid::requestPublishPermissions(const list<string> &permissions) {
@@ -50,6 +62,9 @@ void SessionAndroid::requestPublishPermissions(const list<string> &permissions) 
 	JniHelper::getStaticMethodInfo(methodInfo, "com/screw/facebook/Session", "requestPublishPermissions", "([Ljava/lang/String;)V");
 	jobjectArray jpermissions = Helper::stringList2jStringArray(methodInfo.env, permissions);// clist2jstringArray(methodInfo.env, permissions);
 	methodInfo.env->CallStaticVoidMethod(methodInfo.classID, methodInfo.methodID, jpermissions);
+
+	methodInfo.env->DeleteLocalRef(methodInfo.classID);
+	methodInfo.env->DeleteLocalRef(jpermissions);
 }
 
 

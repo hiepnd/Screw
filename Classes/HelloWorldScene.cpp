@@ -1,7 +1,6 @@
 #include "HelloWorldScene.h"
 #include <functional>
-#include "screw/facebook/Session.h"
-#include "screw/facebook/Request.h"
+#include "screw/screw.h"
 
 USING_NS_CC;
 USING_NS_SCREW_FACEBOOK;
@@ -63,7 +62,7 @@ bool HelloWorld::init()
     // add a label shows "Hello World"
     // create and initialize a label
     
-    auto label = LabelTTF::create("Hello World", "Arial", 24);
+    auto label = LabelTTF::create("Hello World", "fonts/Marker Felt.ttf", 44);
     
     // position the label on the center of the screen
     label->setPosition(Point(origin.x + visibleSize.width/2,
@@ -81,7 +80,7 @@ bool HelloWorld::init()
     // add the sprite as a child to this layer
     this->addChild(sprite, 0);
     
-    auto lbl = LabelTTF::create(Session::getActiveSession()->isOpened() ? "Logout" : "Login", "Arial", 40);
+    auto lbl = LabelTTF::create(Session::getActiveSession()->isOpened() ? "Logout" : "Login", "fonts/Marker Felt.ttf", 40);
 
     
     Session::getActiveSession()->setStatusCallback([lbl](Session *session){
@@ -98,7 +97,7 @@ bool HelloWorld::init()
         if (Session::getActiveSession()->isOpened()) {
             Session::getActiveSession()->close();
         } else {
-            Session::getActiveSession()->open();
+            Session::getActiveSession()->open(true);
         }
     });
 
@@ -120,24 +119,93 @@ bool HelloWorld::init()
     request->setPosition(visibleSize.width/2 + 200, visibleSize.height/2 + 50);
     menu->addChild(request);
     
-    //Get detail
-    auto fetch = MenuItemFont::create("Fetch Details", [](Object *sender){
+    //Get Friends
+    auto fetch = MenuItemFont::create("Fetch Friends", [](Object *sender){
 		if (!Session::getActiveSession()->isOpened()) {
 			CCLOG("%s - session not opened, login first", __func__);
 			return;
 		}
 
-		Request *r = Request::create("me/friends", Value(ValueMap()), Request::Method::GET, nullptr);
-		r->setCallback([](Object *object){
-			CCLOG("Hello - I got result");
-		});
+		Request *r = Request::requestForFriends([](int error, const Vector<GraphUser *> &friends){
+            CCLOG("Fetch friends callback - error = %d", error);
+            int i = 0;
+            for (GraphUser *user : friends) {
+                CCLOG("friend #%d: %s", i++, user->getData().getDescription().c_str());
+            }
+        });
+        
+		
 		r->execute();
 
 	});
     fetch->setPosition(visibleSize.width/2 + 200, visibleSize.height/2 - 50);
 	menu->addChild(fetch);
+    
+    //Get App request
+    auto fetch2 = MenuItemFont::create("Fetch App requests", [](Object *sender){
+		if (!Session::getActiveSession()->isOpened()) {
+			CCLOG("%s - session not opened, login first", __func__);
+			return;
+		}
+        
+		Request *r = Request::requestForAppRequests([](int error, const Vector<GraphRequest *> &requests){
+            CCLOG("Fetch requests call back - error = %d", error);
+            for (GraphRequest *r : requests) {
+                CCLOG("%s, from %s, to %s, message = %s", r->getId().c_str(), r->getFrom()->getName().c_str(),
+                      r->getTo()->getName().c_str(), r->getMessage().c_str());
+            }
+        });
+		
+		r->execute();
+        
+	});
+    fetch2->setPosition(visibleSize.width/2 - 200, visibleSize.height/2 - 50);
+	menu->addChild(fetch2);
+    
+    //request
+    auto apprequest = MenuItemFont::create("Request", [](Object *sender){
+		if (!Session::getActiveSession()->isOpened()) {
+			CCLOG("%s - session not opened, login first", __func__);
+			return;
+		}
+        
+		ValueMap params;
+		params["message"] = "Hello !!!";
+        params["title"] = "Hi guy !";
+		Dialog *dialog = new Dialog();
+        dialog->setParams(params);
+        dialog->setDialog("apprequests");
+        dialog->setCallback([](int error, const string &requestId, const list<string> &recveivers){
+            CCLOG("App request - error = %d, id = '%s', receivers = [%s]", error, requestId.c_str(), screw::utils::StringUtils::join(recveivers, ",").c_str());
+        });
+        dialog->show();
+        dialog->release();
+        
+	});
+    apprequest->setPosition(visibleSize.width/2 - 200, visibleSize.height/2 + 50);
+	menu->addChild(apprequest);
 
-
+    
+    //Get App score
+    auto scores = MenuItemFont::create("Fetch Scores", [](Object *sender){
+		if (!Session::getActiveSession()->isOpened()) {
+			CCLOG("%s - session not opened, login first", __func__);
+			return;
+		}
+        
+		Request *r = Request::requestForScores([](int error, const Vector<GraphScore *> &scores){
+            CCLOG("Fetch scores callback - error = %d", error);
+            for (GraphScore *s : scores) {
+                CCLOG("(%s, %ld)", s->getUser()->getName().c_str(), s->getScore());
+            }
+        });
+		
+		r->execute();
+        
+	});
+    scores->setPosition(visibleSize.width/2, visibleSize.height/2 + 100);
+	menu->addChild(scores);
+    
     return true;
 }
 

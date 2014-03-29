@@ -30,10 +30,11 @@
 		4717494318D4DC8D00473A82 /* Request.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4717493418D4DC8D00473A82 /* Request.cpp */; };
 		4717494418D4DC8D00473A82 /* FileUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4717493918D4DC8D00473A82 /* FileUtils.cpp */; };
 		4717494518D4DC8D00473A82 /* JsonUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4717493B18D4DC8D00473A82 /* JsonUtils.cpp */; };
-		4717494618D4DC8D00473A82 /* ObjectUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4717493D18D4DC8D00473A82 /* ObjectUtils.cpp */; };
 		4717494718D4DC8D00473A82 /* StringUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4717493F18D4DC8D00473A82 /* StringUtils.cpp */; };
 		4717495218D4E26400473A82 /* Facebook.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4717494E18D4E26400473A82 /* Facebook.cpp */; };
 		4717495318D4E26400473A82 /* Session.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4717495018D4E26400473A82 /* Session.cpp */; };
+		479D623218E503F4008F9DB2 /* ValueUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 479D623018E503F4008F9DB2 /* ValueUtils.cpp */; };
+		479D623A18E579E7008F9DB2 /* Dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 479D623818E579E7008F9DB2 /* Dialog.cpp */; };
 		503AE0F817EB97AB00D1A890 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 503AE0F617EB97AB00D1A890 /* Icon.icns */; };
 		503AE10017EB989F00D1A890 /* AppController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 503AE0FB17EB989F00D1A890 /* AppController.mm */; };
 		503AE10117EB989F00D1A890 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 503AE0FC17EB989F00D1A890 /* main.m */; };
@@ -248,14 +249,17 @@
 		4717493A18D4DC8D00473A82 /* FileUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileUtils.h; sourceTree = "<group>"; };
 		4717493B18D4DC8D00473A82 /* JsonUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JsonUtils.cpp; sourceTree = "<group>"; };
 		4717493C18D4DC8D00473A82 /* JsonUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JsonUtils.h; sourceTree = "<group>"; };
-		4717493D18D4DC8D00473A82 /* ObjectUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ObjectUtils.cpp; sourceTree = "<group>"; };
-		4717493E18D4DC8D00473A82 /* ObjectUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjectUtils.h; sourceTree = "<group>"; };
 		4717493F18D4DC8D00473A82 /* StringUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringUtils.cpp; sourceTree = "<group>"; };
 		4717494018D4DC8D00473A82 /* StringUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringUtils.h; sourceTree = "<group>"; };
 		4717494E18D4E26400473A82 /* Facebook.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Facebook.cpp; sourceTree = "<group>"; };
 		4717494F18D4E26400473A82 /* Facebook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Facebook.h; sourceTree = "<group>"; };
 		4717495018D4E26400473A82 /* Session.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Session.cpp; sourceTree = "<group>"; };
 		4717495118D4E26400473A82 /* Session.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Session.h; sourceTree = "<group>"; };
+		479D623018E503F4008F9DB2 /* ValueUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ValueUtils.cpp; sourceTree = "<group>"; };
+		479D623118E503F4008F9DB2 /* ValueUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ValueUtils.h; sourceTree = "<group>"; };
+		479D623818E579E7008F9DB2 /* Dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Dialog.cpp; sourceTree = "<group>"; };
+		479D623918E579E7008F9DB2 /* Dialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Dialog.h; sourceTree = "<group>"; };
+		47ABA27518E67ECA007E6751 /* screw.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = screw.h; sourceTree = "<group>"; };
 		503AE0F617EB97AB00D1A890 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
 		503AE0F717EB97AB00D1A890 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		503AE0FA17EB989F00D1A890 /* AppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppController.h; path = ios/AppController.h; sourceTree = SOURCE_ROOT; };
@@ -442,9 +446,10 @@
 				4717492D18D4DC8D00473A82 /* crypto */,
 				4717492E18D4DC8D00473A82 /* data */,
 				4717493118D4DC8D00473A82 /* facebook */,
-				4717493618D4DC8D00473A82 /* macros.h */,
 				4717493718D4DC8D00473A82 /* net */,
 				4717493818D4DC8D00473A82 /* utils */,
+				47ABA27518E67ECA007E6751 /* screw.h */,
+				4717493618D4DC8D00473A82 /* macros.h */,
 			);
 			name = screw;
 			path = ../Classes/screw;
@@ -469,6 +474,8 @@
 		4717493118D4DC8D00473A82 /* facebook */ = {
 			isa = PBXGroup;
 			children = (
+				479D623818E579E7008F9DB2 /* Dialog.cpp */,
+				479D623918E579E7008F9DB2 /* Dialog.h */,
 				4717494E18D4E26400473A82 /* Facebook.cpp */,
 				4717494F18D4E26400473A82 /* Facebook.h */,
 				4717495018D4E26400473A82 /* Session.cpp */,
@@ -491,12 +498,12 @@
 		4717493818D4DC8D00473A82 /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				479D623018E503F4008F9DB2 /* ValueUtils.cpp */,
+				479D623118E503F4008F9DB2 /* ValueUtils.h */,
 				4717493918D4DC8D00473A82 /* FileUtils.cpp */,
 				4717493A18D4DC8D00473A82 /* FileUtils.h */,
 				4717493B18D4DC8D00473A82 /* JsonUtils.cpp */,
 				4717493C18D4DC8D00473A82 /* JsonUtils.h */,
-				4717493D18D4DC8D00473A82 /* ObjectUtils.cpp */,
-				4717493E18D4DC8D00473A82 /* ObjectUtils.h */,
 				4717493F18D4DC8D00473A82 /* StringUtils.cpp */,
 				4717494018D4DC8D00473A82 /* StringUtils.h */,
 			);
@@ -768,7 +775,9 @@
 				503AE10217EB989F00D1A890 /* RootViewController.mm in Sources */,
 				4717495218D4E26400473A82 /* Facebook.cpp in Sources */,
 				1AFAF8B716D35DE700DB1158 /* AppDelegate.cpp in Sources */,
+				479D623218E503F4008F9DB2 /* ValueUtils.cpp in Sources */,
 				4717494518D4DC8D00473A82 /* JsonUtils.cpp in Sources */,
+				479D623A18E579E7008F9DB2 /* Dialog.cpp in Sources */,
 				4717494118D4DC8D00473A82 /* Data.cpp in Sources */,
 				503AE10117EB989F00D1A890 /* main.m in Sources */,
 				4717495318D4E26400473A82 /* Session.cpp in Sources */,
@@ -776,7 +785,6 @@
 				4717494218D4DC8D00473A82 /* GraphObject.cpp in Sources */,
 				1AFAF8B816D35DE700DB1158 /* HelloWorldScene.cpp in Sources */,
 				4717494418D4DC8D00473A82 /* FileUtils.cpp in Sources */,
-				4717494618D4DC8D00473A82 /* ObjectUtils.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

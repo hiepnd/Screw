@@ -65,8 +65,8 @@ void Session::setStatusCallback(const SessionStatusCallback &callback) {
 	_callback = callback;
 }
 
-void Session::open() {
-    _impl->open();
+void Session::open(bool allowUi, const list<string> &permissions) {
+    _impl->open(allowUi, permissions);
 }
 
 void Session::close() {
@@ -86,7 +86,7 @@ Session::State Session::getState() {
 	return _state;
 }
 
-string &Session::getAppId() {
+const string &Session::getAppId() {
 	return _appId;
 }
 

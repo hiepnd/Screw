@@ -9,13 +9,6 @@
 
 NS_SCREW_UTILS_BEGIN
 
-FileUtils::FileUtils() {
-	// TODO Auto-generated constructor stub
 
-}
-
-FileUtils::~FileUtils() {
-	// TODO Auto-generated destructor stub
-}
 
 NS_SCREW_UTILS_END

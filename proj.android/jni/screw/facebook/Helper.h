@@ -7,6 +7,7 @@
 
 #ifndef HELPER_H_
 #define HELPER_H_
+
 #include <jni.h>
 #include "cocos2d.h"
 
@@ -31,24 +32,28 @@ public:
 	/* ValueMap of string value */
 	static jobject valueMap2jBundle(JNIEnv *env, const ValueMap &m);
 
+	/* Bundle to ValueMap */
+	static ValueMap jBundle2ValueMap(JNIEnv *env, jobject jbundle);
+
 	static list<string> valueVector2StringList(const ValueVector &v);
 
 public:
 //	static JNIEnv *_env;
 
 	/* Class IDs */
-	static jclass _jStringClassID;
-	static jclass _jBundleClassID;
-	static jclass _jSessionClassID;
-	static jclass _jRequestClassID;
+	static jclass jStringClassID;
+	static jclass jBundleClassID;
+	static jclass jSessionClassID;
+	static jclass jRequestClassID;
+	static jclass jDialogClassID;
 
 	/* Method IDs */
-	static jmethodID _jBundleConstructor;
-	static jmethodID _jBundlePutStringMethodID;
-	static jmethodID _jBundlePutBundleMethodID;
-	static jmethodID _jBundlePutStringArrayMethodID;
-	static jmethodID _jRequestRequestMethodID;
-
+	static jmethodID jBundleConstructor;
+	static jmethodID jBundlePutStringMethodID;
+	static jmethodID jBundlePutBundleMethodID;
+	static jmethodID jBundlePutStringArrayMethodID;
+	static jmethodID jRequestRequestMethodID;
+	static jmethodID jDialogShowMethodID;
 
 	static bool _initialized;
 };

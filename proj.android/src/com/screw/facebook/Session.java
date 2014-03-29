@@ -16,6 +16,9 @@ import com.facebook.*;
 import com.facebook.Session.NewPermissionsRequest;
 
 public class Session  {
+	public static final boolean DEBUG = true;
+	public static final String TAG = "Screw.Session";
+	
 	private static boolean _started = false;
 	private static Activity _activity = null;
 	private static SessionStatusCallback _statusCallback = new SessionStatusCallback();
@@ -23,6 +26,10 @@ public class Session  {
 	
 	public static Handler getHandler() {
 		return _handler;
+	}
+	
+	public static Activity getActivity() {
+		return _activity;
 	}
 	
 	public static void start(Activity activity, Bundle savedInstanceState) {
@@ -44,19 +51,16 @@ public class Session  {
             session.addCallback(_statusCallback);
             final String[] permissions = new String[session.getPermissions().size()];
             final com.facebook.Session session_ = session;
+            if (DEBUG) {
+            	Log.d(TAG, "starting with appid = " + session.getApplicationId());
+            }
             nativeInit(getNativeState(session_.getState()), session_.getApplicationId(), session_.getPermissions().toArray(permissions));
-//            Cocos2dxHelper.runOnGLThread(new Runnable() {
-//				
-//				@Override
-//				public void run() {
-//					// TODO Auto-generated method stub
-//					nativeInit(getNativeState(session_.getState()), session_.getApplicationId(), session_.getPermissions().toArray(permissions));
-//				}
-//			});
         }
 	}
 	
 	public static void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (DEBUG)
+			Log.d(TAG, "onActivityResult");
 		com.facebook.Session.getActiveSession().onActivityResult(_activity, requestCode, resultCode, data);
 	}
 	
@@ -73,13 +77,27 @@ public class Session  {
 		_handler = null;
 	}
 	
-	public static void open() {
+	public static void open(boolean allowUi, String[] permissions) {
+		Log.d(TAG, "open");
+		final String[] permissions_ = permissions;
+		final boolean allowUi_ = allowUi;
 		_handler.post(new Runnable() {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
+				if (com.facebook.Session.getActiveSession().isClosed()) {
+					com.facebook.Session.getActiveSession().removeCallback(_statusCallback);
+					com.facebook.Session session = new com.facebook.Session(_activity);
+					session.addCallback(_statusCallback);
+					com.facebook.Session.setActiveSession(session);
+				}
+				
+				com.facebook.Session session = com.facebook.Session.getActiveSession();
 				com.facebook.Session.OpenRequest request = new com.facebook.Session.OpenRequest(_activity);
-				com.facebook.Session.getActiveSession().openForRead(request);
+				request.setPermissions(Arrays.asList(permissions_));
+				if (SessionState.CREATED_TOKEN_LOADED.equals(session.getState()) || allowUi_) {
+		            session.openForRead(request);
+		        }
 			}
 		});
 	}
@@ -114,6 +132,12 @@ public class Session  {
 		public void call(com.facebook.Session session, SessionState state,
 				Exception exception) {
 			// TODO Auto-generated method stub
+			if (DEBUG) {
+				Log.d(TAG, "SessionStatusCallback - state = " + state);
+				if (exception != null) {
+					Log.d(TAG, "Exception = " + exception);
+				}
+			}
 			final int state_ = getNativeState(state);
 			final com.facebook.Session session_ = session;
 			Cocos2dxHelper.runOnGLThread(new Runnable() {
@@ -123,13 +147,6 @@ public class Session  {
 					// TODO Auto-generated method stub
 					String[] permissions = new String[session_.getPermissions().size()];
 					nativeUpdateState(state_, session_.getPermissions().toArray(permissions));
-					
-					//if login failed - recreate session for subsequent requests
-					if (session_.getState() == SessionState.CLOSED_LOGIN_FAILED) {
-						com.facebook.Session session = new com.facebook.Session(_activity);
-						com.facebook.Session.setActiveSession(session);
-						session.addCallback(_statusCallback);
-					}
 				}
 			});
 		}
