@@ -58,7 +58,8 @@ void RequestAndroid::onRequestComplete(long requestCode, int errorCode, const st
 
 extern "C" {
 JNIEXPORT void JNICALL Java_com_screw_facebook_Request_nativeCallback(JNIEnv *env, jclass jclass, jlong jrequestCode, jint jerror, jstring jerrorMessage, jstring jresult) {
-	FB_LOG("Request_nativeCallback - Got result: %s", jni::Helper::jString2String(env, jresult).c_str());
+	FB_LOG("Request_nativeCallback - error = %d", (int)jerror);
+	FB_LOG_INFO("Request_nativeCallback - Result = %s", jni::Helper::jString2String(env, jresult).c_str());
 
 	string errorMessage = jni::Helper::jString2String(env, jerrorMessage);
 	string result = jni::Helper::jString2String(env, jresult);

@@ -27,6 +27,7 @@
 #import "cocos2d.h"
 #import "AppDelegate.h"
 #import "RootViewController.h"
+#import <FacebookSDK/FacebookSDK.h>
 
 @implementation AppController
 
@@ -122,6 +123,15 @@ static AppDelegate s_sharedApplication;
      */
 }
 
+- (BOOL) application:(UIApplication *)application
+             openURL:(NSURL *)url
+   sourceApplication:(NSString *)sourceApplication
+          annotation:(id)annotation {
+    
+    BOOL wasHandled = [FBAppCall handleOpenURL:url sourceApplication:sourceApplication];
+    
+    return wasHandled;
+}
 
 #pragma mark -
 #pragma mark Memory management

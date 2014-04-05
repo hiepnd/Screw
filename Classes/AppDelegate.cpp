@@ -15,6 +15,8 @@ AppDelegate::~AppDelegate()
 
 bool AppDelegate::applicationDidFinishLaunching() {
 	CCLOG("AppDelegate::applicationDidFinishLaunching");
+    screw::facebook::Session::start();
+    
     // initialize director
     auto director = Director::getInstance();
     auto glview = director->getOpenGLView();

@@ -39,6 +39,79 @@ ValueMap JsonUtils::parse(const string &jsonString, bool *success) {
     return m;
 }
 
+string JsonUtils::toJsonString(ValueMap &m) {
+    return map2JsonString(m);
+}
+
+static string map2JsonString(ValueMap &m) {
+    string s("{");
+    int size = m.size();
+    for (auto i : m) {
+        switch (i.second.getType()) {
+            case cocos2d::Value::Type::MAP:
+            {
+                
+                s.append("\"").append(i.first).append("\": ");
+                s.append(map2JsonString(i.second.asValueMap()));
+                if (--size)
+                    s.append(",");
+                break;
+            }
+            case cocos2d::Value::Type::VECTOR:
+            {
+                s.append("\"").append(i.first).append("\": ").append(vector2JsonString(i.second.asValueVector()));
+                if (--size)
+                    s.append(",");
+                break;
+            }
+            default:
+            {
+                s.append("\"").append(i.first).append("\": ");
+                s.append("\"").append(i.second.asString()).append("\"");
+                if (--size)
+                    s.append(",");
+                break;
+            }
+        }
+    }
+    s.append("}");
+    
+    return s;
+}
+
+static string vector2JsonString(ValueVector &m) {
+    string s("[");
+    int size = m.size();
+    for (auto i : m) {
+        switch (i.getType()) {
+            case cocos2d::Value::Type::MAP:
+            {
+                s.append(map2JsonString(i.asValueMap()));
+                if (--size)
+                    s.append(",");
+                break;
+            }
+            case cocos2d::Value::Type::VECTOR:
+            {
+                s.append(screw::utils::vector2JsonString(i.asValueVector()));
+                if (--size)
+                    s.append(",");
+                break;
+            }
+            default:
+            {
+                s.append(i.asString());
+                if (--size)
+                    s.append(",");
+                break;
+            }
+        }
+    }
+    s.append("]");
+    
+    return s;
+}
+
 NS_SCREW_UTILS_END
 
 #pragma mark OOO

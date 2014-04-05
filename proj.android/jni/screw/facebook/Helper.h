@@ -46,6 +46,8 @@ public:
 	static jclass jSessionClassID;
 	static jclass jRequestClassID;
 	static jclass jDialogClassID;
+	static jclass jAdsClassID;
+	static jclass jUtilsClassID;
 
 	/* Method IDs */
 	static jmethodID jBundleConstructor;
@@ -54,6 +56,10 @@ public:
 	static jmethodID jBundlePutStringArrayMethodID;
 	static jmethodID jRequestRequestMethodID;
 	static jmethodID jDialogShowMethodID;
+	static jmethodID jAdsShowMethodID;
+	static jmethodID jAdsHideMethodID;
+	static jmethodID jAdsCreateMethodID;
+	static jmethodID jUtilsNetWorkStatusMethodID;
 
 	static bool _initialized;
 };

@@ -13,18 +13,19 @@ import android.os.Bundle;
 import android.util.Log;
 
 public class Dialog {
-	private static final boolean DEBUG = Session.DEBUG;
+	private static final int DEBUG = Session.DEBUG;
 	private static final String TAG = "Screw.Dialog";
 	
 	public static void show(final long requestCode, final String action, final Bundle params) {
-		if (DEBUG) {
-			Log.d(TAG, "showRequest:\n{\n");
+		if (DEBUG > 0) {
+			Log.d(TAG, "Showing dialog:\n{\n");
 			Log.d(TAG, "	requestCode = " + requestCode);
 			Log.d(TAG, "	action = " + (action == null ? "(null)" : action));
 			Log.d(TAG, "	params = " + (params == null ? "(null)" : params));
 			Log.d(TAG, "}");
 		}
-
+		params.putString("frictionless", "1");
+		
 		final WebDialog.OnCompleteListener callback = new WebDialog.OnCompleteListener() {
 			@Override
 			public void onComplete(Bundle values, FacebookException error) {
@@ -53,7 +54,7 @@ public class Dialog {
 						i++;
 					}
 				}
-				if (DEBUG) {
+				if (DEBUG > 0) {
 					Log.d(TAG, "Request #" + requestCode + " completed\n{\n");
 					if (errorCode != 0) {
 						Log.d(TAG, "	Error = " + error);
@@ -85,9 +86,6 @@ public class Dialog {
 				dialog.show();
 			}
 		});
-		if (DEBUG) {
-			Log.d(TAG, "showing dialog #" + requestCode);
-		}
 	}
 	
 	private static native void nativeCompleteAppRequest(long requestCode, int error, String errorMessage, String requestId, String []toes);

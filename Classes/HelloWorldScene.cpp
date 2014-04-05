@@ -80,7 +80,7 @@ bool HelloWorld::init()
     // add the sprite as a child to this layer
     this->addChild(sprite, 0);
     
-    auto lbl = LabelTTF::create(Session::getActiveSession()->isOpened() ? "Logout" : "Login", "fonts/Marker Felt.ttf", 40);
+    auto lbl = LabelTTF::create(Session::getActiveSession()->isOpened() ? "Logout" : "Login", "Marker Felt", 40);
 
     
     Session::getActiveSession()->setStatusCallback([lbl](Session *session){
@@ -155,7 +155,7 @@ bool HelloWorld::init()
                       r->getTo()->getName().c_str(), r->getMessage().c_str());
                 
                 string rid = r->getId();
-                Request *rq = Request::requestForDelete(rid);
+                Request *rq = Request::requestForDelete(rid, nullptr);
                 rq->setCallback([=](int error, GraphObject *result){
                     CCLOG("Delete %s result, error = %d, response = %s", rid.c_str(), error, result ? result->getData().getDescription().c_str() : "");
                 });
@@ -176,11 +176,13 @@ bool HelloWorld::init()
 			return;
 		}
         
-		ValueMap params;
-		params["message"] = "Hello !!!";
-        params["title"] = "Hi guy !";
+        AppRequestParamsBuilder *pb = AppRequestParamsBuilder::create("Hello, this is a message");
+        pb->setTitle("Hi guy, this is the title");
+        pb->setType(1);
+        pb->setAdditionalData("score", "32767");
+        
 		Dialog *dialog = new Dialog();
-        dialog->setParams(params);
+        dialog->setParams(pb->build());
         dialog->setDialog("apprequests");
         dialog->setCallback([](int error, const string &requestId, const list<string> &recveivers){
             CCLOG("App request - error = %d, id = '%s', receivers = [%s]", error, requestId.c_str(), screw::utils::StringUtils::join(recveivers, ",").c_str());

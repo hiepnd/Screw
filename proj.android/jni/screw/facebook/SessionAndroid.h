@@ -25,6 +25,7 @@ public:
 	virtual void requestReadPermissions(const list<string> &permission) override;
 	virtual void requestPublishPermissions(const list<string> &permission) override;
 
+	static void start();
 };
 
 } /* namespace jni */

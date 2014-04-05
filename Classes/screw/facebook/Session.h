@@ -9,7 +9,7 @@
 #define SESSION_H_
 
 #include "../macros.h"
-#include "GraphObject.h"
+//#include "GraphObject.h"
 #include "../data/Data.h"
 #include "cocos2d.h"
 
@@ -35,7 +35,16 @@ public:
 
 class Session {
 public:
-	enum State{INVALID = -1, CREATED, CREATED_TOKEN_LOADED, OPENING, OPENED, OPENED_TOKEN_UPDATED, CLOSED_LOGIN_FAILED, CLOSED};
+	enum State {
+        INVALID = -1,
+        CREATED,
+        CREATED_TOKEN_LOADED,
+        OPENING,
+        OPENED,
+        OPENED_TOKEN_UPDATED,
+        CLOSED_LOGIN_FAILED,
+        CLOSED
+    };
 
 	static Session *getActiveSession();
 
@@ -45,6 +54,8 @@ public:
     const string &getAppId();
     bool isOpened();
     bool isClosed();
+
+    static void start();
 
     /* Need platform dependent implementation */
     void open(bool allowUi = false, const list<string> &permission = list<string>());

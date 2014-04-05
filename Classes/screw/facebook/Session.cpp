@@ -6,8 +6,10 @@
  */
 
 #include "Session.h"
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#include <map>
 
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#include "SessionApple.h"
 #endif
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
@@ -17,7 +19,18 @@
 
 NS_SCREW_FACEBOOK_BEGIN
 
-#define VALIDATE_STATE(state) (state == CREATED || state == CREATED_TOKEN_LOADED || state == OPENING || state == OPENED || state == OPENED_TOKEN_UPDATED || state == CLOSED_LOGIN_FAILED || state == CLOSED)
+#define VALIDATE_STATE(state)   (state == CREATED || state == CREATED_TOKEN_LOADED \
+                                || state == OPENING || state == OPENED || state == OPENED_TOKEN_UPDATED \
+                                || state == CLOSED_LOGIN_FAILED || state == CLOSED)
+
+static map<int, const char *> __stateString { {Session::State::CREATED, "CREATED"},
+                                                    {Session::State::CREATED_TOKEN_LOADED, "CREATED_TOKEN_LOADED"},
+                                                    {Session::State::OPENING, "OPENING"},
+                                                    {Session::State::OPENED, "OPENED"},
+                                                    {Session::State::OPENED_TOKEN_UPDATED, "OPENED_TOKEN_UPDATED"},
+                                                    {Session::State::CLOSED_LOGIN_FAILED, "CLOSED_LOGIN_FAILED"},
+                                                    {Session::State::CLOSED, "CLOSED"}
+                                                  };
 
 Session *Session::_activeSession = nullptr;
 
@@ -26,16 +39,29 @@ Session::Session():_state(INVALID), _appId(""), _initialized(false) {
     _impl = new jni::SessionAndroid();
 #endif
 
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+    _impl = new SessionApple();
+#endif
 }
 
 Session::~Session() {
     delete _impl;
 }
 
+
+void Session::start() {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+	jni::SessionAndroid::start();
+#endif
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+	SessionApple::start();
+#endif
+}
+
 void Session::init(State state, const string &appId, list<string> permissions) {
 	CCASSERT(!_initialized, "Must be initialized only once");
 	CCASSERT(appId != "", "Application ID must not be empty");
-    FB_LOG("Session::init - state = %d, appid = %s", state, appId.c_str());
+    FB_LOG("Session::init - state = %s, appid = %s", __stateString[state], appId.c_str());
 #ifdef COCOS2D_DEBUG
     string pstr;
     for (auto i = permissions.begin(); i != permissions.end(); i++) {
@@ -99,14 +125,12 @@ bool Session::isClosed() {
 }
 
 void Session::requestReadPermission(const string &permission) {
-    list<string> l;
-    l.push_back(permission);
+    list<string> l{permission};
     this->requestReadPermissions(l);
 }
 
 void Session::requestPublishPermission(const string &permission) {
-    list<string> l;
-    l.push_back(permission);
+    list<string> l{permission};
     this->requestPublishPermissions(l);
 }
 
@@ -119,7 +143,7 @@ const list<string> &Session::getPermissions() {
 }
 
 void Session::updateState(Session::State state, const list<string> &permissions) {
-	FB_LOG("Session::updateState - state = %d", state);
+	FB_LOG("Session::updateState - state = %s", __stateString[state]);
     CCASSERT(VALIDATE_STATE(state), "Invalid state");
 #ifdef COCOS2D_DEBUG
     string pstr;

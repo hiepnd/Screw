@@ -18,6 +18,8 @@ jclass Helper::jBundleClassID = NULL;
 jclass Helper::jSessionClassID = NULL;
 jclass Helper::jRequestClassID = NULL;
 jclass Helper::jDialogClassID = NULL;
+jclass Helper::jAdsClassID = NULL;
+jclass Helper::jUtilsClassID = NULL;
 
 jmethodID Helper::jBundleConstructor = NULL;
 jmethodID Helper::jBundlePutStringMethodID = NULL;
@@ -25,6 +27,10 @@ jmethodID Helper::jBundlePutBundleMethodID = NULL;
 jmethodID Helper::jBundlePutStringArrayMethodID = NULL;
 jmethodID Helper::jRequestRequestMethodID = NULL;
 jmethodID Helper::jDialogShowMethodID = NULL;
+jmethodID Helper::jAdsShowMethodID = NULL;
+jmethodID Helper::jAdsHideMethodID = NULL;
+jmethodID Helper::jAdsCreateMethodID = NULL;
+jmethodID Helper::jUtilsNetWorkStatusMethodID = NULL;
 
 Helper::Helper() {
 
@@ -44,11 +50,23 @@ void Helper::initialize(JNIEnv *env) {
 	jRequestClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/facebook/Request")));
 	jDialogClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/facebook/Dialog")));
 	jStringClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("java/lang/String")));
+	jAdsClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/ads/Ads")));
+	jUtilsClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/utils/Utils")));
 
 	jBundleConstructor = env->GetMethodID(jBundleClassID, "<init>", "()V");
 	jBundlePutStringMethodID = env->GetMethodID(jBundleClassID, "putString", "(Ljava/lang/String;Ljava/lang/String;)V");
 	jBundlePutBundleMethodID = env->GetMethodID(jBundleClassID, "putBundle", "(Ljava/lang/String;Landroid/os/Bundle;)V");
 	jBundlePutStringArrayMethodID = env->GetMethodID(jBundleClassID, "putStringArray", "(Ljava/lang/String;[Ljava/lang/String;)V");
+	jUtilsNetWorkStatusMethodID = env->GetStaticMethodID(jUtilsClassID, "isNetWorkReachable", "()Z");
+
+	//Java: public static int createAd(int context)
+	jAdsCreateMethodID = env->GetStaticMethodID(jAdsClassID, "createAd", "(I)I");
+
+	//Java: public static void showAd(final int code)
+	jAdsShowMethodID = env->GetStaticMethodID(jAdsClassID, "showAd", "(I)V");
+
+	//Java: public static void hideAd(final int code)
+	jAdsHideMethodID = env->GetStaticMethodID(jAdsClassID, "hideAd", "(I)V");
 
 	//Java: void request(long requestCode, String graphPath, Bundle parameters, int httpMethod)
 	jRequestRequestMethodID = env->GetStaticMethodID(jRequestClassID, "request" ,"(JLjava/lang/String;Landroid/os/Bundle;I)V");

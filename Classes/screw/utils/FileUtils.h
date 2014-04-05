@@ -8,6 +8,7 @@
 #ifndef FILEUTILS_H_
 #define FILEUTILS_H_
 #include "../macros.h"
+#include "cocos2d.h"
 #include <string>
 
 NS_SCREW_UTILS_BEGIN

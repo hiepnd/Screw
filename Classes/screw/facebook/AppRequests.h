@@ -42,6 +42,7 @@ public:
     ValueMap &build();
     
 protected:
+    ValueMap _params;
     ValueMap _data;
 };
 

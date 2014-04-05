@@ -39,12 +39,16 @@ string StringUtils::toString(int number){
 
 string StringUtils::toString(float number){
     ostringstream converter;
+    converter.precision(7);
+    converter.setf(std::ios::fixed);
     converter << number;
     return converter.str();
 }
 
 string StringUtils::toString(double number){
     ostringstream converter;
+    converter.precision(16);
+    converter.setf(std::ios::fixed);
     converter << number;
     return converter.str();
 }

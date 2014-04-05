@@ -1,9 +1,6 @@
 package com.screw.facebook;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
-import java.util.List;
-
 import org.cocos2dx.lib.Cocos2dxHelper;
 
 import android.app.Activity;
@@ -14,71 +11,76 @@ import android.util.Log;
 
 import com.facebook.*;
 import com.facebook.Session.NewPermissionsRequest;
+import com.facebook.Session.OpenRequest;
 
-public class Session  {
-	public static final boolean DEBUG = true;
+public class Session {
+	/* Debug: 0 - disabled, 1 - info, 2 - data */
+	public static final int DEBUG = 0;
 	public static final String TAG = "Screw.Session";
-	
+
 	private static boolean _started = false;
 	private static Activity _activity = null;
 	private static SessionStatusCallback _statusCallback = new SessionStatusCallback();
 	private static Handler _handler;
-	
-	public static Handler getHandler() {
-		return _handler;
-	}
-	
-	public static Activity getActivity() {
-		return _activity;
-	}
-	
-	public static void start(Activity activity, Bundle savedInstanceState) {
-		assert _started = false : "Facebook must be start only once";
-		_started = true;
+
+	public static void onActivityCreate(Activity activity, Bundle savedInstanceState) {
 		_activity = activity;
 		_handler = new Handler();
 		
-		//Create Session Session
 		com.facebook.Session session = com.facebook.Session.getActiveSession();
-        if (session == null) {
-            if (savedInstanceState != null) {
-                session = com.facebook.Session.restoreSession(_activity, null, _statusCallback, savedInstanceState);
-            }
-            if (session == null) {
-                session = new com.facebook.Session(_activity);
-            }
-            com.facebook.Session.setActiveSession(session);
-            session.addCallback(_statusCallback);
-            final String[] permissions = new String[session.getPermissions().size()];
-            final com.facebook.Session session_ = session;
-            if (DEBUG) {
-            	Log.d(TAG, "starting with appid = " + session.getApplicationId());
-            }
-            nativeInit(getNativeState(session_.getState()), session_.getApplicationId(), session_.getPermissions().toArray(permissions));
-        }
+		if (session == null) {
+			if (savedInstanceState != null) {
+				session = com.facebook.Session.restoreSession(_activity, null, _statusCallback, savedInstanceState);
+			}
+			if (session == null) {
+				session = new com.facebook.Session(_activity);
+			}
+		}
+		com.facebook.Session.setActiveSession(session);
 	}
 	
+	/*  Get called from native code - applicationDidFinishLaunching */
+	static public void start() {
+		assert !_started : "Facebook must be start only once";
+		_started = true;
+		
+		com.facebook.Session session = com.facebook.Session.getActiveSession();
+		assert session != null : "Session must not be null";
+		session.addCallback(_statusCallback);
+		String[] permissions = new String[session.getPermissions().size()];
+		if (DEBUG > 0) {
+			Log.d(TAG, "Starting with appid = " + session.getApplicationId());
+		}
+		nativeInit(getNativeState(session.getState()), session.getApplicationId(), 
+					session.getPermissions().toArray(permissions));
+	}
+
 	public static void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (DEBUG)
+		if (DEBUG > 0)
 			Log.d(TAG, "onActivityResult");
 		com.facebook.Session.getActiveSession().onActivityResult(_activity, requestCode, resultCode, data);
 	}
-	
-	public static void onApplicationResume() {
-		
+
+	public static void onActivityResume() {
+
 	}
-	
-	public static void onApplicationPause() {
-		
+
+	public static void onActivityPause() {
+
 	}
-	
-	public static void onApplicationDestroy() {
+
+	public static void onActivityDestroy() {
 		_activity = null;
 		_handler = null;
 	}
-	
+
 	public static void open(boolean allowUi, String[] permissions) {
-		Log.d(TAG, "open");
+		if (DEBUG > 0) {
+			Log.d(TAG, "Open session:\n{\n");
+			Log.d(TAG, "	allowUI = " + allowUi);
+			Log.d(TAG, "	permissions = " + Arrays.asList(permissions));
+			Log.d(TAG, "}");
+		}
 		final String[] permissions_ = permissions;
 		final boolean allowUi_ = allowUi;
 		_handler.post(new Runnable() {
@@ -91,20 +93,20 @@ public class Session  {
 					session.addCallback(_statusCallback);
 					com.facebook.Session.setActiveSession(session);
 				}
-				
+
 				com.facebook.Session session = com.facebook.Session.getActiveSession();
-				com.facebook.Session.OpenRequest request = new com.facebook.Session.OpenRequest(_activity);
+				OpenRequest request = new OpenRequest(_activity);
 				request.setPermissions(Arrays.asList(permissions_));
 				if (SessionState.CREATED_TOKEN_LOADED.equals(session.getState()) || allowUi_) {
-		            session.openForRead(request);
-		        }
+					session.openForRead(request);
+				}
 			}
 		});
 	}
-	
+
 	public static void close() {
 		_handler.post(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
@@ -115,33 +117,52 @@ public class Session  {
 			}
 		});
 	}
-	
-	public static void requestReadPermissions(String[] permission) {
-		NewPermissionsRequest request = new NewPermissionsRequest(_activity, Arrays.asList(permission));
+
+	public static void requestReadPermissions(String[] permissions) {
+		if (DEBUG > 0) {
+			Log.d(TAG, "Request read permissions:\n{\n");
+			Log.d(TAG, "	permissions = " + Arrays.asList(permissions));
+			Log.d(TAG, "}");
+		}
+		NewPermissionsRequest request = new NewPermissionsRequest(_activity, Arrays.asList(permissions));
 		com.facebook.Session.getActiveSession().requestNewReadPermissions(request);
 	}
-	
-	public static void requestPublishPermissions(String[] permission) {
-		NewPermissionsRequest request = new NewPermissionsRequest(_activity, Arrays.asList(permission));
+
+	public static void requestPublishPermissions(String[] permissions) {
+		if (DEBUG > 0) {
+			Log.d(TAG, "Request publish permissions:\n{\n");
+			Log.d(TAG, "	permissions = " + Arrays.asList(permissions));
+			Log.d(TAG, "}");
+		}
+		NewPermissionsRequest request = new NewPermissionsRequest(_activity, Arrays.asList(permissions));
 		com.facebook.Session.getActiveSession().requestNewPublishPermissions(request);
 	}
-	
+
+	public static Handler getHandler() {
+		return _handler;
+	}
+
+	public static Activity getActivity() {
+		return _activity;
+	}
+
 	static public class SessionStatusCallback implements com.facebook.Session.StatusCallback {
 
 		@Override
-		public void call(com.facebook.Session session, SessionState state,
-				Exception exception) {
+		public void call(com.facebook.Session session, SessionState state, Exception exception) {
 			// TODO Auto-generated method stub
-			if (DEBUG) {
-				Log.d(TAG, "SessionStatusCallback - state = " + state);
+			if (DEBUG > 0) {
+				Log.d(TAG, "SessionStatusCallback\n{\n");
+				Log.d(TAG, "	State = " + state);
 				if (exception != null) {
-					Log.d(TAG, "Exception = " + exception);
+					Log.d(TAG, "	Exception = " + exception);
 				}
+				Log.d(TAG, "}");
 			}
 			final int state_ = getNativeState(state);
 			final com.facebook.Session session_ = session;
 			Cocos2dxHelper.runOnGLThread(new Runnable() {
-				
+
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
@@ -151,26 +172,26 @@ public class Session  {
 			});
 		}
 	}
-	
+
 	/* JNI */
 	static private native void nativeInit(int state, String appid, String[] permissions);
 	static private native void nativeUpdateState(int state, String[] permissions);
-	
+
 	static private int getNativeState(SessionState state) {
 		int code = -1;
 		switch (state) {
 		case CREATED:
 			code = 0;
 			break;
-			
+
 		case CREATED_TOKEN_LOADED:
 			code = 1;
 			break;
-			
+
 		case OPENING:
 			code = 2;
 			break;
-			
+
 		case OPENED:
 			code = 3;
 			break;
@@ -178,7 +199,7 @@ public class Session  {
 		case OPENED_TOKEN_UPDATED:
 			code = 4;
 			break;
-			
+
 		case CLOSED_LOGIN_FAILED:
 			code = 5;
 			break;
@@ -190,7 +211,7 @@ public class Session  {
 		default:
 			break;
 		}
-		
+
 		return code;
 	}
 }

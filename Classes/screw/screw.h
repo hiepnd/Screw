@@ -26,5 +26,6 @@
 #include "facebook/Dialog.h"
 #include "facebook/GraphObject.h"
 #include "facebook/Facebook.h"
+#include "facebook/AppRequests.h"
 
 #endif

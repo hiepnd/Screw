@@ -7,8 +7,9 @@
 //
 
 #include "Dialog.h"
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
 
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#include "DialogApple.h"
 #endif
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
@@ -22,7 +23,7 @@ Vector<Dialog *> Dialog::_dialogs;
 
 Dialog::Dialog(): _dialog(""), _params(ValueMap()), _callback(nullptr) {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-    
+    _impl = new DialogApple();
 #endif
     
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
@@ -40,7 +41,9 @@ Dialog *Dialog::create(const string &dialog, const ValueMap &params, const Dialo
     return d;
 }
 
-Dialog::Dialog(const string &dialog, const ValueMap &params, const DialogCallback &callback) {
+Dialog::Dialog(const string &dialog, const ValueMap &params, const DialogCallback &callback):
+Dialog()
+{
     this->setDialog(dialog);
     this->setParams(params);
     this->setCallback(callback);

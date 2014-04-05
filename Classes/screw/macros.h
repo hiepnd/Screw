@@ -11,7 +11,7 @@
 //Log
 #if COCOS2D_DEBUG
 //Turn debug ON/OFF here
-#define FB_DEBUG 1
+#define FB_DEBUG 2
 #else
 #define FB_DEBUG 0
 #endif
@@ -26,7 +26,17 @@
 #define FB_LOG(...) do {} while (0)
 #endif
 
+#if FB_DEBUG
+#define FB_LOG_WARN(format, ...) cocos2d::log(format, ##__VA_ARGS__)
+#else
+#define FB_LOG_WARN(...) do {} while (0)
+#endif
 
+#if FB_DEBUG >= 2
+#define FB_LOG_INFO(format, ...) cocos2d::log(format, ##__VA_ARGS__)
+#else
+#define FB_LOG_INFO(...) do {} while (0)
+#endif
 
 #define NS_SCREW_BEGIN namespace screw {
 #define NS_SCREW_END }

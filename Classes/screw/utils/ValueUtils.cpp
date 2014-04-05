@@ -7,6 +7,7 @@
 
 #include "ValueUtils.h"
 #include "StringUtils.h"
+#include <sstream>
 
 NS_SCREW_UTILS_BEGIN
 
@@ -18,7 +19,10 @@ Value &ValueGetter::get(const Value &data, const string &path) {
     
     Value* d = const_cast<Value*>(&data);
     for (vector<string>::iterator it = coms.begin(); it != coms.end(); it++) {
-        CCASSERT(d->getType() == Value::Type::MAP, "Fix me");
+        if (d->getType() != Value::Type::MAP) {
+            CCLOG("type = %d", d->getType());
+        }
+        CCASSERT(d->getType() == Value::Type::MAP, (string("Fix me ") + path).c_str());
         CCASSERT(it->length(), "Fix me - empty key is not allowed");
         
         ValueMap& v = d->asValueMap();
@@ -88,11 +92,11 @@ void ValueSetter::set(Value& data, const string &path, long value){
 }
 
 void ValueSetter::set(Value& data, const string &path, float value){
-    set(data, path, Value(value));
+    set(data, path, Value(StringUtils::toString(value)));
 }
 
 void ValueSetter::set(Value& data, const string &path, double value){
-    set(data, path, Value(value));
+    set(data, path, Value(StringUtils::toString(value)));
 }
 
 void ValueSetter::set(Value& data, const string &path, bool value){

@@ -11,13 +11,13 @@ import android.os.Bundle;
 import android.util.Log;
 
 public class Request {
-	private static final boolean DEBUG = com.screw.facebook.Session.DEBUG && true;
+	private static final int DEBUG = com.screw.facebook.Session.DEBUG;
 	private static final String TAG = "Screw.Request";
 	
 	public static void request(long requestCode, String graphPath,
 			Bundle parameters, int method) {
-		if (DEBUG) {
-			Log.d(TAG, "request:\n{\n");
+		if (DEBUG > 0) {
+			Log.d(TAG, "Executing request:\n{\n");
 			Log.d(TAG, "	code = " + requestCode);
 			Log.d(TAG, "	method = " + method);
 			Log.d(TAG, "	graphPath = " + (graphPath == null ? "(null)" : graphPath));
@@ -51,10 +51,10 @@ public class Request {
 				final String errorMessage = response.getError() == null ? "" : response.getError().getErrorMessage();
 				final String responseText = response.getGraphObject() == null ? "" : response.getGraphObject().getInnerJSONObject().toString();
 				
-				if (DEBUG) {
+				if (DEBUG > 0) {
 					Log.d(TAG, "Request #" + requestCode_ + " completed\n{\n");
 					
-					if (response.getError() == null) {
+					if (response.getError() == null & DEBUG >= 2) {
 						Log.d(TAG, "	Data = " + responseText);
 					} else {
 						Log.d(TAG, "	Error error: " + errorMessage);
@@ -79,35 +79,8 @@ public class Request {
 				request.executeAsync();
 			}
 		});
-		
-		if (DEBUG) {
-			Log.d(TAG, "Executing request #" + requestCode);
-		}
 	}
 
 	static private native void nativeCallback(long requestCode, int errorCode, String errorMessage, String result);
-	
-	static public void test(Bundle params) {
-		Log.d("HHHhhhhhhhhhhHHHHHHHH", "hhhhh");
-		for (String key : params.keySet()) {
-			Object val = params.get(key);
-			if (val instanceof String) {
-				Log.d("Request Test", key + " = " + (String) val);
-			}
 
-			if (val instanceof String[]) {
-				String[] list = (String[]) val;
-				String str = "[";
-				for (String s : list) {
-					str += s + " ";
-				}
-				str += "]";
-				Log.d("Request Test", key + " = " + str);
-			}
-
-			if (val instanceof Bundle) {
-				test((Bundle) val);
-			}
-		}
-	}
 }

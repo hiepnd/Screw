@@ -23,6 +23,7 @@ typedef std::function<void(int error, const Vector<GraphUser *> &friends)> Frien
 typedef std::function<void(int error, const Vector<GraphScore *> &scores)> ScoresRequestCallback;
 typedef std::function<void(int error, const Vector<GraphRequest *> &requests)> ApprequestsRequestCallback;
 typedef std::function<void(int error, bool success)> DeleteRequestCallback;
+typedef std::function<void(int error, bool success)> PostScoreRequestCallback;
 
 class Request;
 
@@ -57,12 +58,12 @@ public:
     void execute();
     
     //Common requests
-    static Request *requestForMe(const MeRequestCallback &callback = nullptr);
-    static Request *requestForFriends(const FriendsRequestCallback &callback = nullptr);
-    static Request *requestForDelete(const string &objectId, const DeleteRequestCallback &callback = nullptr);
-    static Request *requestForScores(const ScoresRequestCallback &callback = nullptr);
-    static Request *requestForAppRequests(const ApprequestsRequestCallback &callback = nullptr);
-    
+    static Request *requestForMe(const MeRequestCallback &callback);
+    static Request *requestForFriends(const FriendsRequestCallback &callback);
+    static Request *requestForDelete(const string &objectId, const DeleteRequestCallback &callback);
+    static Request *requestForScores(const ScoresRequestCallback &callback);
+    static Request *requestForAppRequests(const ApprequestsRequestCallback &callback);
+    static Request *requestForPostScore(long score, const PostScoreRequestCallback &callback);
     
 protected:
     Method _method;

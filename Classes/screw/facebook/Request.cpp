@@ -7,10 +7,16 @@
 
 #include "Request.h"
 #include "Session.h"
+#include "../utils/StringUtils.h"
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#include "RequestApple.h"
+#endif
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 #include "jni/screw/facebook/RequestAndroid.h"
 #endif
+
 
 NS_SCREW_FACEBOOK_BEGIN
 
@@ -25,6 +31,10 @@ Request *Request::create(const string &graphPath, const ValueMap &params, Method
 Request::Request():
 _graphPath(""), _params(ValueMap()), _method(Method::GET), _callback(nullptr)
 {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+    _impl = new RequestApple();
+#endif
+    
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     _impl = new jni::RequestAndroid();
 #endif
@@ -96,7 +106,7 @@ void Request::execute() {
 }
 
 #pragma mark Common Requests
-Request *requestForMe(const MeRequestCallback &callback) {
+Request *Request::requestForMe(const MeRequestCallback &callback) {
     Request *request = new Request("me");
     request->autorelease();
     if (callback) {
@@ -172,6 +182,22 @@ Request *Request::requestForAppRequests(const ApprequestsRequestCallback &callba
         request->setCallback(wrapper);
     }
     request->autorelease();
+    return request;
+}
+
+Request *Request::requestForPostScore(long score, const PostScoreRequestCallback &callback) {
+    Request *request = new Request("me/scores");
+    request->setMethod(POST);
+    if (callback) {
+        RequestCallback wrapper = [=](int error, GraphObject *result){
+            callback(error, !error);
+        };
+        request->setCallback(wrapper);
+    }
+    ValueMap params;
+    params["score"] = utils::StringUtils::toString(score);
+    request->setParams(params);
+    
     return request;
 }
 

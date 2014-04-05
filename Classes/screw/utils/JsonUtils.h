@@ -19,10 +19,15 @@ using namespace std;
 
 NS_SCREW_UTILS_BEGIN
 
+static string map2JsonString(ValueMap &m);
+static string vector2JsonString(ValueVector &m);
+
 class JsonUtils {
 public:
     static ValueMap parse(const string &jsonString, bool *success = NULL);
     static bool parse(const string &jsonString, ValueMap &vm);
+    
+    static string toJsonString(ValueMap &m);
 };
 
 NS_SCREW_UTILS_END

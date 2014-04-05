@@ -24,11 +24,10 @@ static const string AppRequestsRequestsKey = "__requests__";
 const string AppRequestsParamTypeKey = "_t";
 
 #pragma mark Builder
-AppRequestParamsBuilder::AppRequestParamsBuilder(const string &message): _data() {
-    ValueMap extra;
-    extra[AppRequestsParamTypeKey] = 0;
-    _data["data"] = extra;
-    
+AppRequestParamsBuilder::AppRequestParamsBuilder(const string &message): _params(), _data() {
+    _data[AppRequestsParamTypeKey] = 0;
+    //For compatibility with fucking EziSocial
+//    _data["requestType"] = 3;
     this->setMessage(message);
 }
 
@@ -39,39 +38,38 @@ AppRequestParamsBuilder *AppRequestParamsBuilder::create(const string &message) 
 }
 
 AppRequestParamsBuilder *AppRequestParamsBuilder::setMessage(const string &message) {
-    _data["message"] = message;
+    _params["message"] = message;
     return this;
 }
 
 AppRequestParamsBuilder *AppRequestParamsBuilder::setTitle(const string &title) {
-    _data["title"] = title;
+    _params["title"] = title;
     return this;
 }
 
 AppRequestParamsBuilder *AppRequestParamsBuilder::setTo(const string &uid) {
-    _data["to"] = uid;
+    _params["to"] = uid;
     return this;
 }
 
 AppRequestParamsBuilder *AppRequestParamsBuilder::setTo(vector<string> &uids) {
-    _data["to"] = utils::StringUtils::join(uids, ",");
+    _params["to"] = utils::StringUtils::join(uids, ",");
     return this;
 }
 
 AppRequestParamsBuilder *AppRequestParamsBuilder::setType(int type) {
-    ValueMap &d = _data["data"].asValueMap();
-    d[AppRequestsParamTypeKey] = type;
+    _data[AppRequestsParamTypeKey] = type;
     return this;
 }
 
 AppRequestParamsBuilder *AppRequestParamsBuilder::setAdditionalData(const string &key, const string &value) {
-    ValueMap &d = _data["data"].asValueMap();
-    d[key] = value;
+    _data[key] = value;
     return this;
 }
 
 ValueMap &AppRequestParamsBuilder::build() {
-    return _data;
+    _params["data"] = JsonUtils::toJsonString(_data);
+    return _params;
 }
 
 #pragma mark AppRequests
@@ -132,6 +130,7 @@ void AppRequests::clearRequest(const string &rid) {
 
 void AppRequests::fetchAppRequests(const ApprequestsRequestCallback &callback) {
     Request *request = Request::requestForAppRequests([=](int error, const Vector<GraphRequest *> &requests){
+        FB_LOG("AppRequests::fetchAppRequests - callback error = %d", error);
         if (error == 0) {
             this->didFetchAppRequests(requests);
         }
@@ -152,6 +151,7 @@ void AppRequests::didFetchAppRequests(const Vector<screw::facebook::GraphRequest
     for (GraphRequest *request : requests) {
         string dataStr = request->getDataString();
         Value &v = request->getData();
+        CCLOG("AppRequests::didFetchAppRequests - data str = %s", dataStr.c_str());
         if (dataStr.length()) {
             ValueMap m;
             if (JsonUtils::parse(dataStr, m)) {
@@ -159,6 +159,7 @@ void AppRequests::didFetchAppRequests(const Vector<screw::facebook::GraphRequest
                     CCLOG("AppRequests::didFetchAppRequests - request data with no type (be aware) %s", v.getDescription().c_str());
                 }
                 ValueSetter::set(v, "data", Value(m));
+                CCLOG("AppRequests::didFetchAppRequests - parsed data = %s", Value(m).getDescription().c_str());
             } else {
                 CCLOG("AppRequests::didFetchAppRequests - non JSON request data (cleared) %s", v.getDescription().c_str());
                 ValueSetter::clear(v, "data");
@@ -167,7 +168,7 @@ void AppRequests::didFetchAppRequests(const Vector<screw::facebook::GraphRequest
         _data->set(PathBuilder::create(AppRequestsRequestsKey)->append(request->getId())->build(), v);
         
         //Clear luon !!
-        Request *deleteRequest = Request::requestForDelete(request->getId());
+        Request *deleteRequest = Request::requestForDelete(request->getId(), nullptr);
         deleteRequest->execute();
     }
     _data->save();
