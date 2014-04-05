@@ -62,6 +62,7 @@ public:
     static Request *requestForFriends(const FriendsRequestCallback &callback);
     static Request *requestForDelete(const string &objectId, const DeleteRequestCallback &callback);
     static Request *requestForScores(const ScoresRequestCallback &callback);
+    static Request *requestForMyScore(const ScoresRequestCallback &callback);
     static Request *requestForAppRequests(const ApprequestsRequestCallback &callback);
     static Request *requestForPostScore(long score, const PostScoreRequestCallback &callback);
     

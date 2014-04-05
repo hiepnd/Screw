@@ -9,6 +9,13 @@
 
 NS_SCREW_FACEBOOK_BEGIN
 
+const string GraphUser::ID("id");
+const string GraphUser::NAME("name");
+const string GraphUser::FIRST_NAME("first_name");
+const string GraphUser::LAST_NAME("last_name");
+const string GraphUser::SCORE("score");
+const string GraphUser::INSTALLED("installed");
+
 GraphObject::GraphObject():
 _data(Value(ValueMap()))
 {

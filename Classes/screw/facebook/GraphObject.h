@@ -186,15 +186,22 @@ class GraphUser : public GraphObject {
 public:
     GO_CREATE(GraphUser);
     
-    GO_GET_STRING(Id, "id");
-    GO_GET_STRING(Name, "name");
-    GO_GET_STRING(FirstName, "first_name");
-    GO_GET_STRING(LastName, "last_name");
-    GO_GET_LONG(Score, "score");
+    GO_GET_STRING(Id, ID);
+    GO_GET_STRING(Name, NAME);
+    GO_GET_STRING(FirstName, FIRST_NAME);
+    GO_GET_STRING(LastName, LAST_NAME);
+    GO_GET_LONG(Score, SCORE);
     
     bool isInstalled() {
-        return hasProperty("installed");
+        return hasProperty(INSTALLED);
     }
+    
+    static const string ID;
+    static const string NAME;
+    static const string FIRST_NAME;
+    static const string LAST_NAME;
+    static const string SCORE;
+    static const string INSTALLED;
 };
 
 class GraphApplication : public GraphObject {

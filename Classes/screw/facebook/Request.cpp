@@ -169,6 +169,22 @@ Request *Request::requestForScores(const ScoresRequestCallback &callback) {
     return request;
 }
 
+Request *Request::requestForMyScore(const ScoresRequestCallback &callback) {
+    Request *request = new Request("me/score");
+    if (callback) {
+        RequestCallback wrapper = [=](int error, GraphObject *result){
+            Vector<GraphScore *> scores;
+            if (error == 0) {
+                scores = result->getPropertyAsList<GraphScore>("data");
+            }
+            callback(error, scores);
+        };
+        request->setCallback(wrapper);
+    }
+    request->autorelease();
+    return request;
+}
+
 Request *Request::requestForAppRequests(const ApprequestsRequestCallback &callback) {
     Request *request = new Request("me/apprequests");
     if (callback) {
