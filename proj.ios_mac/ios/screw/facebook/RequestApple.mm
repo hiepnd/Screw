@@ -23,7 +23,9 @@ void RequestApple::execute(Request *request) {
                                           HTTPMethod:__getHTTPMethod(request->getMethod())];
     [fbr startWithCompletionHandler:^(FBRequestConnection *connection, id result, NSError *error) {
 #if FB_DEBUG >= 1
-        NSLog(@"RequestApple: request \"%s\" completed, error = %@", request->getGraphPath().c_str(), error);
+        NSLog(@"RequestApple: %s \"%s\" completed, error = %@", [__getHTTPMethod(request->getMethod())
+                                                                    cStringUsingEncoding:NSUTF8StringEncoding],
+                                                                request->getGraphPath().c_str(), error);
 #   if FB_DEBUG >= 2
         NSLog(@"Result = %@", result);
 #   endif

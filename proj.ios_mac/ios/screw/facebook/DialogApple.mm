@@ -23,6 +23,7 @@ void DialogApple::show(Dialog *dialog) {
 #if FB_DEBUG >= 1
                                               NSLog(@"DialogApple::DialogCallback - result = %d, url = %@, error = %@", result, resultURL, error);
 #endif
+                                              //url: url = fbconnect://success?request=683722131674077&to%5B0%5D=664038782
                                               if (dialog->getCallback()) {
                                                   int errorCode = 1;
                                                   string rid;

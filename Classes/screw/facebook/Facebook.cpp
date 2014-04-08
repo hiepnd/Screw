@@ -130,7 +130,8 @@ void Facebook::clearDirtyScore() {
 void Facebook::saveUserDetail(GraphUser *user) {
     //Get current score
     Value data = user->getData();
-    long score = _data->getLong(screw::data::PathBuilder::create(FacebookDataProfilesKey)->append(user->getId())->append(GraphUser::SCORE)->build());
+    long score = _data->getLong(screw::data::PathBuilder::create(FacebookDataProfilesKey)->append(user->getId())
+                                                                    ->append(GraphUser::SCORE)->build());
     if (score != 0) {
         ValueSetter::set(data, GraphUser::SCORE, score);
     }
@@ -141,7 +142,8 @@ void Facebook::saveUserDetail(GraphUser *user) {
 
 void Facebook::saveFriend(GraphUser *user) {
     Value data = user->getData();
-    long score = _data->getLong(screw::data::PathBuilder::create(FacebookDataProfilesKey)->append(user->getId())->append(GraphUser::SCORE)->build());
+    long score = _data->getLong(screw::data::PathBuilder::create(FacebookDataProfilesKey)->append(user->getId())
+                                                                    ->append(GraphUser::SCORE)->build());
     ValueSetter::set(data, GraphUser::SCORE, score);
     _data->set(FACEBOOK_PROFILE_KEY(user->getId()), data);
 }
@@ -163,14 +165,16 @@ void Facebook::didFetchScores(const Vector<GraphScore *> &scores) {
         GraphUser *user = s->getUser();
         Value &data = _data->get(FACEBOOK_PROFILE_KEY(user->getId()));
         if (!data.isNull()) {
-            //User existed, update score
+            //User existed, update score only
             ValueSetter::set(data, GraphUser::SCORE, s->getScore());
             if (getUser()->getId() == user->getId()) {
                 
             }
         } else {
-            ValueSetter::set(data, GraphUser::INSTALLED, true);
-            _data->set(FACEBOOK_PROFILE_KEY(user->getId()), data);
+            Value &newData = user->getData();
+            ValueSetter::set(newData, GraphUser::INSTALLED, true);
+            ValueSetter::set(newData, GraphUser::SCORE, s->getScore());
+            _data->set(FACEBOOK_PROFILE_KEY(user->getId()), newData);
         }
     }
 }

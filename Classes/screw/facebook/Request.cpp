@@ -153,7 +153,7 @@ Request *Request::requestForDelete(const string &objectId, const DeleteRequestCa
 
 Request *Request::requestForScores(const ScoresRequestCallback &callback) {
     string appId = Session::getActiveSession()->getAppId();
-    CCASSERT(appId.length() > 0, "Request::requestForScores - check your code boss");
+    CCASSERT(appId.length() > 0, "Request::requestForScores - check your code sir");
     Request *request = new Request(appId + "/scores");
     if (callback) {
         RequestCallback wrapper = [=](int error, GraphObject *result){
