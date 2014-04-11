@@ -1,3 +1,26 @@
+/****************************************************************************
+ Copyright (c) hiepndhut@gmail.com
+ Copyright (c) 2014 No PowerUp Games
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
+
 package com.screw.facebook;
 
 import java.util.Arrays;
@@ -178,34 +201,34 @@ public class Session {
 	static private native void nativeUpdateState(int state, String[] permissions);
 
 	static private int getNativeState(SessionState state) {
-		int code = -1;
+		int code = 0;
 		switch (state) {
 		case CREATED:
-			code = 0;
-			break;
-
-		case CREATED_TOKEN_LOADED:
 			code = 1;
 			break;
 
-		case OPENING:
+		case CREATED_TOKEN_LOADED:
 			code = 2;
 			break;
 
-		case OPENED:
+		case OPENING:
 			code = 3;
 			break;
 
-		case OPENED_TOKEN_UPDATED:
+		case OPENED:
 			code = 4;
 			break;
 
-		case CLOSED_LOGIN_FAILED:
+		case OPENED_TOKEN_UPDATED:
 			code = 5;
 			break;
 
-		case CLOSED:
+		case CLOSED_LOGIN_FAILED:
 			code = 6;
+			break;
+
+		case CLOSED:
+			code = 7;
 			break;
 
 		default:

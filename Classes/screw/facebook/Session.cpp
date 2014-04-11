@@ -1,11 +1,28 @@
-/*
- * Session.cpp
- *
- *  Created on: Mar 16, 2014
- *      Author: hiepnd
- */
+/****************************************************************************
+ Copyright (c) hiepndhut@gmail.com
+ Copyright (c) 2014 No PowerUp Games
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
 
 #include "Session.h"
+#include "../utils/StringUtils.h"
 #include <map>
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
@@ -36,11 +53,11 @@ Session *Session::_activeSession = nullptr;
 
 Session::Session():_state(INVALID), _appId(""), _initialized(false) {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-    _impl = new jni::SessionAndroid();
+    _impl = new screw::jni::SessionAndroid();
 #endif
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-    _impl = new SessionApple();
+    _impl = new screw::ios::SessionApple();
 #endif
 }
 
@@ -51,10 +68,10 @@ Session::~Session() {
 
 void Session::start() {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-	jni::SessionAndroid::start();
+	screw::jni::SessionAndroid::start();
 #endif
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-	SessionApple::start();
+	screw::ios::SessionApple::start();
 #endif
 }
 
@@ -62,13 +79,7 @@ void Session::init(State state, const string &appId, list<string> permissions) {
 	CCASSERT(!_initialized, "Must be initialized only once");
 	CCASSERT(appId != "", "Application ID must not be empty");
     FB_LOG("Session::init - state = %s, appid = %s", __stateString[state], appId.c_str());
-#ifdef COCOS2D_DEBUG
-    string pstr;
-    for (auto i = permissions.begin(); i != permissions.end(); i++) {
-    	pstr += string(" ") + (*i);
-    }
-    FB_LOG("Session::init - permissions = (%s)", pstr.c_str());
-#endif
+    FB_LOG("Session::init - permissions = [%s]", utils::StringUtils::join(permissions, ",").c_str());
 
 	_initialized = true;
 	_state = state;
@@ -107,7 +118,6 @@ void Session::requestPublishPermissions(const list<string> &permission) {
     _impl->requestPublishPermissions(permission);
 }
 
-
 Session::State Session::getState() {
 	return _state;
 }
@@ -124,16 +134,6 @@ bool Session::isClosed() {
     return _state == State::CLOSED || _state == State::CLOSED_LOGIN_FAILED;
 }
 
-void Session::requestReadPermission(const string &permission) {
-    list<string> l{permission};
-    this->requestReadPermissions(l);
-}
-
-void Session::requestPublishPermission(const string &permission) {
-    list<string> l{permission};
-    this->requestPublishPermissions(l);
-}
-
 bool Session::hasPermission(const string &permission) {
     return std::find(_permissions.begin(), _permissions.end(), permission) != _permissions.end();
 }
@@ -143,15 +143,10 @@ const list<string> &Session::getPermissions() {
 }
 
 void Session::updateState(Session::State state, const list<string> &permissions) {
-	FB_LOG("Session::updateState - state = %s", __stateString[state]);
-    CCASSERT(VALIDATE_STATE(state), "Invalid state");
-#ifdef COCOS2D_DEBUG
-    string pstr;
-    for (auto i = permissions.begin(); i != permissions.end(); i++) {
-    	pstr += string(" ") + (*i);
-    }
-    FB_LOG("Session::updateState - permissions = (%s)", pstr.c_str());
-#endif
+	CCASSERT(VALIDATE_STATE(state), "Invalid state");
+    FB_LOG("Session::updateState - state = %s", __stateString[state]);
+    FB_LOG("Session::init - permissions = (%s)", utils::StringUtils::join(permissions, ",").c_str());
+
 	_state = state;
 	_permissions = permissions;
 	if (_callback)
