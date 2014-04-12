@@ -33,10 +33,10 @@ USING_NS_CC;
 
 NS_SCREW_IOS_BEGIN
     
-class DialogApple : public DialogImpl {
+class WebDialogApple : public WebDialogImpl {
     
 public:
-    virtual void show(Dialog *dialog);
+    virtual void show(WebDialog *dialog);
 };
 
 NS_SCREW_IOS_END /* namespace screw { namespace ios { */

@@ -30,7 +30,7 @@
 #include "GraphObject.h"
 #include "Session.h"
 #include "Request.h"
-#include "Dialog.h"
+#include "WebDialog.h"
 
 USING_NS_CC;
 USING_NS_SCREW_DATA;

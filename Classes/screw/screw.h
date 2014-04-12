@@ -38,7 +38,7 @@
 /* facebook */
 #include "facebook/Session.h"
 #include "facebook/Request.h"
-#include "facebook/Dialog.h"
+#include "facebook/WebDialog.h"
 #include "facebook/GraphObject.h"
 #include "facebook/Facebook.h"
 #include "facebook/AppRequests.h"

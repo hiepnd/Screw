@@ -111,7 +111,7 @@ bool HelloWorld::init()
             return;
         }
         if (!Session::getActiveSession()->hasPermission("publish_actions")) {
-            Session::getActiveSession()->requestPublishPermission("publish_actions");
+            Session::getActiveSession()->requestPublishPermissions({"publish_actions"});
         } else {
             CCLOG("%s - you already have publish permission", __func__);
         }
@@ -177,11 +177,12 @@ bool HelloWorld::init()
 		}
         
         AppRequestParamsBuilder *pb = AppRequestParamsBuilder::create("Hello, this is a message");
-        pb->setTitle("Hi guy, this is the title");
+        pb->setTitle("The title");
+        pb->setMessage("Message");
         pb->setType(1);
-        pb->setAdditionalData("score", "32767");
+        pb->setData("score", "32767");
         
-		Dialog *dialog = new Dialog();
+		WebDialog *dialog = new WebDialog();
         dialog->setParams(pb->build());
         dialog->setDialog("apprequests");
         dialog->setCallback([](int error, const string &requestId, const list<string> &recveivers){
@@ -193,6 +194,34 @@ bool HelloWorld::init()
 	});
     apprequest->setPosition(visibleSize.width/2 - 200, visibleSize.height/2 + 50);
 	menu->addChild(apprequest);
+    
+    
+    //Feed
+    auto feedDialog = MenuItemFont::create("Feed", [](Object *sender){
+		if (!Session::getActiveSession()->isOpened()) {
+			CCLOG("%s - session not opened, login first", __func__);
+			return;
+		}
+
+        ValueMap feedParams;
+        feedParams["link"] = "https://github.com/hiepnd";
+        feedParams["name"] = "Title";
+        feedParams["message"] = "Message";
+        feedParams["caption"] = "Caption";
+        feedParams["description"] = "Description";
+        
+		WebDialog *dialog = new WebDialog();
+        dialog->setParams(feedParams);
+        dialog->setDialog("feed");
+        dialog->setCallback([](int error, const string &requestId, const list<string> &recveivers){
+            CCLOG("App request - error = %d, id = '%s', receivers = [%s]", error, requestId.c_str(), screw::utils::StringUtils::join(recveivers, ",").c_str());
+        });
+        dialog->show();
+        dialog->release();
+        
+	});
+    feedDialog->setPosition(visibleSize.width/2 - 200, visibleSize.height/2 + 150);
+	menu->addChild(feedDialog);
 
     
     //Get App score

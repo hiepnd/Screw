@@ -21,26 +21,26 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "DialogAndroid.h"
+#include "WebDialogAndroid.h"
 #include <jni.h>
 #include "cocos/2d/platform/android/jni/JniHelper.h"
 #include "Helper.h"
 
 NS_SCREW_JNI_BEGIN
 
-map<int, DialogCallback> DialogAndroid::_callbacks;
-long DialogAndroid::_requestCode = 0;
+map<int, DialogCallback> WebDialogAndroid::_callbacks;
+long WebDialogAndroid::_requestCode = 0;
 
-DialogAndroid::DialogAndroid() {
+WebDialogAndroid::WebDialogAndroid() {
 	// TODO Auto-generated constructor stub
 
 }
 
-DialogAndroid::~DialogAndroid() {
+WebDialogAndroid::~WebDialogAndroid() {
 	// TODO Auto-generated destructor stub
 }
 
-void DialogAndroid::show(Dialog *dialog) {
+void WebDialogAndroid::show(WebDialog *dialog) {
 	FB_LOG("DialogAndroid::show - showing dialog #%ld...", _requestCode + 1);
 	_requestCode++;
 	if (dialog->getCallback()) {
@@ -59,7 +59,7 @@ void DialogAndroid::show(Dialog *dialog) {
 	env->DeleteLocalRef(jparams);
 }
 
-void DialogAndroid::onDialogComplete(long requestCode, int errorCode, const string &errorMessage,
+void WebDialogAndroid::onDialogComplete(long requestCode, int errorCode, const string &errorMessage,
 										const string &requestId, const list<string> &toes) {
 	auto iter = _callbacks.find(requestCode);
 	if (iter != _callbacks.end()) {
@@ -80,7 +80,7 @@ JNIEXPORT void JNICALL Java_com_screw_facebook_Dialog_nativeCompleteAppRequest(J
 	string errorMessage = jni::Helper::jString2String(env, jerrorMessage);
 	string requestId = jni::Helper::jString2String(env, jrequestId);
 	list<string> receivers = jni::Helper::jStringArray2StringList(env, jreceivers);
-	jni::DialogAndroid::onDialogComplete((long)jrequestCode, (int)jerror, errorMessage, requestId, receivers);
+	jni::WebDialogAndroid::onDialogComplete((long)jrequestCode, (int)jerror, errorMessage, requestId, receivers);
 }
 
 } /* extern "C" { */

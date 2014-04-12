@@ -34,7 +34,7 @@ public class Cocos2dxActivity extends NativeActivity{
 		// getWindow().setFormat(PixelFormat.TRANSLUCENT);
 		
 		Log.d("Cocos2dxActivity", "onCreate");
-		Session.start(this, savedInstanceState);
+		Session.onActivityCreate(this, savedInstanceState);
 		
 	}
 	
@@ -42,14 +42,14 @@ public class Cocos2dxActivity extends NativeActivity{
 	protected void onPause() {
 		// TODO Auto-generated method stub
 		super.onPause();
-		Session.onApplicationPause();
+		Session.onActivityPause();
 	}
 
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
-		Session.onApplicationResume();
+		Session.onActivityResume();
 	}
 
 	@Override

@@ -36,21 +36,21 @@ NS_SCREW_FACEBOOK_BEGIN
 
 typedef std::function<void(int error, const string &requestId, const list<string> &recveivers)> DialogCallback;
 
-class Dialog;
+class WebDialog;
 
-class DialogImpl {
+class WebDialogImpl {
 public:
-    virtual ~DialogImpl(){}
-    virtual void show(Dialog *dialog) = 0;
+    virtual ~WebDialogImpl(){}
+    virtual void show(WebDialog *dialog) = 0;
 };
 
-class Dialog : public Object {
+class WebDialog : public Object {
     
 public:
-    Dialog();
-    ~Dialog();
-    Dialog(const string &dialog, const ValueMap &params, const DialogCallback &callback);
-    static Dialog *create(const string &dialog, const ValueMap &params, const DialogCallback &callback);
+    WebDialog();
+    ~WebDialog();
+    WebDialog(const string &dialog, const ValueMap &params, const DialogCallback &callback);
+    static WebDialog *create(const string &dialog, const ValueMap &params, const DialogCallback &callback);
 	
     const DialogCallback &getCallback() const;
     const string &getDialog() const;
@@ -67,10 +67,10 @@ private:
     ValueMap _params;
     DialogCallback _callback;
     
-    DialogImpl *_impl;
+    WebDialogImpl *_impl;
     
     /* Dialogs in progress */
-    static Vector<Dialog *> _dialogs;
+    static Vector<WebDialog *> _dialogs;
 };
 
 NS_SCREW_FACEBOOK_END

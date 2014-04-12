@@ -29,7 +29,7 @@
 #include "../macros.h"
 #include "../data/Data.h"
 #include "GraphObject.h"
-#include "Dialog.h"
+#include "WebDialog.h"
 #include "Request.h"
 #include "cocos2d.h"
 

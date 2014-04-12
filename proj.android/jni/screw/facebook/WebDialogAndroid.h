@@ -34,12 +34,12 @@ using namespace std;
 
 NS_SCREW_JNI_BEGIN
 
-class DialogAndroid : public DialogImpl{
+class WebDialogAndroid : public WebDialogImpl {
 public:
-	DialogAndroid();
-	virtual ~DialogAndroid();
+	WebDialogAndroid();
+	virtual ~WebDialogAndroid();
 
-	virtual void show(Dialog *dialog);
+	virtual void show(WebDialog *dialog);
 	static void onDialogComplete(long requestCode, int error, const string &errorMessage, const string &requestId, const list<string> &toes);
 
 private:

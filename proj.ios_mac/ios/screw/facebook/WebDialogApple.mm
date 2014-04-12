@@ -21,13 +21,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "DialogApple.h"
+#include "WebDialogApple.h"
 #import <FacebookSDK/FacebookSDK.h>
 #include "Helper.h"
 
 NS_SCREW_IOS_BEGIN
 
-void DialogApple::show(Dialog *dialog) {
+void WebDialogApple::show(WebDialog *dialog) {
 #if FB_DEBUG >= 1
     NSLog(@"DialogApple::show\n{\n\taction = %s\n\tparams = %s\n}", dialog->getDialog().c_str(), Value(dialog->getParams()).getDescription().c_str());
 #endif

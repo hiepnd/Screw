@@ -36,10 +36,10 @@
 		4727F48118ED852200F83968 /* SessionApple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4727F47F18ED852200F83968 /* SessionApple.mm */; };
 		4727F48418ED854000F83968 /* RequestApple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4727F48218ED854000F83968 /* RequestApple.mm */; };
 		4727F48618ED86EA00F83968 /* FacebookSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4727F48518ED86EA00F83968 /* FacebookSDK.framework */; };
-		4727F48918ED877900F83968 /* DialogApple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4727F48718ED877900F83968 /* DialogApple.mm */; };
+		4727F48918ED877900F83968 /* WebDialogApple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4727F48718ED877900F83968 /* WebDialogApple.mm */; };
 		4727F48D18ED89F900F83968 /* Helper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4727F48B18ED89F900F83968 /* Helper.mm */; };
 		479D623218E503F4008F9DB2 /* ValueUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 479D623018E503F4008F9DB2 /* ValueUtils.cpp */; };
-		479D623A18E579E7008F9DB2 /* Dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 479D623818E579E7008F9DB2 /* Dialog.cpp */; };
+		479D623A18E579E7008F9DB2 /* WebDialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 479D623818E579E7008F9DB2 /* WebDialog.cpp */; };
 		47ABA27C18E6C75A007E6751 /* AppRequests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 47ABA27B18E6C75A007E6751 /* AppRequests.cpp */; };
 		47D19BE918F003F600A15A0C /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 47D19BE718F003F600A15A0C /* Utils.cpp */; };
 		503AE0F817EB97AB00D1A890 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 503AE0F617EB97AB00D1A890 /* Icon.icns */; };
@@ -267,14 +267,14 @@
 		4727F48218ED854000F83968 /* RequestApple.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RequestApple.mm; sourceTree = "<group>"; };
 		4727F48318ED854000F83968 /* RequestApple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RequestApple.h; sourceTree = "<group>"; };
 		4727F48518ED86EA00F83968 /* FacebookSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FacebookSDK.framework; sourceTree = "<group>"; };
-		4727F48718ED877900F83968 /* DialogApple.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DialogApple.mm; sourceTree = "<group>"; };
-		4727F48818ED877900F83968 /* DialogApple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DialogApple.h; sourceTree = "<group>"; };
+		4727F48718ED877900F83968 /* WebDialogApple.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WebDialogApple.mm; sourceTree = "<group>"; };
+		4727F48818ED877900F83968 /* WebDialogApple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebDialogApple.h; sourceTree = "<group>"; };
 		4727F48B18ED89F900F83968 /* Helper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Helper.mm; sourceTree = "<group>"; };
 		4727F48C18ED89F900F83968 /* Helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Helper.h; sourceTree = "<group>"; };
 		479D623018E503F4008F9DB2 /* ValueUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ValueUtils.cpp; sourceTree = "<group>"; };
 		479D623118E503F4008F9DB2 /* ValueUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ValueUtils.h; sourceTree = "<group>"; };
-		479D623818E579E7008F9DB2 /* Dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Dialog.cpp; sourceTree = "<group>"; };
-		479D623918E579E7008F9DB2 /* Dialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Dialog.h; sourceTree = "<group>"; };
+		479D623818E579E7008F9DB2 /* WebDialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebDialog.cpp; sourceTree = "<group>"; };
+		479D623918E579E7008F9DB2 /* WebDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebDialog.h; sourceTree = "<group>"; };
 		47ABA27518E67ECA007E6751 /* screw.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = screw.h; sourceTree = "<group>"; };
 		47ABA27918E6C740007E6751 /* AppRequests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppRequests.h; sourceTree = "<group>"; };
 		47ABA27B18E6C75A007E6751 /* AppRequests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AppRequests.cpp; sourceTree = "<group>"; };
@@ -497,8 +497,8 @@
 		4717493118D4DC8D00473A82 /* facebook */ = {
 			isa = PBXGroup;
 			children = (
-				479D623818E579E7008F9DB2 /* Dialog.cpp */,
-				479D623918E579E7008F9DB2 /* Dialog.h */,
+				479D623818E579E7008F9DB2 /* WebDialog.cpp */,
+				479D623918E579E7008F9DB2 /* WebDialog.h */,
 				4717494E18D4E26400473A82 /* Facebook.cpp */,
 				4717494F18D4E26400473A82 /* Facebook.h */,
 				4717495018D4E26400473A82 /* Session.cpp */,
@@ -553,8 +553,8 @@
 				4727F48018ED852200F83968 /* SessionApple.h */,
 				4727F48218ED854000F83968 /* RequestApple.mm */,
 				4727F48318ED854000F83968 /* RequestApple.h */,
-				4727F48718ED877900F83968 /* DialogApple.mm */,
-				4727F48818ED877900F83968 /* DialogApple.h */,
+				4727F48718ED877900F83968 /* WebDialogApple.mm */,
+				4727F48818ED877900F83968 /* WebDialogApple.h */,
 				4727F48B18ED89F900F83968 /* Helper.mm */,
 				4727F48C18ED89F900F83968 /* Helper.h */,
 			);
@@ -828,9 +828,9 @@
 				1AFAF8B716D35DE700DB1158 /* AppDelegate.cpp in Sources */,
 				4727F48118ED852200F83968 /* SessionApple.mm in Sources */,
 				479D623218E503F4008F9DB2 /* ValueUtils.cpp in Sources */,
-				4727F48918ED877900F83968 /* DialogApple.mm in Sources */,
+				4727F48918ED877900F83968 /* WebDialogApple.mm in Sources */,
 				4717494518D4DC8D00473A82 /* JsonUtils.cpp in Sources */,
-				479D623A18E579E7008F9DB2 /* Dialog.cpp in Sources */,
+				479D623A18E579E7008F9DB2 /* WebDialog.cpp in Sources */,
 				4717494118D4DC8D00473A82 /* Data.cpp in Sources */,
 				503AE10117EB989F00D1A890 /* main.m in Sources */,
 				4717495318D4E26400473A82 /* Session.cpp in Sources */,
@@ -940,7 +940,7 @@
 				INFOPLIST_FILE = ios/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				LIBRARY_SEARCH_PATHS = "";
-				PROVISIONING_PROFILE = "449684D1-C4D1-45BB-80C5-B5CA6212BF40";
+				PROVISIONING_PROFILE = "D14A00D5-CA83-4E17-A724-E9C4212DD07E";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/../cocos2d/cocos/math/kazmath";
@@ -974,7 +974,7 @@
 				INFOPLIST_FILE = ios/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				LIBRARY_SEARCH_PATHS = "";
-				PROVISIONING_PROFILE = "449684D1-C4D1-45BB-80C5-B5CA6212BF40";
+				PROVISIONING_PROFILE = "D14A00D5-CA83-4E17-A724-E9C4212DD07E";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/../cocos2d/cocos/math/kazmath";

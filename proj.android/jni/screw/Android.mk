@@ -9,10 +9,10 @@ LOCAL_MODULE_FILENAME := libscrew
 LOCAL_SRC_FILES := facebook/SessionAndroid.cpp \
 				   facebook/RequestAndroid.cpp \
 				   facebook/Helper.cpp \
-				   facebook/DialogAndroid.cpp \
+				   facebook/WebDialogAndroid.cpp \
                    ../../../Classes/screw/data/Data.cpp \
                    ../../../Classes/screw/facebook/Facebook.cpp \
-                   ../../../Classes/screw/facebook/Dialog.cpp \
+                   ../../../Classes/screw/facebook/WebDialog.cpp \
                    ../../../Classes/screw/facebook/GraphObject.cpp \
                    ../../../Classes/screw/facebook/Request.cpp \
                    ../../../Classes/screw/facebook/Session.cpp \
