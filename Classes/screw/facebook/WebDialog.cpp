@@ -22,6 +22,8 @@
  ****************************************************************************/
 
 #include "WebDialog.h"
+#include "../utils/StringUtils.h"
+#include "../utils/JsonUtils.h"
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
 #include "WebDialogApple.h"
@@ -50,13 +52,13 @@ WebDialog::~WebDialog() {
     delete _impl;
 }
 
-WebDialog *WebDialog::create(const string &dialog, const ValueMap &params, const DialogCallback &callback) {
+WebDialog *WebDialog::create(const string &dialog, const ValueMap &params, const WebDialogCallback &callback) {
     WebDialog *d = new WebDialog(dialog, params, callback);
     d->autorelease();
     return d;
 }
 
-WebDialog::WebDialog(const string &dialog, const ValueMap &params, const DialogCallback &callback):
+WebDialog::WebDialog(const string &dialog, const ValueMap &params, const WebDialogCallback &callback):
 WebDialog()
 {
     this->setDialog(dialog);
@@ -64,11 +66,11 @@ WebDialog()
     this->setCallback(callback);
 }
 
-const DialogCallback &WebDialog::getCallback() const {
+const WebDialogCallback &WebDialog::getCallback() const {
 	return _callback;
 }
 
-void WebDialog::setCallback(const DialogCallback &callback) {
+void WebDialog::setCallback(const WebDialogCallback &callback) {
 	_callback = callback;
 }
 
@@ -92,14 +94,116 @@ void WebDialog::show() {
     FB_LOG("Dialog::show - showing %ld dialog(s)", _dialogs.size());
     CCASSERT(!_dialogs.contains(this), "Bitch ! - try to show a dialog twice ?? ");
     _dialogs.pushBack(this);
-    DialogCallback callback = this->getCallback();
-    this->setCallback([=](int error, const string &requestId, const list<string> &recveivers){
+    WebDialogCallback callback = this->getCallback();
+    this->setCallback([=](int error, ValueMap &values){
         if (callback) {
-            callback(error, requestId, recveivers);
+            callback(error, values);
         }
         _dialogs.eraseObject(this);
     });
     _impl->show(this);
 }
+
+#pragma mark Request Dialog Builder
+RequestDialogBuilder *RequestDialogBuilder::setMessage(const string &message) {
+    _params["message"] = message;
+    return this;
+}
+
+RequestDialogBuilder *RequestDialogBuilder::setTitle(const string &title) {
+    _params["title"] = title;
+    return this;
+}
+
+RequestDialogBuilder *RequestDialogBuilder::setTo(const string &uid) {
+    _params["to"] = uid;
+    return this;
+}
+
+RequestDialogBuilder *RequestDialogBuilder::setTo(vector<string> &uids) {
+    _params["to"] = utils::StringUtils::join(uids, ",");
+    return this;
+}
+
+RequestDialogBuilder *RequestDialogBuilder::setType(int type) {
+    _data["_t"] = type;
+    return this;
+}
+
+RequestDialogBuilder *RequestDialogBuilder::setData(const string &key, const string &value) {
+    _data[key] = value;
+    return this;
+}
+
+RequestDialogBuilder *RequestDialogBuilder::setCallback(const RequestDialogCallback &callback) {
+    _callback = callback;
+    return this;
+}
+
+WebDialog *RequestDialogBuilder::build() {
+    _params["data"] = JsonUtils::toJsonString(_data);
+    WebDialogCallback callback = nullptr;
+    if (_callback) {
+        callback = [=](int error, ValueMap &values){
+            string rid = values["request"].asString();
+            list<string> recipients;
+            int i = 0;
+            while (values.find(string("to[") + utils::StringUtils::toString(i) + string("]")) != values.end()) {
+                recipients.push_back(values[string("to[") + utils::StringUtils::toString(i) + string("]")].asString());
+                i++;
+            }
+            _callback(error, rid, recipients);
+        };
+    }
+    WebDialog *dialog = new WebDialog("apprequests", _params, callback);
+    dialog->autorelease();
+    return dialog;
+}
+
+#pragma mark Feed Dialog Builder
+FeedDialogBuilder *FeedDialogBuilder::setName(const string &name) {
+    _params["name"] = name;
+    return this;
+}
+
+FeedDialogBuilder *FeedDialogBuilder::setLink(const string &link) {
+    _params["link"] = link;
+    return this;
+}
+
+FeedDialogBuilder *FeedDialogBuilder::setCaption(const string &caption) {
+    _params["caption"] = caption;
+    return this;
+}
+
+FeedDialogBuilder *FeedDialogBuilder::setDescription(const string &description) {
+    _params["description"] = description;
+    return this;
+}
+
+FeedDialogBuilder *FeedDialogBuilder::setTo(const string &uid) {
+    _params["to"] = uid;
+    return this;
+}
+
+FeedDialogBuilder *FeedDialogBuilder::setCallback(const FeedDialogCallback &callback) {
+    _callback = callback;
+    return this;
+}
+
+
+WebDialog *FeedDialogBuilder::build() {
+    WebDialogCallback callback = nullptr;
+    if (_callback) {
+        callback = [=](int error, ValueMap &values){
+            string rid = values["post_id"].asString();;
+            _callback(error, rid);
+        };
+    }
+    WebDialog *dialog = new WebDialog("feed", _params, callback);
+    dialog->autorelease();
+    return dialog;
+}
+
 
 NS_SCREW_FACEBOOK_END

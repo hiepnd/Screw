@@ -34,7 +34,9 @@ using namespace std;
 
 NS_SCREW_FACEBOOK_BEGIN
 
-typedef std::function<void(int error, const string &requestId, const list<string> &recveivers)> DialogCallback;
+typedef std::function<void(int error, ValueMap &values)> WebDialogCallback;
+typedef std::function<void(int error, const string &requestId, const list<string> &recipients)> RequestDialogCallback;
+typedef std::function<void(int error, const string &feedId)> FeedDialogCallback;
 
 class WebDialog;
 
@@ -49,14 +51,14 @@ class WebDialog : public Object {
 public:
     WebDialog();
     ~WebDialog();
-    WebDialog(const string &dialog, const ValueMap &params, const DialogCallback &callback);
-    static WebDialog *create(const string &dialog, const ValueMap &params, const DialogCallback &callback);
+    WebDialog(const string &dialog, const ValueMap &params, const WebDialogCallback &callback);
+    static WebDialog *create(const string &dialog, const ValueMap &params, const WebDialogCallback &callback);
 	
-    const DialogCallback &getCallback() const;
+    const WebDialogCallback &getCallback() const;
     const string &getDialog() const;
     ValueMap &getParams();
     
-	void setCallback(const DialogCallback &callback);
+	void setCallback(const WebDialogCallback &callback);
 	void setDialog(const string &dialog);
 	void setParams(const ValueMap &params);
 
@@ -65,13 +67,50 @@ public:
 private:
     string _dialog;
     ValueMap _params;
-    DialogCallback _callback;
+    WebDialogCallback _callback;
     
     WebDialogImpl *_impl;
     
     /* Dialogs in progress */
     static Vector<WebDialog *> _dialogs;
 };
+
+class RequestDialogBuilder : public Object {
+public:
+    
+    RequestDialogBuilder *setMessage(const string &message);
+    RequestDialogBuilder *setTitle(const string &title);
+    RequestDialogBuilder *setTo(const string &uid);
+    RequestDialogBuilder *setTo(vector<string> &uids);
+    RequestDialogBuilder *setType(int type);
+    RequestDialogBuilder *setData(const string &key, const string &value);
+    RequestDialogBuilder *setCallback(const RequestDialogCallback &callback);
+    
+    WebDialog *build();
+    
+private:
+    ValueMap _params;
+    ValueMap _data;
+    RequestDialogCallback _callback;
+};
+
+class FeedDialogBuilder : public Object {
+public:
+    
+    FeedDialogBuilder *setName(const string &name);
+    FeedDialogBuilder *setLink(const string &link);
+    FeedDialogBuilder *setCaption(const string &cation);
+    FeedDialogBuilder *setDescription(const string &description);
+    FeedDialogBuilder *setTo(const string &uid);
+    FeedDialogBuilder *setCallback(const FeedDialogCallback &callback);
+    
+    WebDialog *build();
+    
+private:
+    ValueMap _params;
+    FeedDialogCallback _callback;
+};
+
 
 NS_SCREW_FACEBOOK_END
 

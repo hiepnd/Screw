@@ -21,31 +21,29 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef DIALOGANDROID_H_
-#define DIALOGANDROID_H_
+package com.screw.facebook;
 
-#include "Helper.h"
-#include "cocos2d.h"
-#include <map>
+import android.os.Bundle;
 
-USING_NS_SCREW_FACEBOOK;
-USING_NS_CC;
-using namespace std;
-
-NS_SCREW_JNI_BEGIN
-
-class WebDialogAndroid : public WebDialogImpl {
-public:
-	WebDialogAndroid();
-	virtual ~WebDialogAndroid();
-
-	virtual void show(WebDialog *dialog);
-	static void onDialogComplete(long requestCode, int error, const string &errorMessage, const string &json);
-
-private:
-	static map<int, WebDialogCallback> _callbacks;
-	static long _requestCode;
-};
-
-NS_SCREW_JNI_END /* namespace jni { */
-#endif /* DIALOGANDROID_H_ */
+public class Helper {
+	public static String toJsonString(Bundle bundle) {
+		if (bundle == null) {
+			return "{}";
+		}
+		
+		String json = new String("{");
+		for (String k : bundle.keySet()) {
+			String value = bundle.getString(k);
+			if (value != null) {
+				json += "\"" + k + "\": ";
+				json += "\"" + value + "\"";
+				json += ",";
+			}
+		}
+		if (json.endsWith(",")) {
+			json = json.substring(0, json.length() - 1);
+		}
+		json += "}";
+		return json;
+	}
+}

@@ -25,10 +25,11 @@
 #include <jni.h>
 #include "cocos/2d/platform/android/jni/JniHelper.h"
 #include "Helper.h"
+#include "screw/utils/JsonUtils.h"
 
 NS_SCREW_JNI_BEGIN
 
-map<int, DialogCallback> WebDialogAndroid::_callbacks;
+map<int, WebDialogCallback> WebDialogAndroid::_callbacks;
 long WebDialogAndroid::_requestCode = 0;
 
 WebDialogAndroid::WebDialogAndroid() {
@@ -49,7 +50,7 @@ void WebDialogAndroid::show(WebDialog *dialog) {
 	JNIEnv *env = JniHelper::getEnv();
 	jstring jdialog = env->NewStringUTF(dialog->getDialog().c_str());
 	jobject jparams = Helper::valueMap2jBundle(env, dialog->getParams());
-	env->CallStaticVoidMethod(Helper::jDialogClassID, Helper::jDialogShowMethodID,
+	env->CallStaticVoidMethod(Helper::jWebDialogClassID, Helper::jWebDialogShowMethodID,
 			(jlong)_requestCode,
 			jdialog,
 			jparams
@@ -59,11 +60,11 @@ void WebDialogAndroid::show(WebDialog *dialog) {
 	env->DeleteLocalRef(jparams);
 }
 
-void WebDialogAndroid::onDialogComplete(long requestCode, int errorCode, const string &errorMessage,
-										const string &requestId, const list<string> &toes) {
+void WebDialogAndroid::onDialogComplete(long requestCode, int errorCode, const string &errorMessage, const string &json) {
 	auto iter = _callbacks.find(requestCode);
 	if (iter != _callbacks.end()) {
-		(iter->second)(errorCode, requestId, toes);
+		ValueMap vm(JsonUtils::parse(json));
+		(iter->second)(errorCode, vm);
 		_callbacks.erase(iter);
 	}
 }
@@ -72,15 +73,14 @@ NS_SCREW_JNI_END /* namespace jni { */
 
 
 extern "C" {
-//static native void nativeCompleteAppRequest(long requestCode, int error, String errorMessage, String requestId, String []toes);
-JNIEXPORT void JNICALL Java_com_screw_facebook_Dialog_nativeCompleteAppRequest(JNIEnv *env, jclass jclass, jlong jrequestCode,
-													jint jerror, jstring jerrorMessage, jstring jrequestId, jobjectArray jreceivers) {
+//private static native void nativeCompleteAppRequest(long requestCode, int error, String errorMessage, String jsonResponse);
+JNIEXPORT void JNICALL Java_com_screw_facebook_WebDialog_nativeCompleteAppRequest(JNIEnv *env, jclass jclass, jlong jrequestCode,
+													jint jerror, jstring jerrorMessage, jstring jjson) {
 
 	FB_LOG("Dialog_nativeCompleteAppRequest - error = %d", jerror);
 	string errorMessage = jni::Helper::jString2String(env, jerrorMessage);
-	string requestId = jni::Helper::jString2String(env, jrequestId);
-	list<string> receivers = jni::Helper::jStringArray2StringList(env, jreceivers);
-	jni::WebDialogAndroid::onDialogComplete((long)jrequestCode, (int)jerror, errorMessage, requestId, receivers);
+	string json = jni::Helper::jString2String(env, jjson);
+	jni::WebDialogAndroid::onDialogComplete((long)jrequestCode, (int)jerror, errorMessage, json);
 }
 
 } /* extern "C" { */

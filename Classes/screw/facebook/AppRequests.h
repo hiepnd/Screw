@@ -78,7 +78,7 @@ public:
     void clearRequest(const string &rid);
     
     void fetchAppRequests(const ApprequestsRequestCallback &callback = nullptr);
-    void sendAppRequest(const ValueMap &params, const DialogCallback &callback = nullptr);
+    void sendAppRequest(const ValueMap &params, const WebDialogCallback &callback = nullptr);
     
     void purgeData();
     

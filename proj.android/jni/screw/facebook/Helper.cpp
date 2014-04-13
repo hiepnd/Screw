@@ -33,7 +33,7 @@ jclass Helper::jStringClassID = NULL;
 jclass Helper::jBundleClassID = NULL;
 jclass Helper::jSessionClassID = NULL;
 jclass Helper::jRequestClassID = NULL;
-jclass Helper::jDialogClassID = NULL;
+jclass Helper::jWebDialogClassID = NULL;
 jclass Helper::jAdsClassID = NULL;
 jclass Helper::jUtilsClassID = NULL;
 
@@ -42,7 +42,7 @@ jmethodID Helper::jBundlePutStringMethodID = NULL;
 jmethodID Helper::jBundlePutBundleMethodID = NULL;
 jmethodID Helper::jBundlePutStringArrayMethodID = NULL;
 jmethodID Helper::jRequestRequestMethodID = NULL;
-jmethodID Helper::jDialogShowMethodID = NULL;
+jmethodID Helper::jWebDialogShowMethodID = NULL;
 jmethodID Helper::jAdsShowMethodID = NULL;
 jmethodID Helper::jAdsHideMethodID = NULL;
 jmethodID Helper::jAdsCreateMethodID = NULL;
@@ -64,7 +64,7 @@ void Helper::initialize(JNIEnv *env) {
 	jBundleClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("android/os/Bundle")));
 	jSessionClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/facebook/Session")));
 	jRequestClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/facebook/Request")));
-	jDialogClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/facebook/Dialog")));
+	jWebDialogClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/facebook/WebDialog")));
 	jStringClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("java/lang/String")));
 	jAdsClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/ads/Ads")));
 	jUtilsClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/utils/Utils")));
@@ -88,7 +88,7 @@ void Helper::initialize(JNIEnv *env) {
 	jRequestRequestMethodID = env->GetStaticMethodID(jRequestClassID, "request" ,"(JLjava/lang/String;Landroid/os/Bundle;I)V");
 
 	//Java: static void showRequest(long requestCode, String dialog, Bundle params)
-	jDialogShowMethodID = env->GetStaticMethodID(jDialogClassID, "show" ,"(JLjava/lang/String;Landroid/os/Bundle;)V");
+	jWebDialogShowMethodID = env->GetStaticMethodID(jWebDialogClassID, "show" ,"(JLjava/lang/String;Landroid/os/Bundle;)V");
 
 }
 

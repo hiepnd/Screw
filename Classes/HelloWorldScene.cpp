@@ -182,14 +182,14 @@ bool HelloWorld::init()
         pb->setType(1);
         pb->setData("score", "32767");
         
-		WebDialog *dialog = new WebDialog();
-        dialog->setParams(pb->build());
-        dialog->setDialog("apprequests");
-        dialog->setCallback([](int error, const string &requestId, const list<string> &recveivers){
-            CCLOG("App request - error = %d, id = '%s', receivers = [%s]", error, requestId.c_str(), screw::utils::StringUtils::join(recveivers, ",").c_str());
-        });
-        dialog->show();
-        dialog->release();
+//		WebDialog *dialog = new WebDialog();
+//        dialog->setParams(pb->build());
+//        dialog->setDialog("apprequests");
+//        dialog->setCallback([](int error, const string &requestId, const list<string> &recveivers){
+//            CCLOG("App request - error = %d, id = '%s', receivers = [%s]", error, requestId.c_str(), screw::utils::StringUtils::join(recveivers, ",").c_str());
+//        });
+//        dialog->show();
+//        dialog->release();
         
 	});
     apprequest->setPosition(visibleSize.width/2 - 200, visibleSize.height/2 + 50);
@@ -203,21 +203,26 @@ bool HelloWorld::init()
 			return;
 		}
 
-        ValueMap feedParams;
-        feedParams["link"] = "https://github.com/hiepnd";
-        feedParams["name"] = "Title";
-        feedParams["message"] = "Message";
-        feedParams["caption"] = "Caption";
-        feedParams["description"] = "Description";
+        FeedDialogBuilder *fdb = new FeedDialogBuilder();
+        fdb->setLink("https://github.com/hiepnd");
+        fdb->setCaption("Caption");
+        fdb->setName("Name");
+        fdb->setDescription("Description");
         
-		WebDialog *dialog = new WebDialog();
-        dialog->setParams(feedParams);
-        dialog->setDialog("feed");
-        dialog->setCallback([](int error, const string &requestId, const list<string> &recveivers){
-            CCLOG("App request - error = %d, id = '%s', receivers = [%s]", error, requestId.c_str(), screw::utils::StringUtils::join(recveivers, ",").c_str());
+        fdb->setCallback([](int error, const string &rid){
+            CCLOG("Feed dialog result: error = %d, rid = %s", error, rid.c_str());
         });
-        dialog->show();
-        dialog->release();
+        
+        fdb->build()->show();
+        
+//		WebDialog *dialog = new WebDialog();
+//        dialog->setParams(feedParams);
+//        dialog->setDialog("feed");
+//        dialog->setCallback([](int error, const string &requestId, const list<string> &recveivers){
+//            CCLOG("App request - error = %d, id = '%s', receivers = [%s]", error, requestId.c_str(), screw::utils::StringUtils::join(recveivers, ",").c_str());
+//        });
+//        dialog->show();
+//        dialog->release();
         
 	});
     feedDialog->setPosition(visibleSize.width/2 - 200, visibleSize.height/2 + 150);

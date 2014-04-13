@@ -155,7 +155,7 @@ void AppRequests::fetchAppRequests(const ApprequestsRequestCallback &callback) {
     request->execute();
 }
 
-void AppRequests::sendAppRequest(const ValueMap &params, const DialogCallback &callback) {
+void AppRequests::sendAppRequest(const ValueMap &params, const WebDialogCallback &callback) {
     WebDialog *dialog = WebDialog::create("apprequests", params, callback);
     dialog->show();
 }

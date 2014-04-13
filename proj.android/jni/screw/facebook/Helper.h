@@ -62,7 +62,7 @@ public:
 	static jclass jBundleClassID;
 	static jclass jSessionClassID;
 	static jclass jRequestClassID;
-	static jclass jDialogClassID;
+	static jclass jWebDialogClassID;
 	static jclass jAdsClassID;
 	static jclass jUtilsClassID;
 
@@ -72,7 +72,7 @@ public:
 	static jmethodID jBundlePutBundleMethodID;
 	static jmethodID jBundlePutStringArrayMethodID;
 	static jmethodID jRequestRequestMethodID;
-	static jmethodID jDialogShowMethodID;
+	static jmethodID jWebDialogShowMethodID;
 	static jmethodID jAdsShowMethodID;
 	static jmethodID jAdsHideMethodID;
 	static jmethodID jAdsCreateMethodID;

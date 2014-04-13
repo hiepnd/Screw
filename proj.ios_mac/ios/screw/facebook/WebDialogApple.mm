@@ -40,16 +40,13 @@ void WebDialogApple::show(WebDialog *dialog) {
 #if FB_DEBUG >= 1
                                               NSLog(@"DialogApple::DialogCallback - result = %d, url = %@, error = %@", result, resultURL, error);
 #endif
-                                              //url: url = fbconnect://success?request=683722131674077&to%5B0%5D=664038782
                                               if (dialog->getCallback()) {
                                                   int errorCode = 1;
-                                                  string rid;
-                                                  list<string> receivers;
-                                                  
+                                                  NSMutableDictionary *queries = [NSMutableDictionary dictionary];
                                                   if (resultURL) {
                                                       NSString *queryStr = [resultURL query];
                                                       NSArray *array = [queryStr componentsSeparatedByString:@"&"];
-                                                      NSMutableDictionary *queries = [NSMutableDictionary dictionary];
+                                                      
                                                       for (NSString *s : array) {
                                                           NSArray *ss = [s componentsSeparatedByString:@"="];
                                                           if (ss.count == 2) {
@@ -57,21 +54,9 @@ void WebDialogApple::show(WebDialog *dialog) {
                                                               queries[key] = ss[1];
                                                           }
                                                       }
-                                                      
-                                                      if (queries[@"request"]) {
-                                                          rid = [queries[@"request"] cStringUsingEncoding:NSUTF8StringEncoding];
-                                                          errorCode = 0;
-                                                      }
-                                                      
-                                                      for (int i = 0; true; i++) {
-                                                          NSString *to = queries[[NSString stringWithFormat:@"to[%d]",i]];
-                                                          if (!to) {
-                                                              break;
-                                                          }
-                                                          receivers.push_back([to cStringUsingEncoding:NSUTF8StringEncoding]);
-                                                      }
                                                   }
-                                                  dialog->getCallback()(errorCode, rid, receivers);
+                                                  ValueMap m(Helper::nsDictionary2ValueMap(queries));
+                                                  dialog->getCallback()(errorCode, m);
                                               }
                                           }];
 }
