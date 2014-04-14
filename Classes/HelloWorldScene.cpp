@@ -176,20 +176,18 @@ bool HelloWorld::init()
 			return;
 		}
         
-        AppRequestParamsBuilder *pb = AppRequestParamsBuilder::create("Hello, this is a message");
-        pb->setTitle("The title");
-        pb->setMessage("Message");
-        pb->setType(1);
-        pb->setData("score", "32767");
+        RequestDialogBuilder *rdb = new RequestDialogBuilder();
+        rdb->setMessage("Hello");
+        rdb->setTitle("title");
+        rdb->setType(10);
+        rdb->setData("score", "1000");
         
-//		WebDialog *dialog = new WebDialog();
-//        dialog->setParams(pb->build());
-//        dialog->setDialog("apprequests");
-//        dialog->setCallback([](int error, const string &requestId, const list<string> &recveivers){
-//            CCLOG("App request - error = %d, id = '%s', receivers = [%s]", error, requestId.c_str(), screw::utils::StringUtils::join(recveivers, ",").c_str());
-//        });
-//        dialog->show();
-//        dialog->release();
+        rdb->setCallback([](int error, const string &rid, const list<string> &recipients){
+            CCLOG("App request callback: error = %d, id = %s, recipients = %s", error, rid.c_str(), screw::utils::StringUtils::join(recipients, ",").c_str());
+        });
+        
+        rdb->build()->show();
+        delete rdb;
         
 	});
     apprequest->setPosition(visibleSize.width/2 - 200, visibleSize.height/2 + 50);
@@ -211,9 +209,15 @@ bool HelloWorld::init()
         
         fdb->setCallback([](int error, const string &rid){
             CCLOG("Feed dialog result: error = %d, rid = %s", error, rid.c_str());
+            if (rid.length() > 0) {
+                Request::requestForDelete(rid, [=](int error, bool success){
+                    CCLOG("Delete request %s %s", rid.c_str(), success ? "Success" : "Fail");
+                })->execute();
+            }
         });
         
         fdb->build()->show();
+        delete fdb;
         
 //		WebDialog *dialog = new WebDialog();
 //        dialog->setParams(feedParams);
@@ -248,6 +252,24 @@ bool HelloWorld::init()
 	});
     scores->setPosition(visibleSize.width/2, visibleSize.height/2 + 100);
 	menu->addChild(scores);
+    
+    //Deauthorize
+    auto deauthorize = MenuItemFont::create("Deauthorize", [](Object *sender){
+		if (!Session::getActiveSession()->isOpened()) {
+			CCLOG("%s - session not opened, login first", __func__);
+			return;
+		}
+        
+		Request *r = Request::requestForDelete("me/permissions", [](int error, bool success){
+            CCLOG("Delete request - success = %d", success);
+            Session::getActiveSession()->close();
+        });
+		
+		r->execute();
+        
+	});
+    deauthorize->setPosition(visibleSize.width/2, visibleSize.height/2 - 200);
+	menu->addChild(deauthorize);
     
     return true;
 }

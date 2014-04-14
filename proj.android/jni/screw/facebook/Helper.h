@@ -49,9 +49,6 @@ public:
 	/* ValueMap of string value */
 	static jobject valueMap2jBundle(JNIEnv *env, const ValueMap &m);
 
-	/* Bundle to ValueMap */
-	static ValueMap jBundle2ValueMap(JNIEnv *env, jobject jbundle);
-
 	static list<string> valueVector2StringList(const ValueVector &v);
 
 public:
@@ -63,8 +60,6 @@ public:
 	static jclass jSessionClassID;
 	static jclass jRequestClassID;
 	static jclass jWebDialogClassID;
-	static jclass jAdsClassID;
-	static jclass jUtilsClassID;
 
 	/* Method IDs */
 	static jmethodID jBundleConstructor;
@@ -73,10 +68,6 @@ public:
 	static jmethodID jBundlePutStringArrayMethodID;
 	static jmethodID jRequestRequestMethodID;
 	static jmethodID jWebDialogShowMethodID;
-	static jmethodID jAdsShowMethodID;
-	static jmethodID jAdsHideMethodID;
-	static jmethodID jAdsCreateMethodID;
-	static jmethodID jUtilsNetWorkStatusMethodID;
 
 	static bool _initialized;
 };

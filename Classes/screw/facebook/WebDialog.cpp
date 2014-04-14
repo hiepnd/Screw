@@ -144,7 +144,11 @@ WebDialog *RequestDialogBuilder::build() {
     _params["data"] = JsonUtils::toJsonString(_data);
     WebDialogCallback callback = nullptr;
     if (_callback) {
-        callback = [=](int error, ValueMap &values){
+        RequestDialogCallback &this_callback = _callback;
+        /* Capture this_callback by copy
+         * Cannot capture 'this' here, because it is (normally) freed after build() is called
+         */
+        callback = [this_callback](int error, ValueMap &values){
             string rid = values["request"].asString();
             list<string> recipients;
             int i = 0;
@@ -152,12 +156,11 @@ WebDialog *RequestDialogBuilder::build() {
                 recipients.push_back(values[string("to[") + utils::StringUtils::toString(i) + string("]")].asString());
                 i++;
             }
-            _callback(error, rid, recipients);
+            this_callback(error, rid, recipients);
         };
     }
-    WebDialog *dialog = new WebDialog("apprequests", _params, callback);
-    dialog->autorelease();
-    return dialog;
+
+    return WebDialog::create("apprequests", _params, callback);
 }
 
 #pragma mark Feed Dialog Builder
@@ -195,14 +198,14 @@ FeedDialogBuilder *FeedDialogBuilder::setCallback(const FeedDialogCallback &call
 WebDialog *FeedDialogBuilder::build() {
     WebDialogCallback callback = nullptr;
     if (_callback) {
-        callback = [=](int error, ValueMap &values){
+        FeedDialogCallback &this_callback = _callback;
+        callback = [this_callback](int error, ValueMap &values){
             string rid = values["post_id"].asString();;
-            _callback(error, rid);
+            this_callback(error, rid);
         };
     }
-    WebDialog *dialog = new WebDialog("feed", _params, callback);
-    dialog->autorelease();
-    return dialog;
+
+    return WebDialog::create("feed", _params, callback);
 }
 
 

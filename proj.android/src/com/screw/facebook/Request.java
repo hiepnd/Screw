@@ -95,7 +95,7 @@ public class Request {
 		};
 		request.setCallback(callback);
 		
-		com.screw.facebook.Session.getHandler().post(new Runnable() {
+		com.screw.facebook.Session.getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub

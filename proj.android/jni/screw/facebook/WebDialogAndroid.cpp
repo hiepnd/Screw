@@ -71,13 +71,13 @@ void WebDialogAndroid::onDialogComplete(long requestCode, int errorCode, const s
 
 NS_SCREW_JNI_END /* namespace jni { */
 
-
 extern "C" {
 //private static native void nativeCompleteAppRequest(long requestCode, int error, String errorMessage, String jsonResponse);
 JNIEXPORT void JNICALL Java_com_screw_facebook_WebDialog_nativeCompleteAppRequest(JNIEnv *env, jclass jclass, jlong jrequestCode,
 													jint jerror, jstring jerrorMessage, jstring jjson) {
 
-	FB_LOG("Dialog_nativeCompleteAppRequest - error = %d", jerror);
+	FB_LOG("Dialog_nativeCompleteAppRequest - request code = %ld, error = %d", (long)jrequestCode, jerror);
+	FB_LOG_INFO("Dialog_nativeCompleteAppRequest - json response = %s", jni::Helper::jString2String(env, jjson).c_str());
 	string errorMessage = jni::Helper::jString2String(env, jerrorMessage);
 	string json = jni::Helper::jString2String(env, jjson);
 	jni::WebDialogAndroid::onDialogComplete((long)jrequestCode, (int)jerror, errorMessage, json);

@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.cocos2dx.lib.Cocos2dxHelper;
+
 import com.facebook.FacebookException;
 import com.facebook.FacebookOperationCanceledException;
 import com.facebook.internal.ServerProtocol;
@@ -36,7 +38,7 @@ import android.util.Log;
 
 public class WebDialog {
 	private static final int DEBUG = Session.DEBUG;
-	private static final String TAG = "Screw.Dialog";
+	private static final String TAG = "Screw.WebDialog";
 	
 	public static void show(final long requestCode, final String action, final Bundle params) {
 		if (DEBUG > 0) {
@@ -53,28 +55,34 @@ public class WebDialog {
 			public void onComplete(Bundle values, FacebookException error) {
 				// TODO Auto-generated method stub
 				int errorCode = 0;
-				String json = Helper.toJsonString(values);
-				String errorMessage = "";
+				final String json = Helper.toJsonString(values);
+				final String errorMessage = "";
 				if (error != null) {
 					errorCode = 1;
-					errorMessage = "Something wrong !!! - Enable DEBUG in Dialog for detail";
+					errorMessage.concat("Something wrong !!! - Enable DEBUG in WebDialog for detail");
 					if (error instanceof FacebookOperationCanceledException) {
-						errorMessage = "Request cancelled";
+						errorMessage.concat("Request cancelled");
 					}
 				}
 				if (DEBUG > 0) {
 					Log.d(TAG, "Request #" + requestCode + " completed\n{\n");
-					Log.d(TAG, "Values = " + values);
-					Log.d(TAG, "Json = " + json);
+					Log.d(TAG, "	Values = " + values);
+					Log.d(TAG, "	Json = " + json);
 					if (errorCode != 0) {
 						Log.d(TAG, "	Error = " + error);
-					} else {
-//						Log.d(TAG, "	RequestId = '" + requestId + "'");
-//						Log.d(TAG, "	Receivers = " + toes + "");
 					}
 					Log.d(TAG, "}");
 				}
-				nativeCompleteAppRequest(requestCode, errorCode, errorMessage, json);
+				
+				final int errorCode_ = errorCode; 
+				Cocos2dxHelper.runOnGLThread(new Runnable() {
+					
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						nativeCompleteAppRequest(requestCode, errorCode_, errorMessage, json);
+					}
+				});
 			}
 		};
 		
@@ -87,7 +95,7 @@ public class WebDialog {
         	params.putString(ServerProtocol.DIALOG_PARAM_APP_ID, session.getApplicationId());
         }
 		
-		Session.getHandler().post(new Runnable() {
+		Session.getActivity().runOnUiThread(new Runnable() {
 			
 			@Override
 			public void run() {

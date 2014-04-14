@@ -38,17 +38,15 @@ import com.facebook.Session.OpenRequest;
 
 public class Session {
 	/* Debug: 0 - disabled, 1 - info, 2 - data */
-	public static final int DEBUG = 0;
+	public static final int DEBUG = 2;
 	public static final String TAG = "Screw.Session";
 
 	private static boolean _started = false;
 	private static Activity _activity = null;
 	private static SessionStatusCallback _statusCallback = new SessionStatusCallback();
-	private static Handler _handler;
 
 	public static void onActivityCreate(Activity activity, Bundle savedInstanceState) {
 		_activity = activity;
-		_handler = new Handler();
 		
 		com.facebook.Session session = com.facebook.Session.getActiveSession();
 		if (session == null) {
@@ -94,7 +92,6 @@ public class Session {
 
 	public static void onActivityDestroy() {
 		_activity = null;
-		_handler = null;
 	}
 
 	public static void open(boolean allowUi, String[] permissions) {
@@ -106,7 +103,7 @@ public class Session {
 		}
 		final String[] permissions_ = permissions;
 		final boolean allowUi_ = allowUi;
-		_handler.post(new Runnable() {
+		_activity.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
@@ -128,7 +125,7 @@ public class Session {
 	}
 
 	public static void close() {
-		_handler.post(new Runnable() {
+		_activity.runOnUiThread(new Runnable() {
 
 			@Override
 			public void run() {
@@ -159,10 +156,6 @@ public class Session {
 		}
 		NewPermissionsRequest request = new NewPermissionsRequest(_activity, Arrays.asList(permissions));
 		com.facebook.Session.getActiveSession().requestNewPublishPermissions(request);
-	}
-
-	public static Handler getHandler() {
-		return _handler;
 	}
 
 	public static Activity getActivity() {

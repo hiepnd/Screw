@@ -34,8 +34,6 @@ jclass Helper::jBundleClassID = NULL;
 jclass Helper::jSessionClassID = NULL;
 jclass Helper::jRequestClassID = NULL;
 jclass Helper::jWebDialogClassID = NULL;
-jclass Helper::jAdsClassID = NULL;
-jclass Helper::jUtilsClassID = NULL;
 
 jmethodID Helper::jBundleConstructor = NULL;
 jmethodID Helper::jBundlePutStringMethodID = NULL;
@@ -43,10 +41,6 @@ jmethodID Helper::jBundlePutBundleMethodID = NULL;
 jmethodID Helper::jBundlePutStringArrayMethodID = NULL;
 jmethodID Helper::jRequestRequestMethodID = NULL;
 jmethodID Helper::jWebDialogShowMethodID = NULL;
-jmethodID Helper::jAdsShowMethodID = NULL;
-jmethodID Helper::jAdsHideMethodID = NULL;
-jmethodID Helper::jAdsCreateMethodID = NULL;
-jmethodID Helper::jUtilsNetWorkStatusMethodID = NULL;
 
 Helper::Helper() {
 
@@ -58,7 +52,7 @@ Helper::~Helper() {
 
 void Helper::initialize(JNIEnv *env) {
 	CCASSERT(!_initialized, "Try to init twice ???");
-	CCLOG("jni::Helper::initializing ...");
+	CCLOG("screw::jni::Helper::initializing ...");
 	_initialized = true;
 
 	jBundleClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("android/os/Bundle")));
@@ -66,23 +60,11 @@ void Helper::initialize(JNIEnv *env) {
 	jRequestClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/facebook/Request")));
 	jWebDialogClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/facebook/WebDialog")));
 	jStringClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("java/lang/String")));
-	jAdsClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/ads/Ads")));
-	jUtilsClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/utils/Utils")));
 
 	jBundleConstructor = env->GetMethodID(jBundleClassID, "<init>", "()V");
 	jBundlePutStringMethodID = env->GetMethodID(jBundleClassID, "putString", "(Ljava/lang/String;Ljava/lang/String;)V");
 	jBundlePutBundleMethodID = env->GetMethodID(jBundleClassID, "putBundle", "(Ljava/lang/String;Landroid/os/Bundle;)V");
 	jBundlePutStringArrayMethodID = env->GetMethodID(jBundleClassID, "putStringArray", "(Ljava/lang/String;[Ljava/lang/String;)V");
-	jUtilsNetWorkStatusMethodID = env->GetStaticMethodID(jUtilsClassID, "isNetWorkReachable", "()Z");
-
-	//Java: public static int createAd(int context)
-	jAdsCreateMethodID = env->GetStaticMethodID(jAdsClassID, "createAd", "(I)I");
-
-	//Java: public static void showAd(final int code)
-	jAdsShowMethodID = env->GetStaticMethodID(jAdsClassID, "showAd", "(I)V");
-
-	//Java: public static void hideAd(final int code)
-	jAdsHideMethodID = env->GetStaticMethodID(jAdsClassID, "hideAd", "(I)V");
 
 	//Java: void request(long requestCode, String graphPath, Bundle parameters, int httpMethod)
 	jRequestRequestMethodID = env->GetStaticMethodID(jRequestClassID, "request" ,"(JLjava/lang/String;Landroid/os/Bundle;I)V");
@@ -125,10 +107,6 @@ list<string> Helper::jStringArray2StringList(JNIEnv *env, jobjectArray array) {
 	}
 
 	return ll;
-}
-
-ValueMap Helper::jBundle2ValueMap(JNIEnv *env, jobject jbundle) {
-
 }
 
 jobject Helper::valueMap2jBundle(JNIEnv *env, const ValueMap &m) {
