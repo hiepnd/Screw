@@ -102,20 +102,20 @@ void Session::setStatusCallback(const SessionStatusCallback &callback) {
 	_callback = callback;
 }
 
-void Session::open(bool allowUi, const list<string> &permissions) {
-    _impl->open(allowUi, permissions);
+void Session::open(bool allowUi, const list<string> &permissions, DefaultAudience defaultAudience, LoginBehavior loginBehavior) {
+    _impl->open(allowUi, permissions, defaultAudience, loginBehavior);
 }
 
 void Session::close() {
     _impl->close();
 }
 
-void Session::requestReadPermissions(const list<string> &permission) {
-    _impl->requestReadPermissions(permission);
+void Session::requestReadPermissions(const list<string> &permissions) {
+    _impl->requestReadPermissions(permissions);
 }
 
-void Session::requestPublishPermissions(const list<string> &permission) {
-    _impl->requestPublishPermissions(permission);
+void Session::requestPublishPermissions(const list<string> &permissions) {
+    _impl->requestPublishPermissions(permissions);
 }
 
 Session::State Session::getState() {

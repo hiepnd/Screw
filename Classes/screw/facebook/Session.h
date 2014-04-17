@@ -38,14 +38,28 @@ class Session;
 
 typedef std::function<void(Session *)> SessionStatusCallback;
 
+enum LoginBehavior {
+    WITH_FALLBACK_TO_WEBVIEW,
+    WITH_NO_FALLBACK_TO_WEBVIEW,
+    FORCE_WEBVIEW,
+    SYSTEM_IF_PRESENT
+};
+
+enum DefaultAudience {
+    NONE,
+    ONLY_ME,
+    FRIENDS,
+    PUBLIC
+};
+
 class SessionImpl {
 public:
     virtual ~SessionImpl(){};
     
-    virtual void open(bool allowUi , const list<string> &permission) = 0;
+    virtual void open(bool allowUi, const list<string> &permissions, DefaultAudience defaultAudience, LoginBehavior loginBehavior) = 0;
     virtual void close() = 0;
-    virtual void requestReadPermissions(const list<string> &permission) = 0;
-    virtual void requestPublishPermissions(const list<string> &permission) = 0;
+    virtual void requestReadPermissions(const list<string> &permissions) = 0;
+    virtual void requestPublishPermissions(const list<string> &permissions) = 0;
 };
 
 class Session {
@@ -60,7 +74,8 @@ public:
         CLOSED_LOGIN_FAILED,
         CLOSED
     };
-
+    
+    static void start();
 	static Session *getActiveSession();
 
     void setStatusCallback(const SessionStatusCallback &callback);
@@ -70,13 +85,19 @@ public:
     bool isOpened();
     bool isClosed();
 
-    static void start();
-
-    /* Need platform dependent implementation */
-    void open(bool allowUi = false, const list<string> &permission = list<string>());
+    /* Platform dependent implementation */
+    
+    /**
+     * Open Facebook Session
+     * @allowUi if false then no UI will be presented
+     * @permissions: 
+     */
+    void open(bool allowUi, const list<string> &permissions = {},
+              DefaultAudience defaultAudience = DefaultAudience::NONE,
+              LoginBehavior loginBehavior = LoginBehavior::SYSTEM_IF_PRESENT);
     void close();
-    void requestReadPermissions(const list<string> &permission);
-    void requestPublishPermissions(const list<string> &permission);
+    void requestReadPermissions(const list<string> &permissions);
+    void requestPublishPermissions(const list<string> &permissions);
     
     /* Called soly by iOS/Android implementations */
 	static void initActiveSession(State state, const string &appid, const list<string> &permissions);

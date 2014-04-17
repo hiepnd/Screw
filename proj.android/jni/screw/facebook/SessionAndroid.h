@@ -36,7 +36,7 @@ public:
 	SessionAndroid();
 	virtual ~SessionAndroid();
 
-	virtual void open(bool allowUi , const list<string> &permission) override;
+	virtual void open(bool allowUi, const list<string> &permissions, DefaultAudience defaultAudience, LoginBehavior loginBehavior) override;
 	virtual void close() override;
 	virtual void requestReadPermissions(const list<string> &permission) override;
 	virtual void requestPublishPermissions(const list<string> &permission) override;

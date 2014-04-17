@@ -36,14 +36,16 @@ SessionAndroid::~SessionAndroid() {
 	// TODO Auto-generated destructor stub
 }
 
-void SessionAndroid::open(bool allowUi , const list<string> &permissions) {
-	//Java: public static void open(boolean allowUi, String[] permissions)
+void SessionAndroid::open(bool allowUi, const list<string> &permissions, DefaultAudience defaultAudience, LoginBehavior loginBehavior) {
+	//Java: public static void open(boolean allowUi, String[] permissions, final int defaultAudience, final int loginBehavior)
 	JniMethodInfo methodInfo;
-	JniHelper::getStaticMethodInfo(methodInfo, "com/screw/facebook/Session", "open", "(Z[Ljava/lang/String;)V");
+	JniHelper::getStaticMethodInfo(methodInfo, "com/screw/facebook/Session", "open", "(Z[Ljava/lang/String;II)V");
 	jobjectArray jpermissions = Helper::stringList2jStringArray(methodInfo.env, permissions);
 	methodInfo.env->CallStaticVoidMethod(methodInfo.classID, methodInfo.methodID,
 					(jboolean) allowUi,
-					jpermissions
+					jpermissions,
+					(jint)defaultAudience,
+					(jint)loginBehavior
 				);
 
 	methodInfo.env->DeleteLocalRef(methodInfo.classID);

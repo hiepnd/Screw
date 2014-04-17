@@ -33,6 +33,8 @@ bool SessionApple::_started = false;
 static FBSessionStateHandler _statusCallback = nil;
 
 static Session::State nsState2NativeState(FBSessionState status);
+static FBSessionLoginBehavior getLoginBehavior(LoginBehavior behavior);
+static FBSessionDefaultAudience getDefaultAudience(DefaultAudience audience);
 
 void SessionApple::start() {
     CCASSERT(!_started, "Must call me once");
@@ -57,28 +59,31 @@ void SessionApple::start() {
                                screw::ios::Helper::nsArray2cList(session.permissions));
 }
 
-void SessionApple::open(bool allowUi, const list<string> &permission) {
-    if (FB_ISSESSIONSTATETERMINAL([FBSession activeSession].state)) {
-        FBSession *session = [[[FBSession alloc] init] autorelease];
+void SessionApple::open(bool allowUi, const list<string> &permissions, DefaultAudience defaultAudience, LoginBehavior loginBehavior) {
+    FBSession *session = [[[FBSession alloc] initWithAppID:nil
+                                               permissions:screw::ios::Helper::cList2nsArray(permissions)
+                                           defaultAudience:getDefaultAudience(defaultAudience)
+                                           urlSchemeSuffix:nil
+                                        tokenCacheStrategy:nil]
+                          autorelease];
+    if (allowUi || session.state == FBSessionStateCreatedTokenLoaded) {
         [FBSession setActiveSession:session];
+        [session openWithBehavior:getLoginBehavior(loginBehavior)
+                completionHandler:_statusCallback];
     }
-    
-    [FBSession openActiveSessionWithReadPermissions:screw::ios::Helper::cList2nsArray(permission)
-                                       allowLoginUI:allowUi
-                                  completionHandler:_statusCallback];
 }
 
 void SessionApple::close() {
     [[FBSession activeSession] closeAndClearTokenInformation];
 }
 
-void SessionApple::requestReadPermissions(const list<string> &permission) {
-    [[FBSession activeSession] requestNewReadPermissions:screw::ios::Helper::cList2nsArray(permission)
+void SessionApple::requestReadPermissions(const list<string> &permissions) {
+    [[FBSession activeSession] requestNewReadPermissions:screw::ios::Helper::cList2nsArray(permissions)
                                        completionHandler:nil];
 }
 
-void SessionApple::requestPublishPermissions(const list<string> &permission) {
-    [[FBSession activeSession] requestNewPublishPermissions:screw::ios::Helper::cList2nsArray(permission)
+void SessionApple::requestPublishPermissions(const list<string> &permissions) {
+    [[FBSession activeSession] requestNewPublishPermissions:screw::ios::Helper::cList2nsArray(permissions)
                                             defaultAudience:FBSessionDefaultAudienceFriends
                                           completionHandler:nil];
 }
@@ -118,6 +123,50 @@ Session::State nsState2NativeState(FBSessionState status) {
     }
     
     return Session::State::INVALID;
+}
+
+FBSessionLoginBehavior getLoginBehavior(LoginBehavior behavior) {
+    switch (behavior) {
+        case WITH_FALLBACK_TO_WEBVIEW:
+            return FBSessionLoginBehaviorWithFallbackToWebView;
+            break;
+            
+        case WITH_NO_FALLBACK_TO_WEBVIEW:
+            return FBSessionLoginBehaviorWithNoFallbackToWebView;
+            break;
+            
+        case FORCE_WEBVIEW:
+            return FBSessionLoginBehaviorForcingWebView;
+            break;
+            
+        case SYSTEM_IF_PRESENT:
+            return FBSessionLoginBehaviorUseSystemAccountIfPresent;
+            break;
+            
+        default:
+            CCASSERT(false, "Unknown behavior");
+            break;
+    }
+}
+
+FBSessionDefaultAudience getDefaultAudience(DefaultAudience audience) {
+    switch (audience) {
+        case DefaultAudience::PUBLIC:
+            return FBSessionDefaultAudienceEveryone;
+            break;
+            
+        case DefaultAudience::ONLY_ME:
+            return FBSessionDefaultAudienceOnlyMe;
+            break;
+            
+        case DefaultAudience::FRIENDS:
+            return FBSessionDefaultAudienceFriends;
+            break;
+            
+        default:
+            return FBSessionDefaultAudienceNone;
+            break;
+    }
 }
 
 NS_SCREW_IOS_END

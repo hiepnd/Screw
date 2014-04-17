@@ -27,15 +27,17 @@
 #include <iostream>
 #include "screw.h"
 
+USING_NS_SCREW_FACEBOOK
+
 NS_SCREW_IOS_BEGIN
 
 class SessionApple : public screw::facebook::SessionImpl {
     
 public:
-    virtual void open(bool allowUi , const list<string> &permission);
+    virtual void open(bool allowUi, const list<string> &permissions, DefaultAudience defaultAudience, LoginBehavior loginBehavior);
     virtual void close();
-    virtual void requestReadPermissions(const list<string> &permission);
-    virtual void requestPublishPermissions(const list<string> &permission);
+    virtual void requestReadPermissions(const list<string> &permissions);
+    virtual void requestPublishPermissions(const list<string> &permissions);
     
     static void start();
     

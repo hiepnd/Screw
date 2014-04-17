@@ -31,9 +31,8 @@ bool AppDelegate::applicationDidFinishLaunching() {
     // set FPS. the default value is 1.0/60 if you don't call this
     director->setAnimationInterval(1.0 / 60);
 
-    
     if (Session::getActiveSession()->getState() == Session::State::CREATED_TOKEN_LOADED) {
-        Session::getActiveSession()->open();
+        Session::getActiveSession()->open(false);
     }
     
     // create a scene. it's an autorelease object

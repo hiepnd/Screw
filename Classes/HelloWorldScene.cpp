@@ -97,7 +97,7 @@ bool HelloWorld::init()
         if (Session::getActiveSession()->isOpened()) {
             Session::getActiveSession()->close();
         } else {
-            Session::getActiveSession()->open(true);
+            Session::getActiveSession()->open(true, {}, DefaultAudience::PUBLIC, LoginBehavior::WITH_FALLBACK_TO_WEBVIEW);
         }
     });
 

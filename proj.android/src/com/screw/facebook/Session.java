@@ -94,15 +94,15 @@ public class Session {
 		_activity = null;
 	}
 
-	public static void open(boolean allowUi, String[] permissions) {
+	public static void open(final boolean allowUi, final String[] permissions, final int defaultAudience, final int loginBehavior) {
 		if (DEBUG > 0) {
 			Log.d(TAG, "Open session:\n{\n");
 			Log.d(TAG, "	allowUI = " + allowUi);
 			Log.d(TAG, "	permissions = " + Arrays.asList(permissions));
+			Log.d(TAG, "	defaultAudience = " + getDefaultAudience(defaultAudience));
+			Log.d(TAG, "	loginBehavior = " + getLoginBehavior(loginBehavior));
 			Log.d(TAG, "}");
 		}
-		final String[] permissions_ = permissions;
-		final boolean allowUi_ = allowUi;
 		_activity.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -116,8 +116,10 @@ public class Session {
 
 				com.facebook.Session session = com.facebook.Session.getActiveSession();
 				OpenRequest request = new OpenRequest(_activity);
-				request.setPermissions(Arrays.asList(permissions_));
-				if (SessionState.CREATED_TOKEN_LOADED.equals(session.getState()) || allowUi_) {
+				request.setLoginBehavior(getLoginBehavior(loginBehavior));
+				request.setDefaultAudience(getDefaultAudience(defaultAudience));
+				request.setPermissions(Arrays.asList(permissions));
+				if (SessionState.CREATED_TOKEN_LOADED.equals(session.getState()) || allowUi) {
 					session.openForRead(request);
 				}
 			}
@@ -126,7 +128,7 @@ public class Session {
 
 	public static void close() {
 		_activity.runOnUiThread(new Runnable() {
-
+			
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
@@ -144,8 +146,15 @@ public class Session {
 			Log.d(TAG, "	permissions = " + Arrays.asList(permissions));
 			Log.d(TAG, "}");
 		}
-		NewPermissionsRequest request = new NewPermissionsRequest(_activity, Arrays.asList(permissions));
-		com.facebook.Session.getActiveSession().requestNewReadPermissions(request);
+		final NewPermissionsRequest request = new NewPermissionsRequest(_activity, Arrays.asList(permissions));
+		_activity.runOnUiThread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				com.facebook.Session.getActiveSession().requestNewReadPermissions(request);
+			}
+		});
 	}
 
 	public static void requestPublishPermissions(String[] permissions) {
@@ -154,8 +163,15 @@ public class Session {
 			Log.d(TAG, "	permissions = " + Arrays.asList(permissions));
 			Log.d(TAG, "}");
 		}
-		NewPermissionsRequest request = new NewPermissionsRequest(_activity, Arrays.asList(permissions));
-		com.facebook.Session.getActiveSession().requestNewPublishPermissions(request);
+		final NewPermissionsRequest request = new NewPermissionsRequest(_activity, Arrays.asList(permissions));
+		_activity.runOnUiThread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				com.facebook.Session.getActiveSession().requestNewPublishPermissions(request);
+			}
+		});
 	}
 
 	public static Activity getActivity() {
@@ -229,5 +245,38 @@ public class Session {
 		}
 
 		return code;
+	}
+	
+	private static SessionLoginBehavior getLoginBehavior(int behavior) {
+		switch (behavior) {
+			case 0: //WITH_FALLBACK_TO_WEBVIEW
+				return SessionLoginBehavior.SSO_WITH_FALLBACK;
+			case 1: //WITH_NO_FALLBACK_TO_WEBVIEW
+				return SessionLoginBehavior.SSO_ONLY;
+			case 2: //FORCE_WEBVIEW
+				return SessionLoginBehavior.SUPPRESS_SSO;
+			case 3: //SYSTEM_IF_PRESENT
+				return SessionLoginBehavior.SSO_WITH_FALLBACK;
+		}
+		
+		assert false : "Unknown behavior";
+		return SessionLoginBehavior.SSO_WITH_FALLBACK;
+	}
+	
+	private static SessionDefaultAudience getDefaultAudience(int audience) {
+		switch (audience) {
+			case 0: //NONE
+				return SessionDefaultAudience.NONE;
+			case 1: //ONLY_ME
+				return SessionDefaultAudience.ONLY_ME;
+			case 2: //FRIENDS
+				return SessionDefaultAudience.FRIENDS;
+			case 3: //PUBLIC
+				return SessionDefaultAudience.EVERYONE;
+				
+			default:
+				break;
+		}
+		return SessionDefaultAudience.NONE;
 	}
 }
