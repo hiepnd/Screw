@@ -113,12 +113,44 @@ NS_SCREW_FACEBOOK_BEGIN
             }
 
 /**
+ * GO_SET_GRAPH_OBJECT(GraphUser, User, "from") ==> void setUser(GraphUser *user) {....}
+ * Set nullptr resulted in clearing property
+ */
+#define GO_SET_GRAPH_OBJECT(class, name, path) \
+            void set##name(class *value) { \
+                if (value) { \
+                    set(path, value->getValue()); \
+                } else { \
+                    clear(path); \
+                } \
+            }
+
+
+#define GO_PROPERTY_OBJECT(class, name, path) \
+            GO_GET_GRAPH_OBJECT(class, name, path); \
+            GO_SET_GRAPH_OBJECT(class, name, path);
+
+/**
  * GO_GET_GRAPH_OBJECT_LIST(GraphUser, Friends, "data") ==> Vector<GraphUser *> getFriends() {...}
  */
 #define GO_GET_GRAPH_OBJECT_LIST(class, name, path) \
             Vector<class *> get##name() { \
                 return getPropertyAsList<class>(path);\
             }
+
+#define GO_SET_GRAPH_OBJECT_LIST(class, name, path) \
+            void set##name(const Vector<class *> &l) { \
+                ValueVector vv; \
+                for (auto i : l) { \
+                    vv.push_back(i->getValue());\
+                } \
+                _data.asValueMap()[path] = vv; \
+            }
+
+#define GO_PROPERTY_GRAPH_OBJECT_LIST(class, name, path) \
+            GO_GET_GRAPH_OBJECT_LIST(class, name, path); \
+            GO_SET_GRAPH_OBJECT_LIST(class, name, path); 
+
 
 #define GO_CREATE(class) \
             static class *create(const Value &v) { \
@@ -127,6 +159,15 @@ NS_SCREW_FACEBOOK_BEGIN
                 obj->autorelease(); \
                 return obj; \
             }
+
+#define GO_CREATE_EMPTY(class) \
+            static class *create() { \
+                class *obj = new class(); \
+                obj->init(Value(ValueMap())); \
+                obj->autorelease(); \
+                return obj; \
+            }
+
 
 class GraphObject : public Object {
 public:
@@ -137,7 +178,7 @@ public:
 
     bool hasProperty(const string &name);
     
-    Value &getData();
+    Value &getValue();
 	Value &get(const string &path);
     int     getInt(const string &path);
 	long    getLong(const string &path);
@@ -150,9 +191,11 @@ public:
     void set(const string &path, const string &value);
     void set(const string &path, const Value &value);
     
+    void clear(const string &path);
+    
     template<class From, class To>
     static To *castTo(From *from) {
-        Value &v = from->getData();
+        Value &v = from->getValue();
         To *t = new To();
         t->init(v);
         t->autorelease();
@@ -190,6 +233,14 @@ public:
     // ???
     Value &operator[](const string &path) {
         return _data.asValueMap()[path];
+    }
+    
+    void set(const Vector<GraphObject *> &l) {
+        ValueVector v;
+        for (auto i : l) {
+            v.push_back(i->getValue());
+        }
+        _data.asValueMap()["something"] = v;
     }
     
 protected:

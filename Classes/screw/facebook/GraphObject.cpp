@@ -53,7 +53,7 @@ bool GraphObject::hasProperty(const string &name) {
     return !get(name).isNull();
 }
 
-Value &GraphObject::getData() {
+Value &GraphObject::getValue() {
     return _data;
 }
 
@@ -95,6 +95,10 @@ void GraphObject::set(const string &path, const string &value) {
 
 void GraphObject::set(const string &path, const Value &value) {
     ValueSetter::set(_data, path, value);
+}
+
+void GraphObject::clear(const string &path) {
+    ValueSetter::clear(_data, path);
 }
 
 NS_SCREW_FACEBOOK_END

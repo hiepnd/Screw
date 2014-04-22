@@ -145,7 +145,7 @@ void Facebook::clearDirtyScore() {
 #pragma mark Private Save
 void Facebook::saveUserDetail(GraphUser *user) {
     //Get current score
-    Value data = user->getData();
+    Value data = user->getValue();
     long score = _data->getLong(screw::data::PathBuilder::create(FacebookDataProfilesKey)->append(user->getId())
                                                                     ->append(GraphUser::SCORE)->build());
     if (score != 0) {
@@ -157,7 +157,7 @@ void Facebook::saveUserDetail(GraphUser *user) {
 }
 
 void Facebook::saveFriend(GraphUser *user) {
-    Value data = user->getData();
+    Value data = user->getValue();
     long score = _data->getLong(screw::data::PathBuilder::create(FacebookDataProfilesKey)->append(user->getId())
                                                                     ->append(GraphUser::SCORE)->build());
     ValueSetter::set(data, GraphUser::SCORE, score);
@@ -187,7 +187,7 @@ void Facebook::didFetchScores(const Vector<GraphScore *> &scores) {
 //                
 //            }
         } else {
-            Value &newData = user->getData();
+            Value &newData = user->getValue();
             ValueSetter::set(newData, GraphUser::INSTALLED, true);
             ValueSetter::set(newData, GraphUser::SCORE, s->getScore());
             _data->set(FACEBOOK_PROFILE_KEY(user->getId()), newData);

@@ -25,6 +25,8 @@
 		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765A40DF7441C002DB57D /* CoreGraphics.framework */; };
+		470DBBFE19069F88002EF87B /* Dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 470DBBFC19069F88002EF87B /* Dialog.cpp */; };
+		470DBC031906C337002EF87B /* OpenGraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 470DBC011906C337002EF87B /* OpenGraph.cpp */; };
 		4717494118D4DC8D00473A82 /* Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4717492F18D4DC8D00473A82 /* Data.cpp */; };
 		4717494218D4DC8D00473A82 /* GraphObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4717493218D4DC8D00473A82 /* GraphObject.cpp */; };
 		4717494318D4DC8D00473A82 /* Request.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4717493418D4DC8D00473A82 /* Request.cpp */; };
@@ -245,6 +247,10 @@
 		1D6058910D05DD3D006BFB54 /* Screw iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Screw iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		288765A40DF7441C002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		470DBBFC19069F88002EF87B /* Dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Dialog.cpp; sourceTree = "<group>"; };
+		470DBBFD19069F88002EF87B /* Dialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Dialog.h; sourceTree = "<group>"; };
+		470DBC011906C337002EF87B /* OpenGraph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenGraph.cpp; sourceTree = "<group>"; };
+		470DBC021906C337002EF87B /* OpenGraph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGraph.h; sourceTree = "<group>"; };
 		4717492F18D4DC8D00473A82 /* Data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Data.cpp; sourceTree = "<group>"; };
 		4717493018D4DC8D00473A82 /* Data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Data.h; sourceTree = "<group>"; };
 		4717493218D4DC8D00473A82 /* GraphObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GraphObject.cpp; sourceTree = "<group>"; };
@@ -497,16 +503,20 @@
 		4717493118D4DC8D00473A82 /* facebook */ = {
 			isa = PBXGroup;
 			children = (
-				479D623818E579E7008F9DB2 /* WebDialog.cpp */,
-				479D623918E579E7008F9DB2 /* WebDialog.h */,
-				4717494E18D4E26400473A82 /* Facebook.cpp */,
-				4717494F18D4E26400473A82 /* Facebook.h */,
 				4717495018D4E26400473A82 /* Session.cpp */,
 				4717495118D4E26400473A82 /* Session.h */,
-				4717493218D4DC8D00473A82 /* GraphObject.cpp */,
-				4717493318D4DC8D00473A82 /* GraphObject.h */,
 				4717493418D4DC8D00473A82 /* Request.cpp */,
 				4717493518D4DC8D00473A82 /* Request.h */,
+				470DBBFC19069F88002EF87B /* Dialog.cpp */,
+				470DBBFD19069F88002EF87B /* Dialog.h */,
+				479D623818E579E7008F9DB2 /* WebDialog.cpp */,
+				479D623918E579E7008F9DB2 /* WebDialog.h */,
+				4717493218D4DC8D00473A82 /* GraphObject.cpp */,
+				4717493318D4DC8D00473A82 /* GraphObject.h */,
+				470DBC011906C337002EF87B /* OpenGraph.cpp */,
+				470DBC021906C337002EF87B /* OpenGraph.h */,
+				4717494E18D4E26400473A82 /* Facebook.cpp */,
+				4717494F18D4E26400473A82 /* Facebook.h */,
 				47ABA27B18E6C75A007E6751 /* AppRequests.cpp */,
 				47ABA27918E6C740007E6751 /* AppRequests.h */,
 			);
@@ -827,6 +837,7 @@
 				4717495218D4E26400473A82 /* Facebook.cpp in Sources */,
 				1AFAF8B716D35DE700DB1158 /* AppDelegate.cpp in Sources */,
 				4727F48118ED852200F83968 /* SessionApple.mm in Sources */,
+				470DBC031906C337002EF87B /* OpenGraph.cpp in Sources */,
 				479D623218E503F4008F9DB2 /* ValueUtils.cpp in Sources */,
 				4727F48918ED877900F83968 /* WebDialogApple.mm in Sources */,
 				4717494518D4DC8D00473A82 /* JsonUtils.cpp in Sources */,
@@ -836,6 +847,7 @@
 				4717495318D4E26400473A82 /* Session.cpp in Sources */,
 				4727F48418ED854000F83968 /* RequestApple.mm in Sources */,
 				4717494318D4DC8D00473A82 /* Request.cpp in Sources */,
+				470DBBFE19069F88002EF87B /* Dialog.cpp in Sources */,
 				4727F48D18ED89F900F83968 /* Helper.mm in Sources */,
 				47D19BE918F003F600A15A0C /* Utils.cpp in Sources */,
 				4717494218D4DC8D00473A82 /* GraphObject.cpp in Sources */,

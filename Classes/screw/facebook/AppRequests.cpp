@@ -163,7 +163,7 @@ void AppRequests::sendAppRequest(const ValueMap &params, const WebDialogCallback
 void AppRequests::didFetchAppRequests(const Vector<screw::facebook::GraphRequest *> &requests) {
     for (GraphRequest *request : requests) {
         string dataStr = request->getDataString();
-        Value &v = request->getData();
+        Value &v = request->getValue();
         CCLOG("AppRequests::didFetchAppRequests - data str = %s", dataStr.c_str());
         if (dataStr.length()) {
             ValueMap m;
