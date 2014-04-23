@@ -46,6 +46,7 @@ class ValueGetter {
 public:
 	static Value &get(const Value &data, const string &path);
 
+    static bool getBool(const Value &data, const string &path);
 	static int getInt(const Value &data, const string &path);
 	static long getLong(const Value &data, const string &path);
 	static float getFloat(const Value &data, const string &path);

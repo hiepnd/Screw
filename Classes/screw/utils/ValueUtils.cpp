@@ -54,6 +54,10 @@ Value &ValueGetter::get(const Value &data, const string &path) {
     return *d;
 }
 
+bool ValueGetter::getBool(const Value &data, const string &path) {
+    return ValueGetter::get(data, path).asBool();
+}
+
 int ValueGetter::getInt(const Value &data, const string &path){
     return ValueGetter::get(data, path).asInt();
 }

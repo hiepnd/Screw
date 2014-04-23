@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __Screw__Dialog__
-#define __Screw__Dialog__
+#ifndef __Screw__WebDialog__
+#define __Screw__WebDialog__
 
 #include <iostream>
 #include "../macros.h"

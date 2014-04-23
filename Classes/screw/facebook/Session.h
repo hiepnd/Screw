@@ -26,6 +26,7 @@
 
 #include "../macros.h"
 #include "../data/Data.h"
+#include "GraphObject.h"
 #include "cocos2d.h"
 
 USING_NS_CC;
@@ -35,8 +36,19 @@ using namespace std;
 NS_SCREW_FACEBOOK_BEGIN
 
 class Session;
+class SessionError;
+typedef std::function<void(Session *session, SessionError *error)> SessionStatusCallback;
 
-typedef std::function<void(Session *)> SessionStatusCallback;
+class SessionError : public GraphObject {
+public:
+    GO_CREATE_EMPTY(SessionError);
+    
+    GO_PROPERTY_INT(Code, "code");
+//    GO_PROPERTY_INT(SubCode, "subCode");
+    GO_PROPERTY_INT(Category, "category");
+    GO_PROPERTY_STRING(UserMessage, "message");
+    GO_PROPERTY_BOOL(ShouldNotifyUser, "shouldNotifyUser");
+};
 
 enum LoginBehavior {
     WITH_FALLBACK_TO_WEBVIEW,
@@ -93,7 +105,7 @@ public:
      * @permissions: 
      */
     void open(bool allowUi, const list<string> &permissions = {},
-              DefaultAudience defaultAudience = DefaultAudience::NONE,
+              DefaultAudience defaultAudience = DefaultAudience::PUBLIC,
               LoginBehavior loginBehavior = LoginBehavior::SYSTEM_IF_PRESENT);
     void close();
     void requestReadPermissions(const list<string> &permissions);
@@ -101,7 +113,7 @@ public:
     
     /* Called soly by iOS/Android implementations */
 	static void initActiveSession(State state, const string &appid, const list<string> &permissions);
-	void updateState(State state, const list<string> &permissions);
+	void updateState(State state, const list<string> &permissions, SessionError *error = nullptr);
 
     bool hasPermission(const string &permission);
     

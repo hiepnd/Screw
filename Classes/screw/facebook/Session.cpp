@@ -142,7 +142,7 @@ const list<string> &Session::getPermissions() {
     return _permissions;
 }
 
-void Session::updateState(Session::State state, const list<string> &permissions) {
+void Session::updateState(Session::State state, const list<string> &permissions, SessionError *error) {
 	CCASSERT(VALIDATE_STATE(state), "Invalid state");
     FB_LOG("Session::updateState - state = %s", __stateString[state]);
     FB_LOG("Session::init - permissions = (%s)", utils::StringUtils::join(permissions, ",").c_str());
@@ -150,7 +150,7 @@ void Session::updateState(Session::State state, const list<string> &permissions)
 	_state = state;
 	_permissions = permissions;
 	if (_callback)
-		_callback(this);
+		_callback(this, error);
 }
 
 NS_SCREW_FACEBOOK_END

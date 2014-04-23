@@ -34,7 +34,7 @@
 #include "cocos2d.h"
 
 USING_NS_CC;
-USING_NS_SCREW;;
+USING_NS_SCREW_FACEBOOK;
 
 using namespace std;
 

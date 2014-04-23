@@ -35,6 +35,7 @@
 		4717494718D4DC8D00473A82 /* StringUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4717493F18D4DC8D00473A82 /* StringUtils.cpp */; };
 		4717495218D4E26400473A82 /* Facebook.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4717494E18D4E26400473A82 /* Facebook.cpp */; };
 		4717495318D4E26400473A82 /* Session.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4717495018D4E26400473A82 /* Session.cpp */; };
+		4722744219081350001AD126 /* DialogApple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4722743D190807DF001AD126 /* DialogApple.mm */; };
 		4727F48118ED852200F83968 /* SessionApple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4727F47F18ED852200F83968 /* SessionApple.mm */; };
 		4727F48418ED854000F83968 /* RequestApple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4727F48218ED854000F83968 /* RequestApple.mm */; };
 		4727F48618ED86EA00F83968 /* FacebookSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4727F48518ED86EA00F83968 /* FacebookSDK.framework */; };
@@ -268,6 +269,8 @@
 		4717494F18D4E26400473A82 /* Facebook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Facebook.h; sourceTree = "<group>"; };
 		4717495018D4E26400473A82 /* Session.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Session.cpp; sourceTree = "<group>"; };
 		4717495118D4E26400473A82 /* Session.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Session.h; sourceTree = "<group>"; };
+		4722743D190807DF001AD126 /* DialogApple.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DialogApple.mm; sourceTree = "<group>"; };
+		4722743E190807DF001AD126 /* DialogApple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DialogApple.h; sourceTree = "<group>"; };
 		4727F47F18ED852200F83968 /* SessionApple.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SessionApple.mm; sourceTree = "<group>"; };
 		4727F48018ED852200F83968 /* SessionApple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SessionApple.h; sourceTree = "<group>"; };
 		4727F48218ED854000F83968 /* RequestApple.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RequestApple.mm; sourceTree = "<group>"; };
@@ -565,6 +568,8 @@
 				4727F48318ED854000F83968 /* RequestApple.h */,
 				4727F48718ED877900F83968 /* WebDialogApple.mm */,
 				4727F48818ED877900F83968 /* WebDialogApple.h */,
+				4722743D190807DF001AD126 /* DialogApple.mm */,
+				4722743E190807DF001AD126 /* DialogApple.h */,
 				4727F48B18ED89F900F83968 /* Helper.mm */,
 				4727F48C18ED89F900F83968 /* Helper.h */,
 			);
@@ -847,6 +852,7 @@
 				4717495318D4E26400473A82 /* Session.cpp in Sources */,
 				4727F48418ED854000F83968 /* RequestApple.mm in Sources */,
 				4717494318D4DC8D00473A82 /* Request.cpp in Sources */,
+				4722744219081350001AD126 /* DialogApple.mm in Sources */,
 				470DBBFE19069F88002EF87B /* Dialog.cpp in Sources */,
 				4727F48D18ED89F900F83968 /* Helper.mm in Sources */,
 				47D19BE918F003F600A15A0C /* Utils.cpp in Sources */,

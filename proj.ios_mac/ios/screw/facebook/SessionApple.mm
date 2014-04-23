@@ -24,6 +24,7 @@
 #include "SessionApple.h"
 #include "Helper.h"
 #import <FacebookSDK/FacebookSDK.h>
+#import <FacebookSDK/NSError+FBError.h>
 
 USING_NS_SCREW_FACEBOOK;
 
@@ -35,6 +36,7 @@ static FBSessionStateHandler _statusCallback = nil;
 static Session::State nsState2NativeState(FBSessionState status);
 static FBSessionLoginBehavior getLoginBehavior(LoginBehavior behavior);
 static FBSessionDefaultAudience getDefaultAudience(DefaultAudience audience);
+static SessionError *getSessionError(NSError *error);
 
 void SessionApple::start() {
     CCASSERT(!_started, "Must call me once");
@@ -50,7 +52,8 @@ void SessionApple::start() {
         NSLog(@"SessionApple::StatusCallback\n{\n\tstate = %d\n\tpermissions = %@\n\terror = %@\n}", status, session.permissions, error);
 #endif
         Session::getActiveSession()->updateState(nsState2NativeState(session.state),
-                                                 screw::ios::Helper::nsArray2cList(session.permissions));
+                                                 screw::ios::Helper::nsArray2cList(session.permissions),
+                                                 getSessionError(error));
     };
     [_statusCallback retain];
     
@@ -167,6 +170,22 @@ FBSessionDefaultAudience getDefaultAudience(DefaultAudience audience) {
             return FBSessionDefaultAudienceNone;
             break;
     }
+}
+
+SessionError *getSessionError(NSError *error) {
+    if (!error) {
+        return nullptr;
+    }
+    
+    SessionError *cerror = SessionError::create();
+    cerror->setCode(error.code);
+    cerror->setCategory([FBErrorUtility errorCategoryForError:error]);
+    cerror->setShouldNotifyUser([FBErrorUtility shouldNotifyUserForError:error]);
+    if ([FBErrorUtility userMessageForError:error]) {
+        cerror->setUserMessage([[FBErrorUtility userMessageForError:error] cStringUsingEncoding:NSUTF8StringEncoding]);
+    }
+    
+    return cerror;
 }
 
 NS_SCREW_IOS_END

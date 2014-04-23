@@ -23,7 +23,57 @@
 
 #include "Dialog.h"
 
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#include "DialogApple.h"
+#endif
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#include "jni/screw/facebook/DialogAndroid.h"
+#endif
+
 NS_SCREW_FACEBOOK_BEGIN
 
+bool Dialog::canPresent(ShareDialogParams *params) {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+    return screw::ios::DialogApple::canPresent(params);
+#endif
+    
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    return screw::jni::DialogAndroid::canPresent(params);
+#endif
+}
+
+void Dialog::present(ShareDialogParams *params, const DialogCallback &callback) {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+    screw::ios::DialogApple::present(params, callback);
+#endif
+    
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    screw::jni::DialogAndroid::present(params, callback);
+#endif
+    
+}
+
+bool Dialog::canPresent(OpenGraphActionShareDialogParams *params) {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+    return screw::ios::DialogApple::canPresent(params);
+#endif
+    
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    return screw::jni::DialogAndroid::canPresent(params);
+#endif
+    
+}
+
+void Dialog::present(OpenGraphActionShareDialogParams *params, const DialogCallback &callback) {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+    screw::ios::DialogApple::present(params, callback);
+#endif
+    
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    screw::jni::DialogAndroid::present(params, callback);
+#endif
+    
+}
 
 NS_SCREW_FACEBOOK_END

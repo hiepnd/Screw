@@ -26,11 +26,13 @@
 
 #include <iostream>
 #include <list>
+#import <FacebookSDK/FacebookSDK.h>
 #include "cocos2d.h"
 #include "screw.h"
 
 using namespace std;
 using namespace cocos2d;
+USING_NS_SCREW_FACEBOOK;
 
 NS_SCREW_IOS_BEGIN
 
@@ -48,9 +50,11 @@ public:
     static ValueVector nsArray2ValueVector(NSArray *array);
     static void nsArray2ValueVector(NSArray *array, ValueVector &vm);
     
-    
     static NSDictionary *valueMap2nsDictionary(ValueMap &vm);
     static NSArray *valueVector2nsArray(ValueVector &vv);
+    
+    static FBShareDialogParams *fromParams(ShareDialogParams *cparams);
+    static FBOpenGraphActionShareDialogParams *fromOGParams(OpenGraphActionShareDialogParams *cparams);
 };
     
 NS_SCREW_IOS_END  /* namespace screw { namespace ios { */

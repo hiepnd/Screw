@@ -1,6 +1,5 @@
 /****************************************************************************
  Copyright (c) hiepndhut@gmail.com
- Copyright (c) 2014 No PowerUp Games
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -21,48 +20,27 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "OpenGraph.h"
+#ifndef __Screw__DialogApple__
+#define __Screw__DialogApple__
 
-NS_SCREW_FACEBOOK_BEGIN
+#include <iostream>
+#include "screw.h"
+#include "cocos2d.h"
 
-void OpenGraphAction::setTags(const vector<string> &tags) {
-    ValueVector vv;
-    for (auto i : tags) {
-        vv.push_back(Value(i));
-    }
+USING_NS_SCREW_FACEBOOK;
+USING_NS_CC;
+
+NS_SCREW_IOS_BEGIN
+
+class DialogApple {
+public:
+    static bool canPresent(ShareDialogParams *params);
+    static void present(ShareDialogParams *params, const screw::facebook::DialogCallback &callback);
     
-    set("tags", Value(vv));
-}
+    static bool canPresent(OpenGraphActionShareDialogParams *params);
+    static void present(OpenGraphActionShareDialogParams *params, const DialogCallback &callback);
+};
 
-vector<string> OpenGraphAction::getTags() {
-    vector<string> ll;
-    Value &v = get("tags");
-    if (v.getType() == Value::Type::VECTOR) {
-        for (auto i : v.asValueVector()) {
-            ll.push_back(i.asString());
-        }
-    }
-    return ll;
-}
+NS_SCREW_IOS_END
 
-void ShareDialogParams::setFriends(const list<string> &friends) {
-    ValueVector vv;
-    for (auto i : friends) {
-        vv.push_back(Value(i));
-    }
-    
-    set("friends", Value(vv));
-}
-
-list<string> ShareDialogParams::getFriends() {
-    list<string> ll;
-    Value &v = get("friends");
-    if (v.getType() == Value::Type::VECTOR) {
-        for (auto i : v.asValueVector()) {
-            ll.push_back(i.asString());
-        }
-    }
-    return ll;
-}
-
-NS_SCREW_FACEBOOK_END
+#endif /* defined(__Screw__DialogApple__) */

@@ -81,9 +81,10 @@ public:
     GO_PROPERTY_STRING(Description, "description");
     GO_PROPERTY_STRING(Picture, "picture");
     GO_PROPERTY_STRING(Ref, "ref");
+    GO_PROPERTY_BOOL(DataFailuresFatal, "dataFailuresFatal");
     
-    void setFriends(const vector<string> &friends);
-    vector<string> getFriends();
+    void setFriends(const list<string> &friends);
+    list<string> getFriends();
 };
 
 class OpenGraphActionShareDialogParams : public GraphObject {

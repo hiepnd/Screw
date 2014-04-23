@@ -150,4 +150,55 @@ NSArray *Helper::valueVector2nsArray(ValueVector &vv) {
     return array;
 }
 
+FBShareDialogParams *Helper::fromParams(ShareDialogParams *cparams) {
+    FBShareDialogParams *params = [[[FBShareDialogParams alloc] init] autorelease];
+    
+    //Link
+    if (cparams->getLink().length()) {
+        params.link = [NSURL URLWithString:[NSString stringWithUTF8String:cparams->getLink().c_str()]];
+    }
+    
+    //Name
+    params.name = [NSString stringWithUTF8String:cparams->getName().c_str()];
+    
+    //Caption
+    params.caption = [NSString stringWithUTF8String:cparams->getCaption().c_str()];
+    
+    //Description
+    params.description = [NSString stringWithUTF8String:cparams->getDescription().c_str()];
+    
+    //Ref
+    params.ref = [NSString stringWithUTF8String:cparams->getRef().c_str()];
+    
+    //Picture
+    if (cparams->getPicture().length()) {
+        params.picture = [NSURL URLWithString:[NSString stringWithUTF8String:cparams->getPicture().c_str()]];
+    }
+    
+    //Friends
+    params.friends = cList2nsArray(cparams->getFriends());
+    
+    //DataFailuresFatal
+    params.dataFailuresFatal = cparams->getDataFailuresFatal();
+    
+    return params;
+}
+
+FBOpenGraphActionShareDialogParams *Helper::fromOGParams(OpenGraphActionShareDialogParams *cparams) {
+    FBOpenGraphActionShareDialogParams *params = [[[FBOpenGraphActionShareDialogParams alloc] init] autorelease];
+    
+    //Action
+    OpenGraphAction *action = cparams->getAction();
+    if (action) {
+        params.action = (id<FBOpenGraphAction>)[FBGraphObject graphObjectWrappingDictionary:Helper::valueMap2nsDictionary(action->getValue().asValueMap())];
+    }
+    
+    //PreviewPropertyName
+    params.previewPropertyName = [NSString stringWithUTF8String:cparams->getPreviewPropertyName().c_str()];
+    
+    //ActionType
+    params.actionType = [NSString stringWithUTF8String:cparams->getActionType().c_str()];
+    return params;
+}
+
 NS_SCREW_IOS_END  /* namespace screw { namespace ios { */

@@ -83,7 +83,7 @@ bool HelloWorld::init()
     auto lbl = LabelTTF::create(Session::getActiveSession()->isOpened() ? "Logout" : "Login", "Marker Felt", 40);
 
     
-    Session::getActiveSession()->setStatusCallback([lbl](Session *session){
+    Session::getActiveSession()->setStatusCallback([lbl](Session *session, SessionError *error){
         CCLOG("Session status callback - state = %d", session->getState());
         if (session->isOpened()) {
             lbl->setString("Logout");
@@ -130,7 +130,7 @@ bool HelloWorld::init()
             CCLOG("Fetch friends callback - error = %d", error);
             int i = 0;
             for (GraphUser *user : friends) {
-                CCLOG("friend #%d: %s", i++, user->getData().getDescription().c_str());
+                CCLOG("friend #%d: %s", i++, user->getValue().getDescription().c_str());
             }
         });
         
@@ -157,7 +157,7 @@ bool HelloWorld::init()
                 string rid = r->getId();
                 Request *rq = Request::requestForDelete(rid, nullptr);
                 rq->setCallback([=](int error, GraphObject *result){
-                    CCLOG("Delete %s result, error = %d, response = %s", rid.c_str(), error, result ? result->getData().getDescription().c_str() : "");
+                    CCLOG("Delete %s result, error = %d, response = %s", rid.c_str(), error, result ? result->getValue().getDescription().c_str() : "");
                 });
                 rq->execute();
             }
