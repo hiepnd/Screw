@@ -29,16 +29,20 @@ bool DialogApple::canPresent(ShareDialogParams *params) {
     return [FBDialogs canPresentShareDialogWithParams:Helper::fromParams(params)];
 }
 
-void DialogApple::present(ShareDialogParams *params, const screw::facebook::DialogCallback &callback) {
+void DialogApple::present(ShareDialogParams *params, const DialogCallback &callback) {
+    DialogCallback callback_ = callback;
     [FBDialogs presentShareDialogWithParams:Helper::fromParams(params)
                                 clientState:nil
                                     handler:^(FBAppCall *call, NSDictionary *results, NSError *error) {
-                                        if (callback) {
+#if FB_DEBUG
+                                        NSLog(@"DialogApple - present share dialog: results = %@, error = %@", results, error);
+#endif
+                                        if (callback_) {
                                             GraphObject *og = nullptr;
                                             if (!error && results) {
                                                 og = GraphObject::create(Value(Helper::nsDictionary2ValueMap(results)));
                                             }
-                                            callback(og, error.code);
+                                            callback_(og, error.code);
                                         }
                                     }];
 }

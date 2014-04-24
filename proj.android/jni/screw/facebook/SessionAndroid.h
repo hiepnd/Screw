@@ -26,6 +26,7 @@
 
 #include "Helper.h"
 
+USING_NS_SCREW;
 USING_NS_SCREW_FACEBOOK;
 using namespace std;
 

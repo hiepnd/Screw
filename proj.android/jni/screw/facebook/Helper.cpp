@@ -34,6 +34,8 @@ jclass Helper::jBundleClassID = NULL;
 jclass Helper::jSessionClassID = NULL;
 jclass Helper::jRequestClassID = NULL;
 jclass Helper::jWebDialogClassID = NULL;
+jclass Helper::jDialogClassID = NULL;
+jclass Helper::jObjectClassID = NULL;
 
 jmethodID Helper::jBundleConstructor = NULL;
 jmethodID Helper::jBundlePutStringMethodID = NULL;
@@ -41,6 +43,10 @@ jmethodID Helper::jBundlePutBundleMethodID = NULL;
 jmethodID Helper::jBundlePutStringArrayMethodID = NULL;
 jmethodID Helper::jRequestRequestMethodID = NULL;
 jmethodID Helper::jWebDialogShowMethodID = NULL;
+jmethodID Helper::jDialogCanPresentShareDialogMethodID = NULL;
+jmethodID Helper::jDialogCanPresentShareActionDialogMethodID = NULL;
+jmethodID Helper::jDialogPresentShareDialogMethodID = NULL;
+jmethodID Helper::jDialogPresentShareActionDialogMethodID = NULL;
 
 Helper::Helper() {
 
@@ -55,11 +61,13 @@ void Helper::initialize(JNIEnv *env) {
 	CCLOG("screw::jni::Helper::initializing ...");
 	_initialized = true;
 
+	jObjectClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("java/lang/Object")));
 	jBundleClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("android/os/Bundle")));
 	jSessionClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/facebook/Session")));
 	jRequestClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/facebook/Request")));
 	jWebDialogClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/facebook/WebDialog")));
 	jStringClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("java/lang/String")));
+	jDialogClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/facebook/Dialog")));
 
 	jBundleConstructor = env->GetMethodID(jBundleClassID, "<init>", "()V");
 	jBundlePutStringMethodID = env->GetMethodID(jBundleClassID, "putString", "(Ljava/lang/String;Ljava/lang/String;)V");
@@ -67,11 +75,24 @@ void Helper::initialize(JNIEnv *env) {
 	jBundlePutStringArrayMethodID = env->GetMethodID(jBundleClassID, "putStringArray", "(Ljava/lang/String;[Ljava/lang/String;)V");
 
 	//Java: void request(long requestCode, String graphPath, Bundle parameters, int httpMethod)
-	jRequestRequestMethodID = env->GetStaticMethodID(jRequestClassID, "request" ,"(JLjava/lang/String;Landroid/os/Bundle;I)V");
+	jRequestRequestMethodID = env->GetStaticMethodID(jRequestClassID, "request", "(JLjava/lang/String;Landroid/os/Bundle;I)V");
 
 	//Java: static void showRequest(long requestCode, String dialog, Bundle params)
-	jWebDialogShowMethodID = env->GetStaticMethodID(jWebDialogClassID, "show" ,"(JLjava/lang/String;Landroid/os/Bundle;)V");
+	jWebDialogShowMethodID = env->GetStaticMethodID(jWebDialogClassID, "show", "(JLjava/lang/String;Landroid/os/Bundle;)V");
 
+	//public static boolean canPresentShareDialog()
+	jDialogCanPresentShareDialogMethodID = env->GetStaticMethodID(jDialogClassID, "canPresentShareDialog" ,"()Z");
+
+	//public static boolean canSharePresentShareOpenGraphAction()
+	jDialogCanPresentShareActionDialogMethodID = env->GetStaticMethodID(jDialogClassID, "canPresentShareDialog" ,"()Z");
+
+	//public static void presentShareDialog(final long requestCode, final Bundle data)
+	jDialogPresentShareDialogMethodID = env->GetStaticMethodID(jDialogClassID, "presentShareDialog",
+																"(JLandroid/os/Bundle;)V");
+
+	//public static void presentShareOpenGraphActionDialog(final long requestCode, final Bundle data)
+	jDialogPresentShareActionDialogMethodID = env->GetStaticMethodID(jDialogClassID, "presentShareOpenGraphActionDialog",
+																"(JLandroid/os/Bundle;)V");
 }
 
 jstring Helper::string2jString(JNIEnv *env, const string &str) {
@@ -144,6 +165,38 @@ jobject Helper::valueMap2jBundle(JNIEnv *env, const ValueMap &m) {
 	}
 
 	return jBundle;
+}
+
+jobjectArray Helper::valueVector2jObjectArray(JNIEnv *env, const ValueVector &vector) {
+	jobjectArray jitems = (jobjectArray)env->NewObjectArray(vector.size(), jStringClassID, env->NewStringUTF(""));
+	int i = 0;
+	for (auto iter = vector.begin(); iter != vector.end(); iter++) {
+		switch (iter->getType()) {
+			case Value::Type::MAP:
+			{
+				jobject jvalue = valueMap2jBundle(env, iter->asValueMap());
+				env->SetObjectArrayElement(jitems, i++, jvalue);
+				env->DeleteLocalRef(jvalue);
+			}
+				break;
+			case Value::Type::VECTOR:
+			{
+				jobject jvalue = valueVector2jObjectArray(env, iter->asValueVector());
+				env->SetObjectArrayElement(jitems, i++, jvalue);
+				env->DeleteLocalRef(jvalue);
+			}
+				break;
+
+			default:
+			{
+				jstring jvalue = env->NewStringUTF(iter->asString().c_str());
+				env->SetObjectArrayElement(jitems, i++, jvalue);
+				env->DeleteLocalRef(jvalue);
+			}
+				break;
+		}
+	}
+	return jitems;
 }
 
 list<string> Helper::valueVector2StringList(const ValueVector &v) {

@@ -29,6 +29,7 @@
 
 using namespace std;
 USING_NS_SCREW_FACEBOOK;
+USING_NS_SCREW;
 
 NS_SCREW_JNI_BEGIN
 

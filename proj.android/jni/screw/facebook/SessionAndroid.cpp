@@ -91,7 +91,7 @@ NS_SCREW_JNI_END /* namespace jni */
 extern "C" {
 JNIEXPORT void JNICALL Java_com_screw_facebook_Session_nativeInit (JNIEnv *env, jclass jclass, jint jstate, jstring jappid, jobjectArray permissions) {
 	/* Init the Helper first */
-	jni::Helper::initialize(env);
+	screw::jni::Helper::initialize(env);
 
 	const char *appid = env->GetStringUTFChars(jappid, NULL);
 	screw::facebook::Session::initActiveSession((screw::facebook::Session::State) jstate, appid, jni::Helper::jStringArray2StringList(env, permissions));
@@ -100,7 +100,7 @@ JNIEXPORT void JNICALL Java_com_screw_facebook_Session_nativeInit (JNIEnv *env, 
 
 JNIEXPORT void JNICALL Java_com_screw_facebook_Session_nativeUpdateState(JNIEnv *env, jclass jclass, jint jstate, jobjectArray permissions) {
 	screw::facebook::Session::getActiveSession()->updateState((screw::facebook::Session::State) jstate,
-																jni::Helper::jStringArray2StringList(env, permissions));
+																jni::Helper::jStringArray2StringList(env, permissions), nullptr);
 }
 
 } //of extern "C"

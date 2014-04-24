@@ -23,27 +23,75 @@
 
 package com.screw.facebook;
 
+import java.lang.reflect.Array;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.os.Bundle;
+import android.util.Log;
 
 public class Helper {
 	public static String toJsonString(Bundle bundle) {
-		if (bundle == null) {
-			return "{}";
+		return bundle == null ? "{}" : toJsonObject(bundle).toString();	
+	}
+	
+	public static JSONObject toJsonObject(Bundle bundle) {
+		JSONObject jsonObject = new JSONObject();
+		try {
+			for (String key : bundle.keySet()) {
+				Object elm = bundle.get(key);
+				if (elm instanceof Bundle) {
+					jsonObject.put(key, toJsonObject((Bundle) elm));
+				} else if (elm instanceof List<?>) {
+					jsonObject.put(key, toJsonArray((List<?>) elm));
+				} else if (elm instanceof Array) {
+					jsonObject.put(key, toJsonArray((Array) elm));
+				} else {
+					jsonObject.put(key, elm.toString());
+				}
+			}
+		} catch (JSONException e) {
+			Log.d("Helper.toJsonObject", "Exception");
+			e.printStackTrace();
 		}
 		
-		String json = new String("{");
-		for (String k : bundle.keySet()) {
-			String value = bundle.getString(k);
-			if (value != null) {
-				json += "\"" + k + "\": ";
-				json += "\"" + value + "\"";
-				json += ",";
+		return jsonObject;
+	}
+	
+	public static JSONArray toJsonArray(List<?> array) {
+		JSONArray jsonArray = new JSONArray();
+		for (Object elm : array) {
+			if (elm instanceof Bundle) {
+				jsonArray.put(toJsonObject((Bundle) elm));
+			} else if (elm instanceof List<?>) {
+				jsonArray.put(toJsonArray((List<?>) elm));
+			} else if (elm instanceof Array) {
+				jsonArray.put(toJsonArray((Array) elm));
+			} else {
+				jsonArray.put(elm.toString());
 			}
 		}
-		if (json.endsWith(",")) {
-			json = json.substring(0, json.length() - 1);
+		
+		return jsonArray;
+	}
+	
+	public static JSONArray toJsonArray(Array array) {
+		JSONArray jsonArray = new JSONArray();
+		for (int i = 0; i < Array.getLength(array); i++) {
+			Object elm = Array.get(array, i);
+			if (elm instanceof Bundle) {
+				jsonArray.put(toJsonObject((Bundle) elm));
+			} else if (elm instanceof List<?>) {
+				jsonArray.put(toJsonArray((List<?>) elm));
+			} else if (elm instanceof Array) {
+				jsonArray.put(toJsonArray((Array) elm));
+			} else {
+				jsonArray.put(elm.toString());
+			}
 		}
-		json += "}";
-		return json;
+		return jsonArray;
 	}
 }

@@ -61,6 +61,10 @@ Value &GraphObject::get(const string &path) {
     return ValueGetter::get(_data, path);
 }
 
+bool GraphObject::getBool(const string &path) {
+    return ValueGetter::getBool(_data, path);
+}
+
 int GraphObject::getInt(const string &path) {
     return ValueGetter::getInt(_data, path);
 }
@@ -82,6 +86,10 @@ string GraphObject::getString(const string &path) {
 }
 
 void GraphObject::set(const string &path, int value) {
+    ValueSetter::set(_data, path, value);
+}
+
+void GraphObject::set(const string &path, bool value) {
     ValueSetter::set(_data, path, value);
 }
 

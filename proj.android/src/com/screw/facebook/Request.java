@@ -34,7 +34,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 public class Request {
-	private static final int DEBUG = com.screw.facebook.Session.DEBUG;
+	private static final int DEBUG = Facebook.DEBUG;
 	private static final String TAG = "Screw.Request";
 	
 	public static void request(long requestCode, String graphPath,
@@ -95,7 +95,7 @@ public class Request {
 		};
 		request.setCallback(callback);
 		
-		com.screw.facebook.Session.getActivity().runOnUiThread(new Runnable() {
+		Facebook.getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub

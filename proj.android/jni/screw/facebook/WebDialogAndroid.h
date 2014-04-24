@@ -21,13 +21,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef DIALOGANDROID_H_
-#define DIALOGANDROID_H_
+#ifndef WEBDIALOGANDROID_H_
+#define WEBDIALOGANDROID_H_
 
 #include "Helper.h"
 #include "cocos2d.h"
 #include <map>
 
+USING_NS_SCREW;
 USING_NS_SCREW_FACEBOOK;
 USING_NS_CC;
 using namespace std;
@@ -47,5 +48,6 @@ private:
 	static long _requestCode;
 };
 
-NS_SCREW_JNI_END /* namespace jni { */
-#endif /* DIALOGANDROID_H_ */
+NS_SCREW_JNI_END
+
+#endif /* WEBDIALOGANDROID_H_ */

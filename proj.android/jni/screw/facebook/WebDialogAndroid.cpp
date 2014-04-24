@@ -24,7 +24,6 @@
 #include "WebDialogAndroid.h"
 #include <jni.h>
 #include "cocos/2d/platform/android/jni/JniHelper.h"
-#include "Helper.h"
 #include "screw/utils/JsonUtils.h"
 
 NS_SCREW_JNI_BEGIN
@@ -42,7 +41,7 @@ WebDialogAndroid::~WebDialogAndroid() {
 }
 
 void WebDialogAndroid::show(WebDialog *dialog) {
-	FB_LOG("DialogAndroid::show - showing dialog #%ld...", _requestCode + 1);
+	FB_LOG("WebDialogAndroid::show - showing dialog #%ld...", _requestCode + 1);
 	_requestCode++;
 	if (dialog->getCallback()) {
 		_callbacks[_requestCode] = dialog->getCallback();

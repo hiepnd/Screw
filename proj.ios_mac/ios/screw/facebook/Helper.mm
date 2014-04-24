@@ -154,24 +154,32 @@ FBShareDialogParams *Helper::fromParams(ShareDialogParams *cparams) {
     FBShareDialogParams *params = [[[FBShareDialogParams alloc] init] autorelease];
     
     //Link
-    if (cparams->getLink().length()) {
+    if (cparams->hasLink()) {
         params.link = [NSURL URLWithString:[NSString stringWithUTF8String:cparams->getLink().c_str()]];
     }
     
     //Name
-    params.name = [NSString stringWithUTF8String:cparams->getName().c_str()];
+    if (cparams->hasName()) {
+        params.name = [NSString stringWithUTF8String:cparams->getName().c_str()];
+    }
     
     //Caption
-    params.caption = [NSString stringWithUTF8String:cparams->getCaption().c_str()];
+    if (cparams->hasCaption()) {
+        params.caption = [NSString stringWithUTF8String:cparams->getCaption().c_str()];
+    }
     
     //Description
-    params.description = [NSString stringWithUTF8String:cparams->getDescription().c_str()];
+    if (cparams->hasDescription()) {
+        params.description = [NSString stringWithUTF8String:cparams->getDescription().c_str()];
+    }
     
     //Ref
-    params.ref = [NSString stringWithUTF8String:cparams->getRef().c_str()];
+    if (cparams->hasRef()) {
+        params.ref = [NSString stringWithUTF8String:cparams->getRef().c_str()];
+    }
     
     //Picture
-    if (cparams->getPicture().length()) {
+    if (cparams->hasPicture()) {
         params.picture = [NSURL URLWithString:[NSString stringWithUTF8String:cparams->getPicture().c_str()]];
     }
     
@@ -179,7 +187,9 @@ FBShareDialogParams *Helper::fromParams(ShareDialogParams *cparams) {
     params.friends = cList2nsArray(cparams->getFriends());
     
     //DataFailuresFatal
-    params.dataFailuresFatal = cparams->getDataFailuresFatal();
+    if (cparams->hasDataFailuresFatal()) {
+        params.dataFailuresFatal = cparams->getDataFailuresFatal();
+    }
     
     return params;
 }

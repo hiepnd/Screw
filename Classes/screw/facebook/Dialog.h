@@ -44,6 +44,9 @@ public:
     
     static bool canPresent(OpenGraphActionShareDialogParams *params);
     static void present(OpenGraphActionShareDialogParams *params, const DialogCallback &callback);
+    
+    static void presentShareLink(const string &link, const string &name, const string &caption,
+                                 const string &description, const string &picture, const DialogCallback &callback);
 private:
     
 };

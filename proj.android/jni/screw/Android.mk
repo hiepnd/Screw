@@ -10,6 +10,7 @@ LOCAL_SRC_FILES := facebook/SessionAndroid.cpp \
 				   facebook/RequestAndroid.cpp \
 				   facebook/Helper.cpp \
 				   facebook/WebDialogAndroid.cpp \
+				   facebook/DialogAndroid.cpp \
                    ../../../Classes/screw/data/Data.cpp \
                    ../../../Classes/screw/facebook/Facebook.cpp \
                    ../../../Classes/screw/facebook/WebDialog.cpp \
@@ -17,6 +18,8 @@ LOCAL_SRC_FILES := facebook/SessionAndroid.cpp \
                    ../../../Classes/screw/facebook/Request.cpp \
                    ../../../Classes/screw/facebook/Session.cpp \
                    ../../../Classes/screw/facebook/AppRequests.cpp \
+                   ../../../Classes/screw/facebook/OpenGraph.cpp \
+                   ../../../Classes/screw/facebook/Dialog.cpp \
                    ../../../Classes/screw/utils/FileUtils.cpp \
                    ../../../Classes/screw/utils/JsonUtils.cpp \
                    ../../../Classes/screw/utils/ValueUtils.cpp \

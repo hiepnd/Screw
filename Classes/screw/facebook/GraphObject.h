@@ -35,7 +35,8 @@ using namespace std;
 
 NS_SCREW_FACEBOOK_BEGIN
 
-/** Macroes */
+/** Macros */
+
 /**
  * Implement getter for string
  * GO_GET_STRING(Name, "name") ==> string getName() {....}
@@ -114,7 +115,7 @@ NS_SCREW_FACEBOOK_BEGIN
 
 /**
  * GO_SET_GRAPH_OBJECT(GraphUser, User, "from") ==> void setUser(GraphUser *user) {....}
- * Set nullptr resulted in clearing property
+ * Setting nullptr resulted in clearing property
  */
 #define GO_SET_GRAPH_OBJECT(class, name, path) \
             void set##name(class *value) { \
@@ -138,6 +139,9 @@ NS_SCREW_FACEBOOK_BEGIN
                 return getPropertyAsList<class>(path);\
             }
 
+/**
+ * GO_SET_GRAPH_OBJECT_LIST(GraphUser, Friends, "data") ==> void setFriends(Vector<GraphUser *>) {...}
+ */
 #define GO_SET_GRAPH_OBJECT_LIST(class, name, path) \
             void set##name(const Vector<class *> &l) { \
                 ValueVector vv; \
@@ -151,6 +155,11 @@ NS_SCREW_FACEBOOK_BEGIN
             GO_GET_GRAPH_OBJECT_LIST(class, name, path); \
             GO_SET_GRAPH_OBJECT_LIST(class, name, path); 
 
+
+#define GO_HAS_PROPERTY(name, path) \
+            bool has##name() { \
+                return hasProperty(path);   \
+            } \
 
 #define GO_CREATE(class) \
             static class *create(const Value &v) { \
@@ -168,6 +177,7 @@ NS_SCREW_FACEBOOK_BEGIN
                 return obj; \
             }
 
+/* Wrapper of a cocos2d::Value. Provide convenient getters/setters */
 
 class GraphObject : public Object {
 public:
@@ -180,12 +190,15 @@ public:
     
     Value &getValue();
 	Value &get(const string &path);
+    
+    bool    getBool(const string &path);
     int     getInt(const string &path);
 	long    getLong(const string &path);
 	float   getFloat(const string &path);
 	double  getDouble(const string &path);
 	string  getString(const string &path);
 
+    void set(const string &path, bool value);
     void set(const string &path, int value);
     void set(const string &path, long value);
     void set(const string &path, const string &value);
@@ -230,17 +243,8 @@ public:
 		return ret;
 	}
     
-    // ???
     Value &operator[](const string &path) {
         return _data.asValueMap()[path];
-    }
-    
-    void set(const Vector<GraphObject *> &l) {
-        ValueVector v;
-        for (auto i : l) {
-            v.push_back(i->getValue());
-        }
-        _data.asValueMap()["something"] = v;
     }
     
 protected:

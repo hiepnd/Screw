@@ -120,7 +120,7 @@ RequestDialogBuilder *RequestDialogBuilder::setTo(const string &uid) {
     return this;
 }
 
-RequestDialogBuilder *RequestDialogBuilder::setTo(vector<string> &uids) {
+RequestDialogBuilder *RequestDialogBuilder::setTo(const list<string> &uids) {
     _params["to"] = utils::StringUtils::join(uids, ",");
     return this;
 }

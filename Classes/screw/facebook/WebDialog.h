@@ -81,7 +81,7 @@ public:
     RequestDialogBuilder *setMessage(const string &message);
     RequestDialogBuilder *setTitle(const string &title);
     RequestDialogBuilder *setTo(const string &uid);
-    RequestDialogBuilder *setTo(vector<string> &uids);
+    RequestDialogBuilder *setTo(const list<string> &uids);
     RequestDialogBuilder *setType(int type);
     RequestDialogBuilder *setData(const string &key, const string &value);
     RequestDialogBuilder *setCallback(const RequestDialogCallback &callback);

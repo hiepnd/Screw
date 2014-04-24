@@ -34,7 +34,7 @@ public class Cocos2dxActivity extends NativeActivity{
 		// getWindow().setFormat(PixelFormat.TRANSLUCENT);
 		
 		Log.d("Cocos2dxActivity", "onCreate");
-		Session.onActivityCreate(this, savedInstanceState);
+		Facebook.onActivityCreate(this, savedInstanceState);
 		
 	}
 	
@@ -42,20 +42,20 @@ public class Cocos2dxActivity extends NativeActivity{
 	protected void onPause() {
 		// TODO Auto-generated method stub
 		super.onPause();
-		Session.onActivityPause();
+		Facebook.onActivityPause();
 	}
 
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
-		Session.onActivityResume();
+		Facebook.onActivityResume();
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		// TODO Auto-generated method stub
 		super.onActivityResult(requestCode, resultCode, data);
-		Session.onActivityResult(requestCode, resultCode, data);
+		Facebook.onActivityResult(requestCode, resultCode, data);
 	}
 }

@@ -46,20 +46,28 @@ public:
 	static jobjectArray stringList2jStringArray(JNIEnv *env, const list<string> &items);
 	static list<string> jStringArray2StringList(JNIEnv *env, jobjectArray array);
 
-	/* ValueMap of string value */
+	/* There is no 1-1 conversion between Android Bundle and cocos2d ValueMap
+	 * Bundle does NOT support put arbitrary object, specifically no such method Bundle.put(String key, Object value)
+	 * So when converting from ValueMap to Bundle, any ValueVector will be treated as vector of string
+	 * Assertion will fail if there is a ValueVector that contains another ValueVector or a ValueMap
+	 */
 	static jobject valueMap2jBundle(JNIEnv *env, const ValueMap &m);
-
 	static list<string> valueVector2StringList(const ValueVector &v);
+
+	/* Just for demonstration, no usage */
+	static jobjectArray valueVector2jObjectArray(JNIEnv *env, const ValueVector &vector);
 
 public:
 //	static JNIEnv *_env;
 
 	/* Class IDs */
+	static jclass jObjectClassID;
 	static jclass jStringClassID;
 	static jclass jBundleClassID;
 	static jclass jSessionClassID;
 	static jclass jRequestClassID;
 	static jclass jWebDialogClassID;
+	static jclass jDialogClassID;
 
 	/* Method IDs */
 	static jmethodID jBundleConstructor;
@@ -68,6 +76,11 @@ public:
 	static jmethodID jBundlePutStringArrayMethodID;
 	static jmethodID jRequestRequestMethodID;
 	static jmethodID jWebDialogShowMethodID;
+	static jmethodID jDialogCanPresentShareDialogMethodID;
+	static jmethodID jDialogCanPresentShareActionDialogMethodID;
+	static jmethodID jDialogPresentShareDialogMethodID;
+	static jmethodID jDialogPresentShareActionDialogMethodID;
+
 
 	static bool _initialized;
 };

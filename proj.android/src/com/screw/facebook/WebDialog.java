@@ -37,7 +37,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 public class WebDialog {
-	private static final int DEBUG = Session.DEBUG;
+	private static final int DEBUG = Facebook.DEBUG;
 	private static final String TAG = "Screw.WebDialog";
 	
 	public static void show(final long requestCode, final String action, final Bundle params) {
@@ -95,12 +95,12 @@ public class WebDialog {
         	params.putString(ServerProtocol.DIALOG_PARAM_APP_ID, session.getApplicationId());
         }
 		
-		Session.getActivity().runOnUiThread(new Runnable() {
+		Facebook.getActivity().runOnUiThread(new Runnable() {
 			
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-				com.facebook.widget.WebDialog dialog = new com.facebook.widget.WebDialog(Session.getActivity(), action, params, com.facebook.widget.WebDialog.DEFAULT_THEME, callback);
+				com.facebook.widget.WebDialog dialog = new com.facebook.widget.WebDialog(Facebook.getActivity(), action, params, com.facebook.widget.WebDialog.DEFAULT_THEME, callback);
 				dialog.show();
 			}
 		});

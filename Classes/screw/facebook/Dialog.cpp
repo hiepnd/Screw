@@ -76,4 +76,15 @@ void Dialog::present(OpenGraphActionShareDialogParams *params, const DialogCallb
     
 }
 
+void Dialog::presentShareLink(const string &link, const string &name, const string &caption,
+                      const string &description, const string &picture, const DialogCallback &callback) {
+    ShareDialogParams *params = ShareDialogParams::create();
+    params->setLink(link);
+    params->setName(name);
+    params->setCaption(caption);
+    params->setDescription(description);
+    params->setPicture(picture);
+    Dialog::present(params, callback);
+}
+
 NS_SCREW_FACEBOOK_END

@@ -71,17 +71,33 @@ public:
     vector<string> getTags();
 };
 
+/* ShareDialogParams and OpenGraphActionShareDialogParams are not really Graph Object. Make them inherited from 
+ * GraphObject for the sake of simplicity.
+ */
 class ShareDialogParams : public GraphObject {
 public:
     GO_CREATE_EMPTY(ShareDialogParams);
     
     GO_PROPERTY_STRING(Link, "link");
+    GO_HAS_PROPERTY(Link, "link");
+    
     GO_PROPERTY_STRING(Name, "name");
+    GO_HAS_PROPERTY(Name, "name");
+    
     GO_PROPERTY_STRING(Caption, "caption");
+    GO_HAS_PROPERTY(Caption, "caption");
+    
     GO_PROPERTY_STRING(Description, "description");
+    GO_HAS_PROPERTY(Description, "description");
+    
     GO_PROPERTY_STRING(Picture, "picture");
+    GO_HAS_PROPERTY(Picture, "picture");
+    
     GO_PROPERTY_STRING(Ref, "ref");
+    GO_HAS_PROPERTY(Ref, "ref");
+    
     GO_PROPERTY_BOOL(DataFailuresFatal, "dataFailuresFatal");
+    GO_HAS_PROPERTY(DataFailuresFatal, "dataFailuresFatal");
     
     void setFriends(const list<string> &friends);
     list<string> getFriends();

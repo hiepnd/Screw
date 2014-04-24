@@ -85,6 +85,9 @@ bool HelloWorld::init()
     
     Session::getActiveSession()->setStatusCallback([lbl](Session *session, SessionError *error){
         CCLOG("Session status callback - state = %d", session->getState());
+        if (error) {
+            CCLOG("Error cat = %d\nUser message = %s", error->getCategory(), error->getUserMessage().c_str());
+        }
         if (session->isOpened()) {
             lbl->setString("Logout");
         } else {
@@ -219,15 +222,6 @@ bool HelloWorld::init()
         fdb->build()->show();
         delete fdb;
         
-//		WebDialog *dialog = new WebDialog();
-//        dialog->setParams(feedParams);
-//        dialog->setDialog("feed");
-//        dialog->setCallback([](int error, const string &requestId, const list<string> &recveivers){
-//            CCLOG("App request - error = %d, id = '%s', receivers = [%s]", error, requestId.c_str(), screw::utils::StringUtils::join(recveivers, ",").c_str());
-//        });
-//        dialog->show();
-//        dialog->release();
-        
 	});
     feedDialog->setPosition(visibleSize.width/2 - 200, visibleSize.height/2 + 150);
 	menu->addChild(feedDialog);
@@ -270,6 +264,34 @@ bool HelloWorld::init()
 	});
     deauthorize->setPosition(visibleSize.width/2, visibleSize.height/2 - 200);
 	menu->addChild(deauthorize);
+    
+    
+    //Share Dialog
+    auto shareDialog = MenuItemFont::create("Share Dialog", [](Object *sender){
+        ShareDialogParams *params = ShareDialogParams::create();
+        params->setLink("https://github.com/hiepnd");
+        params->setDescription("Go checkout awesome code by Ngô Hiệp");
+        params->setFriends({"100008211700580", "100008307900261"});
+        params->setDataFailuresFatal(false);
+        
+        if (Dialog::canPresent(params)) {
+            Dialog::present(params, [](GraphObject *result, int error){
+                CCLOG("Share dialog callback: result = %s\nerror = %d", result ? result->getValue().getDescription().c_str() : "(null)", error);
+            });
+        } else {
+            CCLOG("Cannot show share dialog, fallback to webview");
+            FeedDialogBuilder *fbd = new FeedDialogBuilder();
+            fbd->setLink(params->getLink())->setDescription(params->getDescription())->setTo("100008211700580");
+            
+            fbd->setCallback([](int error, const string &rid){
+                CCLOG("Feed dialog result: error = %d, rid = %s", error, rid.c_str());
+            });
+            
+            fbd->build()->show();
+        }
+	});
+    shareDialog->setPosition(visibleSize.width/2, visibleSize.height/2 + 200);
+	menu->addChild(shareDialog);
     
     return true;
 }
