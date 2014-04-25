@@ -32,7 +32,6 @@ THE SOFTWARE.
 #include "CCProtocols.h"
 #include "CCTextureAtlas.h"
 #include "ccTypes.h"
-#include "CCDictionary.h"
 #include <string>
 #ifdef EMSCRIPTEN
 #include "CCGLBufferedNode.h"
@@ -428,7 +427,7 @@ public:
     virtual bool isOpacityModifyRGB(void) const override;
     /// @}
 
-protected:
+CC_CONSTRUCTOR_ACCESS:
 
     Sprite(void);
     virtual ~Sprite(void);
@@ -520,13 +519,13 @@ protected:
      */
     virtual bool initWithFile(const std::string& filename, const Rect& rect);
 
+protected:
+
     void updateColor(void);
     virtual void setTextureCoords(Rect rect);
     virtual void updateBlendFunc(void);
     virtual void setReorderChildDirtyRecursively(void);
     virtual void setDirtyRecursively(bool bValue);
-
-    bool isInsideBounds() const;
 
     //
     // Data used when the sprite is rendered using a SpriteSheet
@@ -573,7 +572,6 @@ protected:
     bool _flippedY;                         /// Whether the sprite is flipped vertically or not
 
     bool _insideBounds;                     /// whether or not the sprite was inside bounds the previous frame
-
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(Sprite);
 };

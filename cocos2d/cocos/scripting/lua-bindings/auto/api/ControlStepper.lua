@@ -1,6 +1,8 @@
 
 --------------------------------
 -- @module ControlStepper
+-- @extend Control
+
 --------------------------------
 -- @function [parent=#ControlStepper] setMinusSprite 
 -- @param self
@@ -9,7 +11,7 @@
 --------------------------------
 -- @function [parent=#ControlStepper] getMinusLabel 
 -- @param self
--- @return LabelTTF#LabelTTF ret (return value: cc.LabelTTF)
+-- @return Label#Label ret (return value: cc.Label)
         
 --------------------------------
 -- @function [parent=#ControlStepper] setWraps 
@@ -40,7 +42,7 @@
 --------------------------------
 -- @function [parent=#ControlStepper] getPlusLabel 
 -- @param self
--- @return LabelTTF#LabelTTF ret (return value: cc.LabelTTF)
+-- @return Label#Label ret (return value: cc.Label)
         
 --------------------------------
 -- @function [parent=#ControlStepper] stopAutorepeat 
@@ -64,7 +66,7 @@
 --------------------------------
 -- @function [parent=#ControlStepper] setMinusLabel 
 -- @param self
--- @param #cc.LabelTTF labelttf
+-- @param #cc.Label label
         
 --------------------------------
 -- @function [parent=#ControlStepper] setValue 
@@ -105,7 +107,7 @@
 --------------------------------
 -- @function [parent=#ControlStepper] setPlusLabel 
 -- @param self
--- @param #cc.LabelTTF labelttf
+-- @param #cc.Label label
         
 --------------------------------
 -- @function [parent=#ControlStepper] create 
@@ -113,6 +115,25 @@
 -- @param #cc.Sprite sprite
 -- @param #cc.Sprite sprite
 -- @return ControlStepper#ControlStepper ret (return value: cc.ControlStepper)
+        
+--------------------------------
+-- @function [parent=#ControlStepper] onTouchMoved 
+-- @param self
+-- @param #cc.Touch touch
+-- @param #cc.Event event
+        
+--------------------------------
+-- @function [parent=#ControlStepper] onTouchEnded 
+-- @param self
+-- @param #cc.Touch touch
+-- @param #cc.Event event
+        
+--------------------------------
+-- @function [parent=#ControlStepper] onTouchBegan 
+-- @param self
+-- @param #cc.Touch touch
+-- @param #cc.Event event
+-- @return bool#bool ret (return value: bool)
         
 --------------------------------
 -- @function [parent=#ControlStepper] ControlStepper 

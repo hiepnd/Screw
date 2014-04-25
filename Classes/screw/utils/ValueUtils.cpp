@@ -63,7 +63,7 @@ int ValueGetter::getInt(const Value &data, const string &path){
 }
 
 long ValueGetter::getLong(const Value &data, const string &path){
-    //Long not yet supported be Value
+    //Long not yet supported by Value
     string str = ValueGetter::get(data, path).asString();
     return std::atol(str.c_str());
 }

@@ -1,10 +1,12 @@
 
 --------------------------------
 -- @module ImageView
+-- @extend Widget
+
 --------------------------------
 -- @function [parent=#ImageView] loadTexture 
 -- @param self
--- @param #char char
+-- @param #string str
 -- @param #ccui.TextureResType texturerestype
         
 --------------------------------
@@ -33,14 +35,40 @@
 -- @return bool#bool ret (return value: bool)
         
 --------------------------------
--- @function [parent=#ImageView] create 
+-- overload function: create(string, ccui.TextureResType)
+--          
+-- overload function: create()
+--          
+-- @function [parent=#ImageView] create
 -- @param self
--- @return ImageView#ImageView ret (return value: ccui.ImageView)
-        
+-- @param #string str
+-- @param #ccui.TextureResType texturerestype
+-- @return ImageView#ImageView ret (retunr value: ccui.ImageView)
+
 --------------------------------
 -- @function [parent=#ImageView] createInstance 
 -- @param self
 -- @return Ref#Ref ret (return value: cc.Ref)
+        
+--------------------------------
+-- @function [parent=#ImageView] getVirtualRenderer 
+-- @param self
+-- @return Node#Node ret (return value: cc.Node)
+        
+--------------------------------
+-- @function [parent=#ImageView] getDescription 
+-- @param self
+-- @return string#string ret (return value: string)
+        
+--------------------------------
+-- @function [parent=#ImageView] getVirtualRendererSize 
+-- @param self
+-- @return size_table#size_table ret (return value: size_table)
+        
+--------------------------------
+-- @function [parent=#ImageView] ignoreContentAdaptWithSize 
+-- @param self
+-- @param #bool bool
         
 --------------------------------
 -- @function [parent=#ImageView] ImageView 

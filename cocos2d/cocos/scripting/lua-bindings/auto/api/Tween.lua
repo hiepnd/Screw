@@ -1,6 +1,8 @@
 
 --------------------------------
 -- @module Tween
+-- @extend ProcessBase
+
 --------------------------------
 -- @function [parent=#Tween] getAnimation 
 -- @param self

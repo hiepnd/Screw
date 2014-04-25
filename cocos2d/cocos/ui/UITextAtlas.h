@@ -56,8 +56,21 @@ public:
      */
     static TextAtlas* create();
     
+    /**
+     * create a LabelAtlas from a char map file
+     */
+    static TextAtlas* create(const std::string& stringValue,
+                             const std::string& charMapFile,
+                             int itemWidth,
+                             int itemHeight,
+                             const std::string& startCharMap);
+    
     /** initializes the LabelAtlas with a string, a char map file(the atlas), the width and height of each element and the starting char of the atlas */
-    void setProperty(const std::string& stringValue,const std::string& charMapFile, int itemWidth, int itemHeight, const std::string& startCharMap);
+    void setProperty(const std::string& stringValue,
+                     const std::string& charMapFile,
+                     int itemWidth,
+                     int itemHeight,
+                     const std::string& startCharMap);
     
     //set string value for labelatlas.
     void setStringValue(const std::string& value);
@@ -65,11 +78,8 @@ public:
     //get string value for labelatlas.
     const std::string& getStringValue() const;
     
-    //override "setAnchorPoint" method of widget.
-    virtual void setAnchorPoint(const Point &pt) override;
-    
-    //override "getContentSize" method of widget.
-    virtual const Size& getContentSize() const override;
+    //override "getVirtualRendererSize" method of widget.
+    virtual const Size& getVirtualRendererSize() const override;
     
     //override "getVirtualRenderer" method of widget.
     virtual Node* getVirtualRenderer() override;
@@ -79,6 +89,7 @@ public:
      */
     virtual std::string getDescription() const override;
     
+    virtual void adaptRenderers() override;
 protected:
     virtual void initRenderer() override;
     virtual void onSizeChanged() override;
@@ -95,6 +106,7 @@ protected:
     int _itemWidth;
     int _itemHeight;
     std::string _startCharMap;
+    bool _labelAtlasRendererAdaptDirty;
 };
 
 }

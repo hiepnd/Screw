@@ -64,6 +64,26 @@ public:
      * Allocates and initializes.
      */
     static CheckBox* create();
+    
+    /**
+     * create an checkbox
+     *
+     * @param backGround    backGround texture.
+     *
+     * @param backGroundSelected    backGround selected state texture.
+     *
+     * @param cross    cross texture.
+     *
+     * @param frontCrossDisabled    cross dark state texture.
+     *
+     * @param texType    @see UI_TEX_TYPE_LOCAL
+     */
+    static CheckBox* create(const std::string& backGround,
+                            const std::string& backGroundSeleted,
+                            const std::string& cross,
+                            const std::string& backGroundDisabled,
+                            const std::string& frontCrossDisabled,
+                            TextureResType texType = UI_TEX_TYPE_LOCAL);
 
     /**
      * Load textures for checkbox.
@@ -78,7 +98,12 @@ public:
      *
      * @param texType    @see UI_TEX_TYPE_LOCAL
      */
-    void loadTextures(const char* backGround,const char* backGroundSelected,const char* cross,const char* backGroundDisabled,const char* frontCrossDisabled,TextureResType texType = UI_TEX_TYPE_LOCAL);
+    void loadTextures(const std::string& backGround,
+                      const std::string& backGroundSelected,
+                      const std::string& cross,
+                      const std::string& backGroundDisabled,
+                      const std::string& frontCrossDisabled,
+                      TextureResType texType = UI_TEX_TYPE_LOCAL);
 
     /**
      * Load backGround texture for checkbox.
@@ -87,7 +112,7 @@ public:
      *
      * @param texType    @see UI_TEX_TYPE_LOCAL
      */
-    void loadTextureBackGround(const char* backGround,TextureResType type = UI_TEX_TYPE_LOCAL);
+    void loadTextureBackGround(const std::string& backGround,TextureResType type = UI_TEX_TYPE_LOCAL);
 
     /**
      * Load backGroundSelected texture for checkbox.
@@ -96,7 +121,7 @@ public:
      *
      * @param texType    @see UI_TEX_TYPE_LOCAL
      */
-    void loadTextureBackGroundSelected(const char* backGroundSelected,TextureResType texType = UI_TEX_TYPE_LOCAL);
+    void loadTextureBackGroundSelected(const std::string& backGroundSelected,TextureResType texType = UI_TEX_TYPE_LOCAL);
 
     /**
      * Load cross texture for checkbox.
@@ -105,7 +130,7 @@ public:
      *
      * @param texType    @see UI_TEX_TYPE_LOCAL
      */
-    void loadTextureFrontCross(const char* cross,TextureResType texType = UI_TEX_TYPE_LOCAL);
+    void loadTextureFrontCross(const std::string&,TextureResType texType = UI_TEX_TYPE_LOCAL);
 
     /**
      * Load backGroundDisabled texture for checkbox.
@@ -114,7 +139,7 @@ public:
      *
      * @param texType    @see UI_TEX_TYPE_LOCAL
      */
-    void loadTextureBackGroundDisabled(const char* backGroundDisabled,TextureResType texType = UI_TEX_TYPE_LOCAL);
+    void loadTextureBackGroundDisabled(const std::string& backGroundDisabled,TextureResType texType = UI_TEX_TYPE_LOCAL);
 
     /**
      * Load frontCrossDisabled texture for checkbox.
@@ -123,7 +148,7 @@ public:
      *
      * @param texType    @see UI_TEX_TYPE_LOCAL
      */
-    void loadTextureFrontCrossDisabled(const char* frontCrossDisabled,TextureResType texType = UI_TEX_TYPE_LOCAL);
+    void loadTextureFrontCrossDisabled(const std::string& frontCrossDisabled,TextureResType texType = UI_TEX_TYPE_LOCAL);
 
     /**
      * Sets selcted state for checkbox.
@@ -139,8 +164,6 @@ public:
      */
     bool getSelectedState();
 
-    //override "setAnchorPoint" method of widget.
-    virtual void setAnchorPoint(const Point &pt) override;
 
     //add a call back function would called when checkbox is selected or unselected.
     void addEventListenerCheckBox(Ref* target,SEL_SelectedStateEvent selector);
@@ -148,8 +171,8 @@ public:
     //override "onTouchEnded" method of widget.
     virtual void onTouchEnded(Touch *touch, Event *unusedEvent);
 
-    //override "getContentSize" method of widget.
-    virtual const Size& getContentSize() const override;
+    //override "getVirtualRendererSize" method of widget.
+    virtual const Size& getVirtualRendererSize() const override;
 
     //override "getVirtualRenderer" method of widget.
     virtual Node* getVirtualRenderer() override;
@@ -158,9 +181,17 @@ public:
      * Returns the "class name" of widget.
      */
     virtual std::string getDescription() const override;
+    
+CC_CONSTRUCTOR_ACCESS:
+    virtual bool init() override;
+    virtual bool init(const std::string& backGround,
+                      const std::string& backGroundSeleted,
+                      const std::string& cross,
+                      const std::string& backGroundDisabled,
+                      const std::string& frontCrossDisabled,
+                      TextureResType texType = UI_TEX_TYPE_LOCAL);
 
 protected:
-    virtual bool init() override;
     virtual void initRenderer() override;
     virtual void onPressStateChangedToNormal() override;
     virtual void onPressStateChangedToPressed() override;
@@ -180,6 +211,7 @@ protected:
     void frontCrossDisabledTextureScaleChangedWithSize();
     virtual Widget* createCloneInstance() override;
     virtual void copySpecialProperties(Widget* model) override;
+    virtual void adaptRenderers() override;
 protected:
     Sprite* _backGroundBoxRenderer;
     Sprite* _backGroundSelectedBoxRenderer;
@@ -202,6 +234,12 @@ protected:
     std::string _frontCrossFileName;
     std::string _backGroundDisabledFileName;
     std::string _frontCrossDisabledFileName;
+    
+    bool _backGroundBoxRendererAdaptDirty;
+    bool _backGroundSelectedBoxRendererAdaptDirty;
+    bool _frontCrossRendererAdaptDirty;
+    bool _backGroundBoxDisabledRendererAdaptDirty;
+    bool _frontCrossDisabledRendererAdaptDirty;
 };
 
 }

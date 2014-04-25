@@ -1,6 +1,7 @@
 
 --------------------------------
 -- @module Director
+
 --------------------------------
 -- @function [parent=#Director] pause 
 -- @param self
@@ -110,6 +111,11 @@
 --------------------------------
 -- @function [parent=#Director] startAnimation 
 -- @param self
+        
+--------------------------------
+-- @function [parent=#Director] getOpenGLView 
+-- @param self
+-- @return GLView#GLView ret (return value: cc.GLView)
         
 --------------------------------
 -- @function [parent=#Director] getRunningScene 

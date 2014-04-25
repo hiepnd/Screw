@@ -43,7 +43,8 @@ _barRendererTextureSize(Size::ZERO),
 _scale9Enabled(false),
 _prevIgnoreSize(true),
 _capInsets(Rect::ZERO),
-_textureFile("")
+_textureFile(""),
+_barRendererAdaptDirty(true)
 {
 }
 
@@ -63,11 +64,24 @@ LoadingBar* LoadingBar::create()
     CC_SAFE_DELETE(widget);
     return nullptr;
 }
+    
+LoadingBar* LoadingBar::create(const std::string &textureName, int percentage)
+{
+    LoadingBar* widget = new LoadingBar;
+    if (widget && widget->init()) {
+        widget->autorelease();
+        widget->loadTexture(textureName);
+        widget->setPercent(percentage);
+        return widget;
+    }
+    CC_SAFE_DELETE(widget);
+    return nullptr;
+}
 
 void LoadingBar::initRenderer()
 {
     _barRenderer = Sprite::create();
-    Node::addChild(_barRenderer, BAR_RENDERER_Z, -1);
+    addProtectedChild(_barRenderer, BAR_RENDERER_Z, -1);
     _barRenderer->setAnchorPoint(Point(0.0,0.5));
 }
 
@@ -105,9 +119,9 @@ int LoadingBar::getDirection()
     return _barType;
 }
 
-void LoadingBar::loadTexture(const char* texture,TextureResType texType)
+    void LoadingBar::loadTexture(const std::string& texture,TextureResType texType)
 {
-    if (!texture || strcmp(texture, "") == 0)
+    if (texture.empty())
     {
         return;
     }
@@ -162,7 +176,9 @@ void LoadingBar::loadTexture(const char* texture,TextureResType texType)
         }
         break;
     }
-    barRendererScaleChangedWithSize();
+//    barRendererScaleChangedWithSize();
+    updateContentSizeWithTextureSize(_barRendererTextureSize);
+    _barRendererAdaptDirty = true;
 }
 
 void LoadingBar::setScale9Enabled(bool enabled)
@@ -172,7 +188,7 @@ void LoadingBar::setScale9Enabled(bool enabled)
         return;
     }
     _scale9Enabled = enabled;
-    Node::removeChild(_barRenderer);
+    removeProtectedChild(_barRenderer);
     _barRenderer = nullptr;
     if (_scale9Enabled)
     {
@@ -182,8 +198,8 @@ void LoadingBar::setScale9Enabled(bool enabled)
     {
         _barRenderer = Sprite::create();
     }
-    loadTexture(_textureFile.c_str(),_renderBarTexType);
-    Node::addChild(_barRenderer, BAR_RENDERER_Z, -1);
+    loadTexture(_textureFile,_renderBarTexType);
+    addProtectedChild(_barRenderer, BAR_RENDERER_Z, -1);
     if (_scale9Enabled)
     {
         bool ignoreBefore = _ignoreSize;
@@ -252,7 +268,16 @@ int LoadingBar::getPercent()
 void LoadingBar::onSizeChanged()
 {
     Widget::onSizeChanged();
-    barRendererScaleChangedWithSize();
+    _barRendererAdaptDirty = true;
+}
+    
+void LoadingBar::adaptRenderers()
+{
+    if (_barRendererAdaptDirty)
+    {
+        barRendererScaleChangedWithSize();
+        _barRendererAdaptDirty = false;
+    }
 }
 
 void LoadingBar::ignoreContentAdaptWithSize(bool ignore)
@@ -264,7 +289,7 @@ void LoadingBar::ignoreContentAdaptWithSize(bool ignore)
     }
 }
 
-const Size& LoadingBar::getContentSize() const
+const Size& LoadingBar::getVirtualRendererSize() const
 {
     return _barRendererTextureSize;
 }
@@ -282,7 +307,6 @@ void LoadingBar::barRendererScaleChangedWithSize()
         {
             _totalLength = _barRendererTextureSize.width;
             _barRenderer->setScale(1.0f);
-            _size = _barRendererTextureSize;
         }
     }
     else
@@ -310,10 +334,10 @@ void LoadingBar::barRendererScaleChangedWithSize()
     switch (_barType)
     {
         case LoadingBarTypeLeft:
-            _barRenderer->setPosition(Point(-_totalLength * 0.5f, 0.0f));
+            _barRenderer->setPosition(Point(0.0f, _contentSize.height / 2.0f));
             break;
         case LoadingBarTypeRight:
-            _barRenderer->setPosition(Point(_totalLength * 0.5f, 0.0f));
+            _barRenderer->setPosition(Point(_totalLength, _contentSize.height / 2.0f));
             break;
         default:
             break;
@@ -358,7 +382,7 @@ void LoadingBar::copySpecialProperties(Widget *widget)
     {
         _prevIgnoreSize = loadingBar->_prevIgnoreSize;
         setScale9Enabled(loadingBar->_scale9Enabled);
-        loadTexture(loadingBar->_textureFile.c_str(), loadingBar->_renderBarTexType);
+        loadTexture(loadingBar->_textureFile, loadingBar->_renderBarTexType);
         setCapInsets(loadingBar->_capInsets);
         setPercent(loadingBar->_percent);
         setDirection(loadingBar->_barType);

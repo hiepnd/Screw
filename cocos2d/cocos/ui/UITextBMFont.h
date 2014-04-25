@@ -56,16 +56,17 @@ public:
      */
     static TextBMFont* create();
     
+    static TextBMFont* create(const std::string& text, const std::string& filename);
+    
     /** init a bitmap font atlas with an initial string and the FNT file */
-    void setFntFile(const char* fileName);
+    void setFntFile(const std::string& fileName);
     
     /** set string value for labelbmfont*/
-    void setText(const char* value);
+    void setText(const std::string& value);
     
     /** get string value for labelbmfont*/
-    const char* getStringValue();
-    virtual void setAnchorPoint(const Point &pt) override;
-    virtual const Size& getContentSize() const override;
+    const std::string getStringValue();
+    virtual const Size& getVirtualRendererSize() const override;
     virtual Node* getVirtualRenderer() override;
     /**
      * Returns the "class name" of widget.
@@ -80,11 +81,13 @@ protected:
     void labelBMFontScaleChangedWithSize();
     virtual Widget* createCloneInstance() override;
     virtual void copySpecialProperties(Widget* model) override;
+    virtual void adaptRenderers() override;
 protected:
-    cocos2d::LabelBMFont* _labelBMFontRenderer;
+    cocos2d::Label* _labelBMFontRenderer;
     bool _fntFileHasInit;
     std::string _fntFileName;
     std::string _stringValue;
+    bool _labelBMFontRendererAdaptDirty;
 };
     
 }

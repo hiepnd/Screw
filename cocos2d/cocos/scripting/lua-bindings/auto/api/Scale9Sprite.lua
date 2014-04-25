@@ -1,6 +1,8 @@
 
 --------------------------------
 -- @module Scale9Sprite
+-- @extend Node
+
 --------------------------------
 -- @function [parent=#Scale9Sprite] resizableSpriteWithCapInsets 
 -- @param self
@@ -13,13 +15,13 @@
 -- @param #float float
         
 --------------------------------
--- overload function: initWithSpriteFrameName(char)
+-- overload function: initWithSpriteFrameName(string)
 --          
--- overload function: initWithSpriteFrameName(char, rect_table)
+-- overload function: initWithSpriteFrameName(string, rect_table)
 --          
 -- @function [parent=#Scale9Sprite] initWithSpriteFrameName
 -- @param self
--- @param #char char
+-- @param #string str
 -- @param #rect_table rect
 -- @return bool#bool ret (retunr value: bool)
 
@@ -86,17 +88,17 @@
 -- @return size_table#size_table ret (return value: size_table)
         
 --------------------------------
--- overload function: initWithFile(char, rect_table)
+-- overload function: initWithFile(string, rect_table)
 --          
--- overload function: initWithFile(char, rect_table, rect_table)
+-- overload function: initWithFile(string, rect_table, rect_table)
 --          
--- overload function: initWithFile(rect_table, char)
+-- overload function: initWithFile(rect_table, string)
 --          
--- overload function: initWithFile(char)
+-- overload function: initWithFile(string)
 --          
 -- @function [parent=#Scale9Sprite] initWithFile
 -- @param self
--- @param #char char
+-- @param #string str
 -- @param #rect_table rect
 -- @param #rect_table rect
 -- @return bool#bool ret (retunr value: bool)
@@ -143,31 +145,31 @@
 -- @param #float float
         
 --------------------------------
--- overload function: create(char, rect_table, rect_table)
+-- overload function: create(string, rect_table, rect_table)
 --          
 -- overload function: create()
 --          
--- overload function: create(rect_table, char)
+-- overload function: create(rect_table, string)
 --          
--- overload function: create(char, rect_table)
+-- overload function: create(string, rect_table)
 --          
--- overload function: create(char)
+-- overload function: create(string)
 --          
 -- @function [parent=#Scale9Sprite] create
 -- @param self
--- @param #char char
+-- @param #string str
 -- @param #rect_table rect
 -- @param #rect_table rect
 -- @return Scale9Sprite#Scale9Sprite ret (retunr value: cc.Scale9Sprite)
 
 --------------------------------
--- overload function: createWithSpriteFrameName(char, rect_table)
+-- overload function: createWithSpriteFrameName(string, rect_table)
 --          
--- overload function: createWithSpriteFrameName(char)
+-- overload function: createWithSpriteFrameName(string)
 --          
 -- @function [parent=#Scale9Sprite] createWithSpriteFrameName
 -- @param self
--- @param #char char
+-- @param #string str
 -- @param #rect_table rect
 -- @return Scale9Sprite#Scale9Sprite ret (retunr value: cc.Scale9Sprite)
 
@@ -182,6 +184,41 @@
 -- @param #rect_table rect
 -- @return Scale9Sprite#Scale9Sprite ret (retunr value: cc.Scale9Sprite)
 
+--------------------------------
+-- @function [parent=#Scale9Sprite] isOpacityModifyRGB 
+-- @param self
+-- @return bool#bool ret (return value: bool)
+        
+--------------------------------
+-- @function [parent=#Scale9Sprite] setColor 
+-- @param self
+-- @param #color3B_table color3b
+        
+--------------------------------
+-- @function [parent=#Scale9Sprite] setOpacityModifyRGB 
+-- @param self
+-- @param #bool bool
+        
+--------------------------------
+-- @function [parent=#Scale9Sprite] setOpacity 
+-- @param self
+-- @param #unsigned char char
+        
+--------------------------------
+-- @function [parent=#Scale9Sprite] updateDisplayedOpacity 
+-- @param self
+-- @param #unsigned char char
+        
+--------------------------------
+-- @function [parent=#Scale9Sprite] updateDisplayedColor 
+-- @param self
+-- @param #color3B_table color3b
+        
+--------------------------------
+-- @function [parent=#Scale9Sprite] setContentSize 
+-- @param self
+-- @param #size_table size
+        
 --------------------------------
 -- @function [parent=#Scale9Sprite] Scale9Sprite 
 -- @param self

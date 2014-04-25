@@ -141,6 +141,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/cocos/2d/renderer
   ${CMAKE_CURRENT_SOURCE_DIR}/cocos/2d/platform
   ${CMAKE_CURRENT_SOURCE_DIR}/cocos/base
+  ${CMAKE_CURRENT_SOURCE_DIR}/cocos/deprecated
   ${CMAKE_CURRENT_SOURCE_DIR}/cocos/physics
   ${CMAKE_CURRENT_SOURCE_DIR}/cocos/editor-support
   ${CMAKE_CURRENT_SOURCE_DIR}/cocos/math/kazmath
@@ -161,6 +162,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/external/glfw3/include/${PLATFORM_FOLDER}
   ${CMAKE_CURRENT_SOURCE_DIR}/external/freetype2/include/${PLATFORM_FOLDER}
   ${CMAKE_CURRENT_SOURCE_DIR}/external/websockets/include/${PLATFORM_FOLDER}
+  ${CMAKE_CURRENT_SOURCE_DIR}/external/xxhash
 )
 
 if(WIN32)
@@ -230,6 +232,9 @@ add_subdirectory(external/unzip)
 
 # tinyxml2 library
 add_subdirectory(external/tinyxml2)
+
+# xxhash library
+add_subdirectory(external/xxhash)
 
 # audio
 add_subdirectory(cocos/audio)

@@ -1,6 +1,8 @@
 
 --------------------------------
 -- @module TextField
+-- @extend Widget
+
 --------------------------------
 -- @function [parent=#TextField] setAttachWithIME 
 -- @param self
@@ -166,14 +168,41 @@
 -- @return size_table#size_table ret (return value: size_table)
         
 --------------------------------
--- @function [parent=#TextField] create 
+-- overload function: create(string, string, int)
+--          
+-- overload function: create()
+--          
+-- @function [parent=#TextField] create
 -- @param self
--- @return TextField#TextField ret (return value: ccui.TextField)
-        
+-- @param #string str
+-- @param #string str
+-- @param #int int
+-- @return TextField#TextField ret (retunr value: ccui.TextField)
+
 --------------------------------
 -- @function [parent=#TextField] createInstance 
 -- @param self
 -- @return Ref#Ref ret (return value: cc.Ref)
+        
+--------------------------------
+-- @function [parent=#TextField] getVirtualRenderer 
+-- @param self
+-- @return Node#Node ret (return value: cc.Node)
+        
+--------------------------------
+-- @function [parent=#TextField] getDescription 
+-- @param self
+-- @return string#string ret (return value: string)
+        
+--------------------------------
+-- @function [parent=#TextField] update 
+-- @param self
+-- @param #float float
+        
+--------------------------------
+-- @function [parent=#TextField] getVirtualRendererSize 
+-- @param self
+-- @return size_table#size_table ret (return value: size_table)
         
 --------------------------------
 -- @function [parent=#TextField] TextField 

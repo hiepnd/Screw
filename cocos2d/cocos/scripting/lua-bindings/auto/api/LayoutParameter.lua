@@ -1,6 +1,8 @@
 
 --------------------------------
 -- @module LayoutParameter
+-- @extend Ref
+
 --------------------------------
 -- @function [parent=#LayoutParameter] clone 
 -- @param self

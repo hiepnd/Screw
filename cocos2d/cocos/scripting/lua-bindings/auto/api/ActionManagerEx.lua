@@ -1,6 +1,8 @@
 
 --------------------------------
 -- @module ActionManagerEx
+-- @extend Ref
+
 --------------------------------
 -- overload function: playActionByName(char, char, cc.CallFunc)
 --          

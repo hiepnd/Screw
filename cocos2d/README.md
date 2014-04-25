@@ -31,12 +31,12 @@ Example:
     $ cd cocos2d-x
     $ ./setup.py
     $ source FILE_TO_SAVE_SYSTEM_VARIABLE
-    $ cocos new MyGame -p com.your_company.mygame -l cpp -d /home
-    $ cd /home/MyGame
+    $ cocos new MyGame -p com.your_company.mygame -l cpp -d NEW_PROJECTS_DIR
+    $ cd NEW_PROJECTS_DIR/MyGame
 
 ### Build and run new project for android ###
 
-    $ cocos run -p -j 4 android
+    $ cocos run -p android -j 4
 
 ### Build and run new project for iOS ###
 
@@ -56,7 +56,7 @@ script in **cocos2d/build/install-deps-linux.sh**
 
 Then
 
-    $ cd /home/MyGame
+    $ cd NEW_PROJECTS_DIR/MyGame
     $ cocos run -p linux
     
 Run

@@ -47,8 +47,8 @@ EditBoxImpl* __createSystemEditBox(EditBox* pEditBox)
 
 EditBoxImplWin::EditBoxImplWin(EditBox* pEditText)
 : EditBoxImpl(pEditText)
-, _label(NULL)
-, _labelPlaceHolder(NULL)
+, _label(nullptr)
+, _labelPlaceHolder(nullptr)
 , _editBoxInputMode(EditBox::InputMode::SINGLE_LINE)
 , _editBoxInputFlag(EditBox::InputFlag::INTIAL_CAPS_ALL_CHARACTERS)
 , _keyboardReturnType(EditBox::KeyboardReturnType::DEFAULT)
@@ -71,7 +71,7 @@ bool EditBoxImplWin::initWithSize(const Size& size)
 {
     //! int fontSize = getFontSizeAccordingHeightJni(size.height-12);
     _label = Label::create();
-    _label->setFontSize(size.height-12);
+    _label->setSystemFontSize(size.height-12);
 	// align the text vertically center
     _label->setAnchorPoint(Point(0, 0.5f));
     _label->setPosition(Point(5, size.height / 2.0f));
@@ -79,7 +79,7 @@ bool EditBoxImplWin::initWithSize(const Size& size)
     _editBox->addChild(_label);
 
     _labelPlaceHolder = Label::create();
-    _labelPlaceHolder->setFontSize(size.height-12);
+    _labelPlaceHolder->setSystemFontSize(size.height-12);
 	// align the text vertically center
     _labelPlaceHolder->setAnchorPoint(Point(0, 0.5f));
     _labelPlaceHolder->setPosition(Point(5, size.height / 2.0f));
@@ -94,13 +94,13 @@ bool EditBoxImplWin::initWithSize(const Size& size)
 void EditBoxImplWin::setFont(const char* pFontName, int fontSize)
 {
 	if(_label != NULL) {
-		_label->setFontName(pFontName);
-		_label->setFontSize(fontSize);
+		_label->setSystemFontName(pFontName);
+		_label->setSystemFontSize(fontSize);
 	}
 	
 	if(_labelPlaceHolder != NULL) {
-		_labelPlaceHolder->setFontName(pFontName);
-		_labelPlaceHolder->setFontSize(fontSize);
+		_labelPlaceHolder->setSystemFontName(pFontName);
+		_labelPlaceHolder->setSystemFontSize(fontSize);
 	}
 }
 
@@ -113,8 +113,8 @@ void EditBoxImplWin::setFontColor(const Color3B& color)
 void EditBoxImplWin::setPlaceholderFont(const char* pFontName, int fontSize)
 {
 	if(_labelPlaceHolder != NULL) {
-		_labelPlaceHolder->setFontName(pFontName);
-		_labelPlaceHolder->setFontSize(fontSize);
+		_labelPlaceHolder->setSystemFontName(pFontName);
+		_labelPlaceHolder->setSystemFontSize(fontSize);
 	}
 }
 
@@ -234,35 +234,6 @@ void EditBoxImplWin::visit(void)
 {   
 }
 
-static void editBoxCallbackFunc(const char* pText, void* ctx)
-{
-    EditBoxImplWin* thiz = (EditBoxImplWin*)ctx;
-    thiz->setText(pText);
-
-    if (thiz->getDelegate() != NULL)
-    {
-        thiz->getDelegate()->editBoxTextChanged(thiz->getEditBox(), thiz->getText());
-        thiz->getDelegate()->editBoxEditingDidEnd(thiz->getEditBox());
-        thiz->getDelegate()->editBoxReturn(thiz->getEditBox());
-    }
-    
-    EditBox* pEditBox = thiz->getEditBox();
-    if (NULL != pEditBox && 0 != pEditBox->getScriptEditBoxHandler())
-    {
-        CommonScriptData data(pEditBox->getScriptEditBoxHandler(), "changed",pEditBox);
-        ScriptEvent event(kCommonEvent,(void*)&data);
-        ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
-        memset(data.eventName,0,64*sizeof(char));
-        strncpy(data.eventName,"ended",64);
-        event.data = (void*)&data;
-        ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
-        memset(data.eventName,0,64*sizeof(char));
-        strncpy(data.eventName,"return",64);
-        event.data = (void*)&data;
-        ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
-    }
-}
-
 void EditBoxImplWin::openKeyboard()
 {
     if (_delegate != NULL)
@@ -300,6 +271,26 @@ void EditBoxImplWin::openKeyboard()
 		_delegate->editBoxEditingDidEnd(_editBox);
 		_delegate->editBoxReturn(_editBox);
 	}
+    
+#if CC_ENABLE_SCRIPT_BINDING
+    if (nullptr != _editBox && 0 != _editBox->getScriptEditBoxHandler())
+    {
+        CommonScriptData data(_editBox->getScriptEditBoxHandler(), "changed",_editBox);
+        ScriptEvent event(kCommonEvent,(void*)&data);
+        if (didChange)
+        {
+            ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
+        }
+        memset(data.eventName,0,sizeof(data.eventName));
+        strncpy(data.eventName,"ended",sizeof(data.eventName));
+        event.data = (void*)&data;
+        ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
+        memset(data.eventName,0,sizeof(data.eventName));
+        strncpy(data.eventName,"return",sizeof(data.eventName));
+        event.data = (void*)&data;
+        ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
+    }
+#endif // #if CC_ENABLE_SCRIPT_BINDING
 }
 
 void EditBoxImplWin::closeKeyboard()

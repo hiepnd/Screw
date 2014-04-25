@@ -35,6 +35,9 @@ Use any of these editors to generate BMFonts:
 #define __CCBITMAP_FONT_ATLAS_H__
 
 #include "CCLabel.h"
+#if CC_LABELBMFONT_DEBUG_DRAW
+#include "renderer/CCCustomCommand.h"
+#endif
 
 NS_CC_BEGIN
 
@@ -68,7 +71,7 @@ http://www.angelcode.com/products/bmfont/ (Free, Windows only)
 @since v0.8
 */
 
-class CC_DLL LabelBMFont : public Node, public LabelProtocol, public BlendProtocol
+class CC_DLL CC_DEPRECATED_ATTRIBUTE LabelBMFont : public Node, public LabelProtocol, public BlendProtocol
 {
 public:
     /**
@@ -111,17 +114,24 @@ public:
 
     virtual const BlendFunc &getBlendFunc() const override;
 
-    virtual Sprite * getLetter(int ID) { return _label->getLetter(ID);}
+    virtual Sprite * getLetter(int ID);
     virtual Node * getChildByTag(int tag) override;
 
-    virtual void setColor(const Color3B& color) override { _label->setColor(color);}
+    virtual void setColor(const Color3B& color) override;
+
+    virtual const Size& getContentSize() const override;
+    virtual Rect getBoundingBox() const override;
 
     virtual std::string getDescription() const override;
-
 #if CC_LABELBMFONT_DEBUG_DRAW
-    virtual void draw();
-#endif // CC_LABELBMFONT_DEBUG_DRAW
+    virtual void draw(Renderer *renderer, const kmMat4 &transform, bool transformUpdated) override;
+#endif
+
 private:
+#if CC_LABELBMFONT_DEBUG_DRAW
+    CustomCommand   _customDebugDrawCommand;
+    void drawDebugData(const kmMat4& transform, bool transformUpdated);
+#endif
     
     // name of fntFile
     std::string _fntFile;

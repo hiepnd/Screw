@@ -117,7 +117,7 @@ public:
     * Supported image extensions: .png, .jpg
     * @since v0.8
     */
-    virtual void addImageAsync(const std::string &filepath, std::function<void(Texture2D*)> callback);
+    virtual void addImageAsync(const std::string &filepath, const std::function<void(Texture2D*)>& callback);
 
     /** Returns a Texture2D object given an Image.
     * If the image was not previously loaded, it will create a new Texture2D object and it will return it.
@@ -251,6 +251,7 @@ protected:
 
     std::string _fileName;
 
+    bool                      _hasMipmaps;
     Texture2D::TexParams      _texParams;
     std::string               _text;
     FontDefinition            _fontDefinition;
@@ -264,6 +265,7 @@ public:
     static void addDataTexture(Texture2D *tt, void* data, int dataLen, Texture2D::PixelFormat pixelFormat, const Size& contentSize);
     static void addImage(Texture2D *tt, Image *image);
 
+    static void setHasMipmaps(Texture2D *t, bool hasMipmaps);
     static void setTexParameters(Texture2D *t, const Texture2D::TexParams &texParams);
     static void removeTexture(Texture2D *t);
     static void reloadAllTextures();

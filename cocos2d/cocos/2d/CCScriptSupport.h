@@ -33,7 +33,6 @@
 #include "CCTouch.h"
 #include "CCEventTouch.h"
 #include "CCEventKeyboard.h"
-#include "CCSet.h"
 #include <map>
 #include <string>
 #include <list>
@@ -212,6 +211,7 @@ enum ScriptEventType
     kAccelerometerEvent,
     kControlEvent,
     kCommonEvent,
+    kComponentEvent
 };
 
 struct BasicScriptData

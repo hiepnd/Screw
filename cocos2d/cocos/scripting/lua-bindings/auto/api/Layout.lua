@@ -1,6 +1,8 @@
 
 --------------------------------
 -- @module Layout
+-- @extend Widget
+
 --------------------------------
 -- @function [parent=#Layout] setBackGroundColorVector 
 -- @param self
@@ -53,7 +55,7 @@
 --------------------------------
 -- @function [parent=#Layout] setBackGroundImage 
 -- @param self
--- @param #char char
+-- @param #string str
 -- @param #ccui.TextureResType texturerestype
         
 --------------------------------
@@ -136,12 +138,6 @@
 -- @return color3B_table#color3B_table ret (return value: color3B_table)
         
 --------------------------------
--- @function [parent=#Layout] hitTest 
--- @param self
--- @param #point_table point
--- @return bool#bool ret (return value: bool)
-        
---------------------------------
 -- @function [parent=#Layout] setBackGroundImageScale9Enabled 
 -- @param self
 -- @param #bool bool
@@ -160,6 +156,43 @@
 -- @function [parent=#Layout] createInstance 
 -- @param self
 -- @return Ref#Ref ret (return value: cc.Ref)
+        
+--------------------------------
+-- overload function: addChild(cc.Node, int)
+--          
+-- overload function: addChild(cc.Node)
+--          
+-- overload function: addChild(cc.Node, int, int)
+--          
+-- @function [parent=#Layout] addChild
+-- @param self
+-- @param #cc.Node node
+-- @param #int int
+-- @param #int int
+
+--------------------------------
+-- @function [parent=#Layout] getDescription 
+-- @param self
+-- @return string#string ret (return value: string)
+        
+--------------------------------
+-- @function [parent=#Layout] removeAllChildrenWithCleanup 
+-- @param self
+-- @param #bool bool
+        
+--------------------------------
+-- @function [parent=#Layout] removeAllChildren 
+-- @param self
+        
+--------------------------------
+-- @function [parent=#Layout] sortAllChildren 
+-- @param self
+        
+--------------------------------
+-- @function [parent=#Layout] removeChild 
+-- @param self
+-- @param #cc.Node node
+-- @param #bool bool
         
 --------------------------------
 -- @function [parent=#Layout] Layout 

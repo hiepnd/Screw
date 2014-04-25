@@ -28,6 +28,7 @@
 #include <unordered_map>
 #include "CCPlatformMacros.h"
 #include "CCRef.h"
+#include "CCStdC.h"
 
 NS_CC_BEGIN
 
@@ -49,6 +50,8 @@ struct FontLetterDefinition
     int textureID;
     bool validDefinition;
     int xAdvance;
+
+    int clipBottom;
 };
 
 class CC_DLL FontAtlas : public Ref
@@ -72,7 +75,7 @@ public:
     
     bool prepareLetterDefinitions(unsigned short  *utf16String);
 
-    inline const std::unordered_map<int, Texture2D*>& getTextures() const{ return _atlasTextures;}
+    inline const std::unordered_map<ssize_t, Texture2D*>& getTextures() const{ return _atlasTextures;}
     void  addTexture(Texture2D *texture, int slot);
     float getCommonLineHeight() const;
     void  setCommonLineHeight(float newHeight);
@@ -95,10 +98,22 @@ public:
      */
     void purgeTexturesAtlas();
 
+    /** sets font texture parameters:
+     - GL_TEXTURE_MIN_FILTER = GL_LINEAR
+     - GL_TEXTURE_MAG_FILTER = GL_LINEAR
+     */
+     void setAntiAliasTexParameters();
+
+     /** sets font texture parameters:
+     - GL_TEXTURE_MIN_FILTER = GL_NEAREST
+     - GL_TEXTURE_MAG_FILTER = GL_NEAREST
+     */
+     void setAliasTexParameters();
+
 private:
 
     void relaseTextures();
-    std::unordered_map<int, Texture2D*> _atlasTextures;
+    std::unordered_map<ssize_t, Texture2D*> _atlasTextures;
     std::unordered_map<unsigned short, FontLetterDefinition> _fontLetterDefinitions;
     float _commonLineHeight;
     Font * _font;
@@ -115,6 +130,7 @@ private:
     int _fontAscender;
     EventListenerCustom* _toBackgroundListener;
     EventListenerCustom* _toForegroundListener;
+    bool _antialiasEnabled;
 };
 
 

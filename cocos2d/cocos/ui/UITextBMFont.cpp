@@ -36,7 +36,8 @@ TextBMFont::TextBMFont():
 _labelBMFontRenderer(nullptr),
 _fntFileHasInit(false),
 _fntFileName(""),
-_stringValue("")
+_stringValue(""),
+_labelBMFontRendererAdaptDirty(true)
 {
 }
 
@@ -56,60 +57,73 @@ TextBMFont* TextBMFont::create()
     CC_SAFE_DELETE(widget);
     return nullptr;
 }
+    
+TextBMFont* TextBMFont::create(const std::string &text, const std::string &filename)
+{
+    TextBMFont* widget = new TextBMFont();
+    if (widget && widget->init())
+    {
+        widget->setFntFile(filename);
+        widget->setText(text);
+        widget->autorelease();
+        return widget;
+    }
+    CC_SAFE_DELETE(widget);
+    return nullptr;
+}
 
 void TextBMFont::initRenderer()
 {
-    _labelBMFontRenderer = cocos2d::LabelBMFont::create();
-    Node::addChild(_labelBMFontRenderer, LABELBMFONT_RENDERER_Z, -1);
+    _labelBMFontRenderer = cocos2d::Label::create();
+    addProtectedChild(_labelBMFontRenderer, LABELBMFONT_RENDERER_Z, -1);
 }
 
-void TextBMFont::setFntFile(const char *fileName)
+void TextBMFont::setFntFile(const std::string& fileName)
 {
-    if (!fileName || strcmp(fileName, "") == 0)
+    if (fileName.empty())
     {
         return;
     }
     _fntFileName = fileName;
-    _labelBMFontRenderer->initWithString("", fileName);
-    updateAnchorPoint();
-    labelBMFontScaleChangedWithSize();
+    _labelBMFontRenderer->setBMFontFilePath(fileName);
+    updateRGBAToRenderer(_labelBMFontRenderer);
     _fntFileHasInit = true;
-    setText(_stringValue.c_str());
+    setText(_stringValue);
 }
 
-void TextBMFont::setText(const char* value)
+void TextBMFont::setText(const std::string& value)
 {
-    if (!value)
-	{
-		return;
-	}
     _stringValue = value;
     if (!_fntFileHasInit)
     {
         return;
     }
     _labelBMFontRenderer->setString(value);
-    labelBMFontScaleChangedWithSize();
+    updateContentSizeWithTextureSize(_labelBMFontRenderer->getContentSize());
+    _labelBMFontRendererAdaptDirty = true;
 }
 
-const char* TextBMFont::getStringValue()
+const std::string TextBMFont::getStringValue()
 {
-    return _stringValue.c_str();
-}
-
-void TextBMFont::setAnchorPoint(const Point &pt)
-{
-    Widget::setAnchorPoint(pt);
-    _labelBMFontRenderer->setAnchorPoint(pt);
+    return _stringValue;
 }
 
 void TextBMFont::onSizeChanged()
 {
     Widget::onSizeChanged();
-    labelBMFontScaleChangedWithSize();
+    _labelBMFontRendererAdaptDirty = true;
+}
+    
+void TextBMFont::adaptRenderers()
+{
+    if (_labelBMFontRendererAdaptDirty)
+    {
+        labelBMFontScaleChangedWithSize();
+        _labelBMFontRendererAdaptDirty = false;
+    }
 }
 
-const Size& TextBMFont::getContentSize() const
+const Size& TextBMFont::getVirtualRendererSize() const
 {
     return _labelBMFontRenderer->getContentSize();
 }
@@ -124,7 +138,6 @@ void TextBMFont::labelBMFontScaleChangedWithSize()
     if (_ignoreSize)
     {
         _labelBMFontRenderer->setScale(1.0f);
-        _size = _labelBMFontRenderer->getContentSize();
     }
     else
     {
@@ -139,6 +152,7 @@ void TextBMFont::labelBMFontScaleChangedWithSize()
         _labelBMFontRenderer->setScaleX(scaleX);
         _labelBMFontRenderer->setScaleY(scaleY);
     }
+    _labelBMFontRenderer->setPosition(_contentSize.width / 2.0f, _contentSize.height / 2.0f);
 }
 
 std::string TextBMFont::getDescription() const
@@ -171,8 +185,8 @@ void TextBMFont::copySpecialProperties(Widget *widget)
     TextBMFont* labelBMFont = dynamic_cast<TextBMFont*>(widget);
     if (labelBMFont)
     {
-        setFntFile(labelBMFont->_fntFileName.c_str());
-        setText(labelBMFont->_stringValue.c_str());
+        setFntFile(labelBMFont->_fntFileName);
+        setText(labelBMFont->_stringValue);
     }
 }
 

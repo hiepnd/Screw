@@ -1,6 +1,8 @@
 
 --------------------------------
 -- @module Text
+-- @extend Widget
+
 --------------------------------
 -- @function [parent=#Text] getStringLength 
 -- @param self
@@ -77,14 +79,36 @@
 -- @param #size_table size
         
 --------------------------------
--- @function [parent=#Text] create 
+-- overload function: create(string, string, int)
+--          
+-- overload function: create()
+--          
+-- @function [parent=#Text] create
 -- @param self
--- @return Text#Text ret (return value: ccui.Text)
-        
+-- @param #string str
+-- @param #string str
+-- @param #int int
+-- @return Text#Text ret (retunr value: ccui.Text)
+
 --------------------------------
 -- @function [parent=#Text] createInstance 
 -- @param self
 -- @return Ref#Ref ret (return value: cc.Ref)
+        
+--------------------------------
+-- @function [parent=#Text] getVirtualRenderer 
+-- @param self
+-- @return Node#Node ret (return value: cc.Node)
+        
+--------------------------------
+-- @function [parent=#Text] getDescription 
+-- @param self
+-- @return string#string ret (return value: string)
+        
+--------------------------------
+-- @function [parent=#Text] getVirtualRendererSize 
+-- @param self
+-- @return size_table#size_table ret (return value: size_table)
         
 --------------------------------
 -- @function [parent=#Text] Text 

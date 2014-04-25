@@ -1,15 +1,12 @@
 
 --------------------------------
 -- @module Scheduler
+-- @extend Ref
+
 --------------------------------
 -- @function [parent=#Scheduler] setTimeScale 
 -- @param self
 -- @param #float float
-        
---------------------------------
--- @function [parent=#Scheduler] performFunctionInCocosThread 
--- @param self
--- @param #function func
         
 --------------------------------
 -- @function [parent=#Scheduler] getTimeScale 

@@ -1,6 +1,8 @@
 
 --------------------------------
 -- @module ArmatureAnimation
+-- @extend ProcessBase
+
 --------------------------------
 -- @function [parent=#ArmatureAnimation] getSpeedScale 
 -- @param self

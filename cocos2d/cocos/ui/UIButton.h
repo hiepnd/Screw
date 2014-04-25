@@ -55,19 +55,35 @@ public:
      * Allocates and initializes.
      */
     static Button* create();
+    
+    /**
+     * create a button with custom textures
+     * @normalImage normal state texture name
+     * @selectedImage  selected state texture name
+     * @disableImage disabled state texture name
+     * @param texType    @see UI_TEX_TYPE_LOCAL
+     */
+    static Button* create(const std::string& normalImage,
+                          const std::string& selectedImage = "",
+                          const std::string& disableImage = "",
+                          TextureResType texType = UI_TEX_TYPE_LOCAL);
+    
 
     /**
      * Load textures for button.
      *
-     * @param normal    normal state texture.
+     * @param normal    normal state texture name.
      *
-     * @param selected    selected state texture.
+     * @param selected    selected state texture name.
      *
-     * @param disabled    dark state texture.
+     * @param disabled    disabled state texture name.
      *
      * @param texType    @see UI_TEX_TYPE_LOCAL
      */
-    void loadTextures(const char* normal,const char* selected,const char* disabled,TextureResType texType = UI_TEX_TYPE_LOCAL);
+    void loadTextures(const std::string& normal,
+                      const std::string& selected,
+                      const std::string& disabled = "",
+                      TextureResType texType = UI_TEX_TYPE_LOCAL);
 
     /**
      * Load normal state texture for button.
@@ -76,7 +92,7 @@ public:
      *
      * @param texType    @see UI_TEX_TYPE_LOCAL
      */
-    void loadTextureNormal(const char* normal, TextureResType texType = UI_TEX_TYPE_LOCAL);
+    void loadTextureNormal(const std::string& normal, TextureResType texType = UI_TEX_TYPE_LOCAL);
 
     /**
      * Load selected state texture for button.
@@ -85,7 +101,7 @@ public:
      *
      * @param texType    @see UI_TEX_TYPE_LOCAL
      */
-    void loadTexturePressed(const char* selected, TextureResType texType = UI_TEX_TYPE_LOCAL);
+    void loadTexturePressed(const std::string& selected, TextureResType texType = UI_TEX_TYPE_LOCAL);
 
     /**
      * Load dark state texture for button.
@@ -94,7 +110,7 @@ public:
      *
      * @param texType    @see UI_TEX_TYPE_LOCAL
      */
-    void loadTextureDisabled(const char* disabled, TextureResType texType = UI_TEX_TYPE_LOCAL);
+    void loadTextureDisabled(const std::string& disabled, TextureResType texType = UI_TEX_TYPE_LOCAL);
 
     /**
      * Sets capinsets for button, if button is using scale9 renderer.
@@ -130,9 +146,6 @@ public:
 
     const Rect& getCapInsetsDisabledRenderer();
 
-    //override "setAnchorPoint" of widget.
-    virtual void setAnchorPoint(const Point &pt) override;
-
     /**
      * Sets if button is using scale9 renderer.
      *
@@ -152,8 +165,8 @@ public:
     //override "ignoreContentAdaptWithSize" method of widget.
     virtual void ignoreContentAdaptWithSize(bool ignore) override;
 
-    //override "getContentSize" method of widget.
-    virtual const Size& getContentSize() const override;
+    //override "getVirtualRendererSize" method of widget.
+    virtual const Size& getVirtualRendererSize() const override;
 
     //override "getVirtualRenderer" method of widget.
     virtual Node* getVirtualRenderer() override;
@@ -169,11 +182,18 @@ public:
     const Color3B& getTitleColor() const;
     void setTitleFontSize(float size);
     float getTitleFontSize() const;
-    void setTitleFontName(const char* fontName);
-    const char* getTitleFontName() const;
+    void setTitleFontName(const std::string& fontName);
+    const std::string& getTitleFontName() const;
+    
+CC_CONSTRUCTOR_ACCESS:
+    virtual bool init() override;
+    virtual bool init(const std::string& normalImage,
+                      const std::string& selectedImage = "",
+                      const std::string& disableImage = "",
+                      TextureResType texType = UI_TEX_TYPE_LOCAL);
+
 
 protected:
-    virtual bool init() override;
     virtual void initRenderer() override;
     virtual void onPressStateChangedToNormal() override;
     virtual void onPressStateChangedToPressed() override;
@@ -189,11 +209,13 @@ protected:
     void disabledTextureScaleChangedWithSize();
     virtual Widget* createCloneInstance() override;
     virtual void copySpecialProperties(Widget* model) override;
+    virtual void adaptRenderers() override;
+    void updateTitleLocation();
 protected:
     Node* _buttonNormalRenderer;
     Node* _buttonClickedRenderer;
     Node* _buttonDisableRenderer;
-    LabelTTF* _titleRenderer;
+    Label* _titleRenderer;
     std::string _normalFileName;
     std::string _clickedFileName;
     std::string _disabledFileName;
@@ -217,6 +239,9 @@ protected:
     bool _normalTextureLoaded;
     bool _pressedTextureLoaded;
     bool _disabledTextureLoaded;
+    bool _normalTextureAdaptDirty;
+    bool _pressedTextureAdaptDirty;
+    bool _disabledTextureAdaptDirty;
 };
 
 }

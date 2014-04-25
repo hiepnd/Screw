@@ -1,6 +1,8 @@
 
 --------------------------------
 -- @module MovementBoneData
+-- @extend Ref
+
 --------------------------------
 -- @function [parent=#MovementBoneData] init 
 -- @param self

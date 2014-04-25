@@ -56,7 +56,6 @@ _positionPercent(Point::ZERO),
 _reorderWidgetChildDirty(true),
 _hitted(false),
 _touchListener(nullptr),
-_nodes(NULL),
 _color(Color3B::WHITE),
 _opacity(255),
 _flippedX(false),
@@ -69,9 +68,7 @@ Widget::~Widget()
 {
     _touchEventListener = nullptr;
     _touchEventSelector = nullptr;
-    _widgetChildren.clear();
     setTouchEnabled(false);
-    _nodes.clear();
 }
 
 Widget* Widget::create()
@@ -88,7 +85,7 @@ Widget* Widget::create()
 
 bool Widget::init()
 {
-    if (Node::init())
+    if (ProtectedNode::init())
     {
         initRenderer();
         setBright(true);
@@ -102,76 +99,22 @@ bool Widget::init()
 void Widget::onEnter()
 {
     updateSizeAndPosition();
-    Node::onEnter();
+    ProtectedNode::onEnter();
 }
 
 void Widget::onExit()
 {
     unscheduleUpdate();
-    Node::onExit();
+    ProtectedNode::onExit();
 }
 
 void Widget::visit(Renderer *renderer, const kmMat4 &parentTransform, bool parentTransformUpdated)
 {
     if (_enabled)
     {
-        Node::visit(renderer, parentTransform, parentTransformUpdated);
+        adaptRenderers();
+        ProtectedNode::visit(renderer, parentTransform, parentTransformUpdated);
     }
-}
-
-void Widget::addChild(Node *child)
-{
-    Node::addChild(child);
-}
-
-void Widget::addChild(Node * child, int zOrder)
-{
-    Node::addChild(child, zOrder);
-}
-
-void Widget::addChild(Node* child, int zOrder, int tag)
-{
-    CCASSERT(dynamic_cast<Widget*>(child) != nullptr, "Widget only supports Widgets as children");
-    Node::addChild(child, zOrder, tag);
-    _widgetChildren.pushBack(child);
-}
-
-void Widget::sortAllChildren()
-{
-    _reorderWidgetChildDirty = _reorderChildDirty;
-    Node::sortAllChildren();
-    if( _reorderWidgetChildDirty )
-    {
-        std::sort( std::begin(_widgetChildren), std::end(_widgetChildren), nodeComparisonLess );
-        _reorderWidgetChildDirty = false;
-    }
-}
-
-Node* Widget::getChildByTag(int aTag)
-{
-    CCASSERT( aTag != Node::INVALID_TAG, "Invalid tag");
-
-    for (auto& child : _widgetChildren)
-    {
-        if(child && child->getTag() == aTag)
-            return child;
-    }
-    return nullptr;
-}
-
-Vector<Node*>& Widget::getChildren()
-{
-    return _widgetChildren;
-}
-
-const Vector<Node*>& Widget::getChildren() const
-{
-    return _widgetChildren;
-}
-
-ssize_t Widget::getChildrenCount() const
-{
-    return _widgetChildren.size();
 }
 
 Widget* Widget::getWidgetParent()
@@ -179,152 +122,53 @@ Widget* Widget::getWidgetParent()
     return dynamic_cast<Widget*>(getParent());
 }
 
-void Widget::removeFromParent()
-{
-    removeFromParentAndCleanup(true);
-}
-
-void Widget::removeFromParentAndCleanup(bool cleanup)
-{
-    Node::removeFromParentAndCleanup(cleanup);
-}
-
-void Widget::removeChild(Node *child, bool cleanup)
-{
-    Node::removeChild(child, cleanup);
-    _widgetChildren.eraseObject(child);
-}
-
-void Widget::removeChildByTag(int tag, bool cleanup)
-{
-    CCASSERT( tag != Node::INVALID_TAG, "Invalid tag");
-
-    Node *child = getChildByTag(tag);
-
-    if (child == nullptr)
-    {
-        CCLOG("cocos2d: removeChildByTag(tag = %d): child not found!", tag);
-    }
-    else
-    {
-        removeChild(child, cleanup);
-    }
-}
-
-void Widget::removeAllChildren()
-{
-    removeAllChildrenWithCleanup(true);
-}
-
-void Widget::removeAllChildrenWithCleanup(bool cleanup)
-{
-    for (auto& child : _widgetChildren)
-    {
-        if (child)
-        {
-            Node::removeChild(child);
-        }
-    }
-    _widgetChildren.clear();
-}
-
 void Widget::setEnabled(bool enabled)
 {
     _enabled = enabled;
-    for (auto& child : _widgetChildren)
+    for (auto& child : _children)
     {
         if (child)
         {
-            static_cast<Widget*>(child)->setEnabled(enabled);
+            Widget* widgetChild = dynamic_cast<Widget*>(child);
+            if (widgetChild)
+            {
+                widgetChild->setEnabled(enabled);
+            }
+        }
+    }
+    
+    for (auto& child : _protectedChildren)
+    {
+        if (child)
+        {
+            Widget* widgetChild = dynamic_cast<Widget*>(child);
+            if (widgetChild)
+            {
+                widgetChild->setEnabled(enabled);
+            }
         }
     }
 }
 
 Widget* Widget::getChildByName(const char *name)
 {
-    for (auto& child : _widgetChildren)
+    for (auto& child : _children)
     {
         if (child)
         {
-            Widget* widgetChild = static_cast<Widget*>(child);
-            if (strcmp(widgetChild->getName(), name) == 0)
+            Widget* widgetChild = dynamic_cast<Widget*>(child);
+            if (widgetChild)
             {
-                return widgetChild;
+                if (strcmp(widgetChild->getName(), name) == 0)
+                {
+                    return widgetChild;
+                }
             }
         }
     }
     return nullptr;
 }
-
-void Widget::addNode(Node* node)
-{
-    addNode(node, node->getLocalZOrder(), node->getTag());
-}
-
-void Widget::addNode(Node * node, int zOrder)
-{
-    addNode(node, zOrder, node->getTag());
-}
-
-void Widget::addNode(Node* node, int zOrder, int tag)
-{
-    CCAssert(dynamic_cast<Widget*>(node) == nullptr, "Widget only supports Nodes as renderer");
-    Node::addChild(node, zOrder, tag);
-    _nodes.pushBack(node);
-}
-
-Node* Widget::getNodeByTag(int tag)
-{
-    CCAssert( tag != Node::INVALID_TAG, "Invalid tag");
-
-    for (auto& node : _nodes)
-    {
-        if(node && node->getTag() == tag)
-            return node;
-    }
-    return nullptr;
-}
-
-Vector<Node*>& Widget::getNodes()
-{
-    return _nodes;
-}
-
-void Widget::removeNode(Node* node)
-{
-    Node::removeChild(node);
-    _nodes.eraseObject(node);
-}
-
-void Widget::removeNodeByTag(int tag)
-{
-    CCAssert( tag != Node::INVALID_TAG, "Invalid tag");
-
-    Node *node = this->getNodeByTag(tag);
-
-    if (node == nullptr)
-    {
-        CCLOG("cocos2d: removeNodeByTag(tag = %d): child not found!", tag);
-    }
-    else
-    {
-        this->removeNode(node);
-    }
-}
-
-void Widget::removeAllNodes()
-{
-    for (auto& node : _nodes)
-    {
-        if (node)
-        {
-            Node::removeChild(node);
-        }
-    }
-    _nodes.clear();
-}
-
-
+    
 void Widget::initRenderer()
 {
 }
@@ -334,7 +178,7 @@ void Widget::setSize(const Size &size)
     _customSize = size;
     if (_ignoreSize)
     {
-        _size = getContentSize();
+        _size = getVirtualRendererSize();
     }
     else
     {
@@ -385,7 +229,7 @@ void Widget::setSizePercent(const Point &percent)
     }
     if (_ignoreSize)
     {
-        _size = getContentSize();
+        _size = getVirtualRendererSize();
     }
     else
     {
@@ -418,7 +262,7 @@ void Widget::updateSizeAndPosition(const cocos2d::Size &parentSize)
         {
             if (_ignoreSize)
             {
-                _size = getContentSize();
+                _size = getVirtualRendererSize();
             }
             else
             {
@@ -442,7 +286,7 @@ void Widget::updateSizeAndPosition(const cocos2d::Size &parentSize)
             Size cSize = Size(parentSize.width * _sizePercent.x , parentSize.height * _sizePercent.y);
             if (_ignoreSize)
             {
-                _size = getContentSize();
+                _size = getVirtualRendererSize();
             }
             else
             {
@@ -500,7 +344,7 @@ void Widget::ignoreContentAdaptWithSize(bool ignore)
     _ignoreSize = ignore;
     if (_ignoreSize)
     {
-        Size s = getContentSize();
+        Size s = getVirtualRendererSize();
         _size = s;
     }
     else
@@ -532,7 +376,7 @@ const Point& Widget::getSizePercent() const
 
 Point Widget::getWorldPosition()
 {
-    return convertToWorldSpace(Point::ZERO);
+    return convertToWorldSpace(Point(_anchorPoint.x * _contentSize.width, _anchorPoint.y * _contentSize.height));
 }
 
 Node* Widget::getVirtualRenderer()
@@ -542,18 +386,33 @@ Node* Widget::getVirtualRenderer()
 
 void Widget::onSizeChanged()
 {
+    setContentSize(_size);
     for (auto& child : getChildren())
     {
-        if (child)
+        Widget* widgetChild = dynamic_cast<Widget*>(child);
+        if (widgetChild)
         {
-            static_cast<Widget*>(child)->updateSizeAndPosition();
+            widgetChild->updateSizeAndPosition();
         }
     }
 }
 
-const Size& Widget::getContentSize() const
+const Size& Widget::getVirtualRendererSize() const
 {
-    return _size;
+    return _contentSize;
+}
+    
+void Widget::updateContentSizeWithTextureSize(const cocos2d::Size &size)
+{
+    if (_ignoreSize)
+    {
+        _size = size;
+    }
+    else
+    {
+        _size = _customSize;
+    }
+    onSizeChanged();
 }
 
 void Widget::setTouchEnabled(bool enable)
@@ -773,8 +632,9 @@ void Widget::addTouchEventListener(Ref *target, SEL_TouchEvent selector)
 bool Widget::hitTest(const Point &pt)
 {
     Point nsp = convertToNodeSpace(pt);
-    Rect bb = Rect(-_size.width * _anchorPoint.x, -_size.height * _anchorPoint.y, _size.width, _size.height);
-    if (nsp.x >= bb.origin.x && nsp.x <= bb.origin.x + bb.size.width && nsp.y >= bb.origin.y && nsp.y <= bb.origin.y + bb.size.height)
+    Rect bb;
+    bb.size = _contentSize;
+    if (bb.containsPoint(nsp))
     {
         return true;
     }
@@ -850,7 +710,7 @@ void Widget::setPosition(const Point &pos)
             }
         }
     }
-    Node::setPosition(pos);
+    ProtectedNode::setPosition(pos);
 }
 
 void Widget::setPositionPercent(const Point &percent)
@@ -866,11 +726,6 @@ void Widget::setPositionPercent(const Point &percent)
             setPosition(absPos);
         }
     }
-}
-
-void Widget::updateAnchorPoint()
-{
-    setAnchorPoint(getAnchorPoint());
 }
 
 const Point& Widget::getPositionPercent()
@@ -986,8 +841,11 @@ void Widget::copyClonedWidgetChildren(Widget* model)
 
     for (auto& subWidget : modelChildren)
     {
-        Widget* child = static_cast<Widget*>(subWidget);
-        addChild(child->clone());
+        Widget* child = dynamic_cast<Widget*>(subWidget);
+        if (child)
+        {
+            addChild(child->clone());
+        }
     }
 }
 

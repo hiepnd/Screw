@@ -1,6 +1,8 @@
 
 --------------------------------
 -- @module LayerGradient
+-- @extend LayerColor
+
 --------------------------------
 -- @function [parent=#LayerGradient] getStartColor 
 -- @param self
@@ -42,20 +44,6 @@
 -- @return point_table#point_table ret (return value: point_table)
         
 --------------------------------
--- overload function: initWithColor(color4B_table, color4B_table)
---          
--- overload function: initWithColor()
---          
--- overload function: initWithColor(color4B_table, color4B_table, point_table)
---          
--- @function [parent=#LayerGradient] initWithColor
--- @param self
--- @param #color4B_table color4b
--- @param #color4B_table color4b
--- @param #point_table point
--- @return bool#bool ret (retunr value: bool)
-
---------------------------------
 -- @function [parent=#LayerGradient] setEndColor 
 -- @param self
 -- @param #color3B_table color3b
@@ -89,4 +77,9 @@
 -- @param #point_table point
 -- @return LayerGradient#LayerGradient ret (retunr value: cc.LayerGradient)
 
+--------------------------------
+-- @function [parent=#LayerGradient] getDescription 
+-- @param self
+-- @return string#string ret (return value: string)
+        
 return nil

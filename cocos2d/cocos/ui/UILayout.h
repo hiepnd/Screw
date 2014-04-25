@@ -55,6 +55,8 @@ typedef enum {
  *  @js NA
  *  @lua NA
  */
+class LayoutExecutant;
+    
 class Layout : public Widget
 {
     
@@ -84,7 +86,7 @@ public:
      *
      * @param texType @see TextureResType. UI_TEX_TYPE_LOCAL means local file, UI_TEX_TYPE_PLIST means sprite frame.
      */
-    void setBackGroundImage(const char* fileName,TextureResType texType = UI_TEX_TYPE_LOCAL);
+    void setBackGroundImage(const std::string& fileName,TextureResType texType = UI_TEX_TYPE_LOCAL);
     
     /**
      * Sets a background image capinsets for layout, if the background image is a scale9 render.
@@ -263,12 +265,12 @@ public:
     
     virtual void onEnter() override;
     virtual void onExit() override;
-    
-    virtual bool hitTest(const Point &pt);
-protected:
+        
+CC_CONSTRUCTOR_ACCESS:
     //override "init" method of widget.
     virtual bool init() override;
-        
+    
+protected:
     //override "onSizeChanged" method of widget.
     virtual void onSizeChanged() override;
     
@@ -297,6 +299,7 @@ protected:
     void updateBackGroundImageColor();
     void updateBackGroundImageOpacity();
     void updateBackGroundImageRGBA();
+    LayoutExecutant* createCurrentLayoutExecutant();
 protected:
     bool _clippingEnabled;
     
@@ -343,6 +346,8 @@ protected:
     
     Color3B _backGroundImageColor;
     GLubyte _backGroundImageOpacity;
+    
+    LayoutExecutant* _curLayoutExecutant;
     
     GLint _mask_layer_le;
     GroupCommand _groupCommand;

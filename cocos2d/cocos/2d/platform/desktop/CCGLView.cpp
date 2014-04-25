@@ -24,16 +24,14 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #include "CCGLView.h"
-
-#include <unordered_map>
-
 #include "CCDirector.h"
-#include "CCSet.h"
 #include "CCTouch.h"
 #include "CCEventDispatcher.h"
 #include "CCEventKeyboard.h"
 #include "CCEventMouse.h"
 #include "CCIMEDispatcher.h"
+
+#include <unordered_map>
 
 NS_CC_BEGIN
 
@@ -260,7 +258,7 @@ GLView::GLView()
 , _retinaFactor(1)
 , _frameZoomFactor(1.0f)
 , _mainWindow(nullptr)
-, _primaryMonitor(nullptr)
+, _monitor(nullptr)
 , _mouseX(0.0f)
 , _mouseY(0.0f)
 {
@@ -317,6 +315,18 @@ GLView* GLView::createWithFullScreen(const std::string& viewName)
     return nullptr;
 }
 
+GLView* GLView::createWithFullScreen(const std::string& viewName, const GLFWvidmode &videoMode, GLFWmonitor *monitor)
+{
+    auto ret = new GLView();
+    if(ret && ret->initWithFullscreen(viewName, videoMode, monitor)) {
+        ret->autorelease();
+        return ret;
+    }
+    
+    return nullptr;
+}
+
+
 bool GLView::initWithRect(const std::string& viewName, Rect rect, float frameZoomFactor)
 {
     setViewName(viewName);
@@ -328,7 +338,7 @@ bool GLView::initWithRect(const std::string& viewName, Rect rect, float frameZoo
     _mainWindow = glfwCreateWindow(rect.size.width * _frameZoomFactor,
                                    rect.size.height * _frameZoomFactor,
                                    _viewName.c_str(),
-                                   _primaryMonitor,
+                                   _monitor,
                                    nullptr);
     glfwMakeContextCurrent(_mainWindow);
 
@@ -366,12 +376,29 @@ bool GLView::initWithRect(const std::string& viewName, Rect rect, float frameZoo
 
 bool GLView::initWithFullScreen(const std::string& viewName)
 {
-    _primaryMonitor = glfwGetPrimaryMonitor();
-    if (nullptr == _primaryMonitor)
+    //Create fullscreen window on primary monitor at its current video mode.
+    _monitor = glfwGetPrimaryMonitor();
+    if (nullptr == _monitor)
         return false;
 
-    const GLFWvidmode* videoMode = glfwGetVideoMode(_primaryMonitor);
+    const GLFWvidmode* videoMode = glfwGetVideoMode(_monitor);
     return initWithRect(viewName, Rect(0, 0, videoMode->width, videoMode->height), 1.0f);
+}
+
+bool GLView::initWithFullscreen(const std::string &viewname, const GLFWvidmode &videoMode, GLFWmonitor *monitor)
+{
+    //Create fullscreen on specified monitor at the specified video mode.
+    _monitor = monitor;
+    if (nullptr == _monitor)
+        return false;
+    
+    //These are soft contraints. If the video mode is retrieved at runtime, the resulting window and context should match these exactly. If invalid attribs are passed (eg. from an outdated cache), window creation will NOT fail but the actual window/context may differ.
+    glfwWindowHint(GLFW_REFRESH_RATE, videoMode.refreshRate);
+    glfwWindowHint(GLFW_RED_BITS, videoMode.redBits);
+    glfwWindowHint(GLFW_BLUE_BITS, videoMode.blueBits);
+    glfwWindowHint(GLFW_GREEN_BITS, videoMode.greenBits);
+    
+    return initWithRect(viewname, Rect(0, 0, videoMode.width, videoMode.height), 1.0f);
 }
 
 bool GLView::isOpenGLReady()
@@ -523,16 +550,16 @@ void GLView::onGLFWMouseCallBack(GLFWwindow* window, int button, int action, int
             _captured = true;
             if (this->getViewPortRect().equals(Rect::ZERO) || this->getViewPortRect().containsPoint(Point(_mouseX,_mouseY)))
             {
-                int id = 0;
+                intptr_t id = 0;
                 this->handleTouchesBegin(1, &id, &_mouseX, &_mouseY);
             }
         }
         else if(GLFW_RELEASE == action)
         {
-            _captured = false;
-            if (this->getViewPortRect().equals(Rect::ZERO) || this->getViewPortRect().containsPoint(Point(_mouseX,_mouseY)))
+            if (_captured)
             {
-                int id = 0;
+                _captured = false;
+                intptr_t id = 0;
                 this->handleTouchesEnd(1, &id, &_mouseX, &_mouseY);
             }
         }
@@ -575,11 +602,8 @@ void GLView::onGLFWMouseMoveCallBack(GLFWwindow* window, double x, double y)
 
     if (_captured)
     {
-        if (this->getViewPortRect().equals(Rect::ZERO) || this->getViewPortRect().containsPoint(Point(_mouseX, _mouseY)))
-        {
-            int id = 0;
-            this->handleTouchesMove(1, &id, &_mouseX, &_mouseY);
-        }
+        intptr_t id = 0;
+        this->handleTouchesMove(1, &id, &_mouseX, &_mouseY);
     }
 
     EventMouse event(EventMouse::MouseEventType::MOUSE_MOVE);

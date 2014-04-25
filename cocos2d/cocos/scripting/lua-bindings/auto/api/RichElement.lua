@@ -1,6 +1,8 @@
 
 --------------------------------
 -- @module RichElement
+-- @extend Ref
+
 --------------------------------
 -- @function [parent=#RichElement] init 
 -- @param self

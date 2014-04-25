@@ -7,6 +7,11 @@
 
 
 --------------------------------------------------------
+-- the cc Console
+-- @field [parent=#cc] Console#Console Console preloaded module
+
+
+--------------------------------------------------------
 -- the cc Action
 -- @field [parent=#cc] Action#Action Action preloaded module
 
@@ -1194,6 +1199,11 @@
 --------------------------------------------------------
 -- the cc SimpleAudioEngine
 -- @field [parent=#cc] SimpleAudioEngine#SimpleAudioEngine SimpleAudioEngine preloaded module
+
+
+--------------------------------------------------------
+-- the cc ProtectedNode
+-- @field [parent=#cc] ProtectedNode#ProtectedNode ProtectedNode preloaded module
 
 
 return nil

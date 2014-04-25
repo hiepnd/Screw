@@ -212,11 +212,4 @@ NS_SCREW_JNI_END /* namespace jni */
 
 extern "C" {
 
-jint JNI_OnLoad( JavaVM *vm, void *pvt )
-{
-	CCLOG("JNI_OnLoad JNI_OnLoad ....");
-//	jni::Helper::initialize(vm->GetEnv());
-	return JNI_VERSION_1_6;
-}
-
 } /* extern "C" */

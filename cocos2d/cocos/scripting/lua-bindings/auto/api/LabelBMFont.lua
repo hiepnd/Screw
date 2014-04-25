@@ -1,6 +1,8 @@
 
 --------------------------------
 -- @module LabelBMFont
+-- @extend Node,LabelProtocol,BlendProtocol
+
 --------------------------------
 -- @function [parent=#LabelBMFont] setLineBreakWithoutSpace 
 -- @param self
@@ -87,6 +89,32 @@
 -- @param #point_table point
 -- @return LabelBMFont#LabelBMFont ret (retunr value: cc.LabelBMFont)
 
+--------------------------------
+-- @function [parent=#LabelBMFont] getBoundingBox 
+-- @param self
+-- @return rect_table#rect_table ret (return value: rect_table)
+        
+--------------------------------
+-- @function [parent=#LabelBMFont] getDescription 
+-- @param self
+-- @return string#string ret (return value: string)
+        
+--------------------------------
+-- @function [parent=#LabelBMFont] setColor 
+-- @param self
+-- @param #color3B_table color3b
+        
+--------------------------------
+-- @function [parent=#LabelBMFont] getChildByTag 
+-- @param self
+-- @param #int int
+-- @return Node#Node ret (return value: cc.Node)
+        
+--------------------------------
+-- @function [parent=#LabelBMFont] getContentSize 
+-- @param self
+-- @return size_table#size_table ret (return value: size_table)
+        
 --------------------------------
 -- @function [parent=#LabelBMFont] LabelBMFont 
 -- @param self

@@ -49,10 +49,10 @@ public:
     // CCTextFieldDelegate
     virtual bool onTextFieldAttachWithIME(TextFieldTTF *pSender) override;
     virtual bool onTextFieldDetachWithIME(TextFieldTTF * pSender) override;
-    virtual bool onTextFieldInsertText(TextFieldTTF * pSender, const char * text, int nLen) override;
-    virtual bool onTextFieldDeleteBackward(TextFieldTTF * pSender, const char * delText, int nLen) override;
+    virtual bool onTextFieldInsertText(TextFieldTTF * pSender, const char * text, size_t nLen) override;
+    virtual bool onTextFieldDeleteBackward(TextFieldTTF * pSender, const char * delText, size_t nLen) override;
     
-    void insertText(const char* text, int len);
+    void insertText(const char* text, size_t len);
     void deleteBackward();
     
     void openIME();
@@ -110,6 +110,9 @@ public:
     TextField();
     virtual ~TextField();
     static TextField* create();
+    static TextField* create(const std::string& placeholder,
+                             const std::string& fontName,
+                             int fontSize);
     void setTouchSize(const Size &size);
     Size getTouchSize();
     void setTouchAreaEnabled(bool enable);
@@ -142,15 +145,13 @@ public:
     bool getDeleteBackward();
     void setDeleteBackward(bool deleteBackward);
     void addEventListenerTextField(Ref* target, SEL_TextFieldEvent selecor);
-
-    virtual void setAnchorPoint(const Point &pt) override;
     
     /**
      * Returns the "class name" of widget.
      */
     virtual std::string getDescription() const override;
 
-    virtual const Size& getContentSize() const override;
+    virtual const Size& getVirtualRendererSize() const override;
     virtual Node* getVirtualRenderer() override;
     void attachWithIME();
     virtual void onEnter() override;
@@ -158,8 +159,11 @@ public:
     void setTextAreaSize(const Size &size);
     void setTextHorizontalAlignment(TextHAlignment alignment);
     void setTextVerticalAlignment(TextVAlignment alignment);
-protected:
+    
+CC_CONSTRUCTOR_ACCESS:
     virtual bool init() override;
+    
+protected:
     virtual void initRenderer() override;
     void attachWithIMEEvent();
     void detachWithIMEEvent();
@@ -172,6 +176,7 @@ protected:
     void textfieldRendererScaleChangedWithSize();
     virtual Widget* createCloneInstance() override;
     virtual void copySpecialProperties(Widget* model) override;
+    virtual void adaptRenderers() override;
 protected:
     UICCTextField* _textFieldRenderer;
 
@@ -183,6 +188,7 @@ protected:
     SEL_TextFieldEvent _textFieldEventSelector;
     
     std::string _passwordStyleText;
+    bool _textFieldRendererAdaptDirty;
 };
 
 }

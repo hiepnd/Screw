@@ -44,7 +44,8 @@ _capInsets(Rect::ZERO),
 _imageRenderer(nullptr),
 _textureFile(""),
 _imageTexType(UI_TEX_TYPE_LOCAL),
-_imageTextureSize(_size)
+_imageTextureSize(_size),
+_imageRendererAdaptDirty(true)
 {
 
 }
@@ -52,6 +53,17 @@ _imageTextureSize(_size)
 ImageView::~ImageView()
 {
     
+}
+    
+ImageView* ImageView::create(const std::string &imageFileName, TextureResType texType)
+{
+    ImageView *widget = new ImageView;
+    if (widget && widget->init(imageFileName, texType)) {
+        widget->autorelease();
+        return widget;
+    }
+    CC_SAFE_DELETE(widget);
+    return nullptr;
 }
 
 ImageView* ImageView::create()
@@ -65,16 +77,43 @@ ImageView* ImageView::create()
     CC_SAFE_DELETE(widget);
     return nullptr;
 }
+    
+bool ImageView::init()
+{
+    bool ret = true;
+    do {
+        if (!Widget::init()) {
+            ret = false;
+            break;
+        }
+        _imageTexType = UI_TEX_TYPE_LOCAL;
+    } while (0);
+    return ret;
+}
+    
+bool ImageView::init(const std::string &imageFileName, TextureResType texType)
+{
+    bool bRet = true;
+    do {
+        if (!Widget::init()) {
+            bRet = false;
+            break;
+        }
+        
+        this->loadTexture(imageFileName, texType);
+    } while (0);
+    return bRet;
+}
 
 void ImageView::initRenderer()
 {
     _imageRenderer = Sprite::create();
-    Node::addChild(_imageRenderer, IMAGE_RENDERER_Z, -1);
+    addProtectedChild(_imageRenderer, IMAGE_RENDERER_Z, -1);
 }
 
-void ImageView::loadTexture(const char *fileName, TextureResType texType)
+void ImageView::loadTexture(const std::string& fileName, TextureResType texType)
 {
-    if (!fileName || strcmp(fileName, "") == 0)
+    if (fileName.empty())
     {
         return;
     }
@@ -112,11 +151,11 @@ void ImageView::loadTexture(const char *fileName, TextureResType texType)
             break;
     }
     _imageTextureSize = _imageRenderer->getContentSize();
-    imageTextureScaleChangedWithSize();
-    updateAnchorPoint();
     updateFlippedX();
     updateFlippedY();
     updateRGBAToRenderer(_imageRenderer);
+    updateContentSizeWithTextureSize(_imageTextureSize);
+    _imageRendererAdaptDirty = true;
 }
 
 void ImageView::setTextureRect(const Rect &rect)
@@ -166,7 +205,7 @@ void ImageView::setScale9Enabled(bool able)
     
     
     _scale9Enabled = able;
-    Node::removeChild(_imageRenderer);
+    removeProtectedChild(_imageRenderer);
     _imageRenderer = nullptr;
     if (_scale9Enabled)
     {
@@ -176,8 +215,8 @@ void ImageView::setScale9Enabled(bool able)
     {
         _imageRenderer = Sprite::create();
     }
-    loadTexture(_textureFile.c_str(),_imageTexType);
-    Node::addChild(_imageRenderer, IMAGE_RENDERER_Z, -1);
+    loadTexture(_textureFile,_imageTexType);
+    addProtectedChild(_imageRenderer, IMAGE_RENDERER_Z, -1);
     if (_scale9Enabled)
     {
         bool ignoreBefore = _ignoreSize;
@@ -219,20 +258,23 @@ const Rect& ImageView::getCapInsets()
 {
     return _capInsets;
 }
-    
-void ImageView::setAnchorPoint(const Point &pt)
-{
-    Widget::setAnchorPoint(pt);
-    _imageRenderer->setAnchorPoint(pt);
-}
 
 void ImageView::onSizeChanged()
 {
     Widget::onSizeChanged();
-    imageTextureScaleChangedWithSize();
+    _imageRendererAdaptDirty = true;
+}
+    
+void ImageView::adaptRenderers()
+{
+    if (_imageRendererAdaptDirty)
+    {
+        imageTextureScaleChangedWithSize();
+        _imageRendererAdaptDirty = false;
+    }
 }
 
-const Size& ImageView::getContentSize() const
+const Size& ImageView::getVirtualRendererSize() const
 {
     return _imageTextureSize;
 }
@@ -249,7 +291,6 @@ void ImageView::imageTextureScaleChangedWithSize()
         if (!_scale9Enabled)
         {
             _imageRenderer->setScale(1.0f);
-            _size = _imageTextureSize;
         }
     }
     else
@@ -272,6 +313,7 @@ void ImageView::imageTextureScaleChangedWithSize()
             _imageRenderer->setScaleY(scaleY);
         }
     }
+    _imageRenderer->setPosition(_contentSize.width / 2.0f, _contentSize.height / 2.0f);
 }
 
 std::string ImageView::getDescription() const
@@ -306,7 +348,7 @@ void ImageView::copySpecialProperties(Widget *widget)
     {
         _prevIgnoreSize = imageView->_prevIgnoreSize;
         setScale9Enabled(imageView->_scale9Enabled);
-        loadTexture(imageView->_textureFile.c_str(), imageView->_imageTexType);
+        loadTexture(imageView->_textureFile, imageView->_imageTexType);
         setCapInsets(imageView->_capInsets);
     }
 }

@@ -1,6 +1,8 @@
 
 --------------------------------
 -- @module LoadingBar
+-- @extend Widget
+
 --------------------------------
 -- @function [parent=#LoadingBar] setPercent 
 -- @param self
@@ -9,7 +11,7 @@
 --------------------------------
 -- @function [parent=#LoadingBar] loadTexture 
 -- @param self
--- @param #char char
+-- @param #string str
 -- @param #ccui.TextureResType texturerestype
         
 --------------------------------
@@ -48,14 +50,40 @@
 -- @return int#int ret (return value: int)
         
 --------------------------------
--- @function [parent=#LoadingBar] create 
+-- overload function: create(string, int)
+--          
+-- overload function: create()
+--          
+-- @function [parent=#LoadingBar] create
 -- @param self
--- @return LoadingBar#LoadingBar ret (return value: ccui.LoadingBar)
-        
+-- @param #string str
+-- @param #int int
+-- @return LoadingBar#LoadingBar ret (retunr value: ccui.LoadingBar)
+
 --------------------------------
 -- @function [parent=#LoadingBar] createInstance 
 -- @param self
 -- @return Ref#Ref ret (return value: cc.Ref)
+        
+--------------------------------
+-- @function [parent=#LoadingBar] getVirtualRenderer 
+-- @param self
+-- @return Node#Node ret (return value: cc.Node)
+        
+--------------------------------
+-- @function [parent=#LoadingBar] getDescription 
+-- @param self
+-- @return string#string ret (return value: string)
+        
+--------------------------------
+-- @function [parent=#LoadingBar] getVirtualRendererSize 
+-- @param self
+-- @return size_table#size_table ret (return value: size_table)
+        
+--------------------------------
+-- @function [parent=#LoadingBar] ignoreContentAdaptWithSize 
+-- @param self
+-- @param #bool bool
         
 --------------------------------
 -- @function [parent=#LoadingBar] LoadingBar 

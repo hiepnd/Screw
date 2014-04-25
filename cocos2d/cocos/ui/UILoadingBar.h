@@ -62,6 +62,11 @@ public:
     static LoadingBar* create();
     
     /**
+     * create a LoadingBar with a texture and a percentage
+     **/
+    static LoadingBar* create(const std::string& textureName, int percentage = 0);
+    
+    /**
      * Changes the progress direction of loadingbar.
      *
      * @see LoadingBarType  LoadingBarTypeLeft means progress left to right, LoadingBarTypeRight otherwise.
@@ -86,7 +91,7 @@ public:
      *
      * @param texType    @see UI_TEX_TYPE_LOCAL
      */
-    void loadTexture(const char* texture,TextureResType texType = UI_TEX_TYPE_LOCAL);
+    void loadTexture(const std::string& texture,TextureResType texType = UI_TEX_TYPE_LOCAL);
     
     /**
      * Changes the progress direction of loadingbar.
@@ -123,8 +128,8 @@ public:
     //override "ignoreContentAdaptWithSize" method of widget.
     virtual void ignoreContentAdaptWithSize(bool ignore) override;
     
-    //override "getContentSize" method of widget.
-    virtual const Size& getContentSize() const override;
+    //override "getVirtualRendererSize" method of widget.
+    virtual const Size& getVirtualRendererSize() const override;
     
     //override "getVirtualRenderer" method of widget.
     virtual Node* getVirtualRenderer() override;
@@ -143,6 +148,7 @@ protected:
     void barRendererScaleChangedWithSize();
     virtual Widget* createCloneInstance() override;
     virtual void copySpecialProperties(Widget* model) override;
+    virtual void adaptRenderers() override;
 protected:
     LoadingBarType _barType;
     int _percent;
@@ -154,6 +160,7 @@ protected:
     bool _prevIgnoreSize;
     Rect _capInsets;
     std::string _textureFile;
+    bool _barRendererAdaptDirty;
 };
 
 }

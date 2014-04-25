@@ -160,8 +160,11 @@ public:
         EVENT_PHYSICS_CONTACT_PRESOLVE,
         EVENT_PHYSICS_CONTACT_POSTSOLVE,
         EVENT_PHYSICS_CONTACT_SEPERATE,
+        
+        EVENT_CUSTOM_BEGAN = 10000,
+        EVENT_CUSTOM_ENDED = 11000,
     };
-    
+
     typedef int Handler;
     typedef std::pair<HandlerType, Handler> HandlerPair;
     typedef std::vector<HandlerPair> VecHandlerPairs;
@@ -170,11 +173,13 @@ public:
     ScriptHandlerMgr(void);
     virtual ~ScriptHandlerMgr(void);
     static ScriptHandlerMgr* getInstance(void);
-        
+    static void destroyInstance(void);
+
     void addObjectHandler(void* object,int handler,ScriptHandlerMgr::HandlerType handlerType);
     void removeObjectHandler(void* object,ScriptHandlerMgr::HandlerType handlerType);
     int  getObjectHandler(void* object,ScriptHandlerMgr::HandlerType handlerType);
     void removeObjectAllHandlers(void* object);
+    ScriptHandlerMgr::HandlerType addCustomHandler(void* object, int handler);
     
 private:
     void init(void);
