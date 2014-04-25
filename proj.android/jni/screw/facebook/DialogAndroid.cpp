@@ -65,6 +65,11 @@ void DialogAndroid::present(OpenGraphActionShareDialogParams *params, const Dial
 		_callbacks[_requestCode] = callback;
 	}
 	JNIEnv *env = JniHelper::getEnv();
+	/* Flatten action to avoid missing data (and bug) when convert to Bundle */
+	OpenGraphAction *action = params->getAction();
+	if (action) {
+		params->set("action", screw::utils::JsonUtils::toJsonString(action->getValue().asValueMap()));
+	}
 	jobject jparams = Helper::valueMap2jBundle(env, params->getValue().asValueMap());
 	env->CallStaticVoidMethod(Helper::jDialogClassID, Helper::jDialogPresentShareActionDialogMethodID,
 			(jlong)_requestCode,

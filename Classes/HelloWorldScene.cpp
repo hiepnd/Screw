@@ -93,6 +93,13 @@ bool HelloWorld::init()
         } else {
             lbl->setString("Login");
         }
+        
+        if (Session::getActiveSession()->getState() == Session::State::OPENED) {
+            Request::requestForMe([](int error, GraphUser *user){
+                CCLOG("Request ME callback: error = %d,\nme = %s", error, user ? user->getValue().getDescription().c_str() : "(null)");
+            })->execute();
+        }
+        
     });
     
     auto login = MenuItemLabel::create(lbl);
@@ -134,12 +141,30 @@ bool HelloWorld::init()
             int i = 0;
             for (GraphUser *user : friends) {
                 CCLOG("friend #%d: %s", i++, user->getValue().getDescription().c_str());
+                CCLOG("Json = %s", screw::utils::JsonUtils::toJsonString(user->getValue()).c_str());
             }
         });
         
 		
 		r->execute();
-
+        
+//        Request *request = new Request("me/friends");
+//        ValueMap params;
+//        params["fields"] = "id,name,username,installed,first_name,last_name";
+//        request->setParams(params);
+//        request->setCallback([](int error, GraphObject *result){
+//            CCLOG("UUZZ = %s", result ? JsonUtils::toJsonString(result->getValue()).c_str() : "null");
+//            if (result) {
+//                string json = JsonUtils::toJsonString(result->getValue());
+//                
+//                Value v = JsonUtils::parse(json);
+//                
+//                CCLOG("IZZZ = %s", v.getDescription().c_str());
+//            }
+//        });
+//        
+//        request->execute();
+        
 	});
     fetch->setPosition(visibleSize.width/2 + 200, visibleSize.height/2 - 50);
 	menu->addChild(fetch);

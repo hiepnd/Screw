@@ -62,8 +62,7 @@ void WebDialogAndroid::show(WebDialog *dialog) {
 void WebDialogAndroid::onDialogComplete(long requestCode, int errorCode, const string &errorMessage, const string &json) {
 	auto iter = _callbacks.find(requestCode);
 	if (iter != _callbacks.end()) {
-		ValueMap vm(JsonUtils::parse(json));
-		(iter->second)(errorCode, vm);
+		(iter->second)(errorCode, JsonUtils::parse(json).asValueMap());
 		_callbacks.erase(iter);
 	}
 }

@@ -25,6 +25,19 @@ bool AppDelegate::applicationDidFinishLaunching() {
         director->setOpenGLView(glview);
     }
 	
+    //
+    glview->setDesignResolutionSize(960, 640, ResolutionPolicy::SHOW_ALL);
+    Application::Platform platform = Application::getInstance()->getTargetPlatform();
+    float resourceWidth;
+    if (platform == Application::Platform::OS_IPHONE) {
+        resourceWidth = 960;
+    } else if (platform == Application::Platform::OS_IPAD) {
+        resourceWidth = 1024;
+    } else if (platform == Application::Platform::OS_ANDROID) {
+        resourceWidth = 800;
+    }
+    director->setContentScaleFactor(resourceWidth / 960.0);
+    
     // turn on display FPS
     director->setDisplayStats(true);
 

@@ -30,172 +30,188 @@ static void __add_json_to_map(ValueMap &m, GenericValue<UTF8<>> &data);
 
 NS_SCREW_UTILS_BEGIN
 
-bool JsonUtils::parse(const string &jsonString, ValueMap &vm) {
-    rapidjson::Document document;
-    document.Parse<0>(jsonString.c_str());
-    if (document.HasParseError()) {
-        return false;
-    }
-    
-    if (!document.IsObject()) {
-        return false;
-    }
-    
-    __add_json_to_map(vm, document);
-    
-    return true;
+#pragma mark JsonValueConverter
+JsonValueConverter& JsonValueConverter::Null() {
+    return *this;
 }
 
-ValueMap JsonUtils::parse(const string &jsonString, bool *success) {
-    ValueMap m;
-    bool ok = parse(jsonString, m);
-    if (success) {
-        *success = ok;
+JsonValueConverter& JsonValueConverter::Bool(bool b) {
+    this->value(cocos2d::Value(b));
+    return *this;
+}
+
+JsonValueConverter& JsonValueConverter::Int(int i) {
+    this->value(cocos2d::Value(i));
+    return *this;
+}
+
+JsonValueConverter& JsonValueConverter::Uint(unsigned u) {
+    this->value(cocos2d::Value((int)u));
+    return *this;
+}
+
+JsonValueConverter& JsonValueConverter::Int64(int64_t i64) {
+    this->value(cocos2d::Value(StringUtils::toString(i64)));
+    return *this;
+}
+
+JsonValueConverter& JsonValueConverter::Uint64(uint64_t u64) {
+    this->value(cocos2d::Value(StringUtils::toString(u64)));
+    return *this;
+}
+
+JsonValueConverter& JsonValueConverter::Double(double d) {
+    this->value(cocos2d::Value(d));
+    return *this;
+}
+
+JsonValueConverter& JsonValueConverter::String(const GenericValue<UTF8<>>::Ch* str, SizeType length, bool copy) {
+    string v(str, length);
+    this->value(cocos2d::Value(v));
+    return *this;
+}
+
+JsonValueConverter& JsonValueConverter::StartObject() {
+    _stack.push_back(StackItem(true));
+    return *this;
+}
+
+JsonValueConverter& JsonValueConverter::EndObject(SizeType memberCount) {
+    CCASSERT(_stack.back().value.getType() == cocos2d::Value::Type::MAP, "Something wrong here");
+    //Keep the first object on stack
+    if (_stack.size() > 1) {
+        StackItem item = _stack.back();
+        _stack.pop_back();
+        this->value(item.value);
     }
-    return m;
+    return *this;
+}
+
+JsonValueConverter& JsonValueConverter::StartArray() {
+    _stack.push_back(StackItem(false));
+    return *this;
+}
+
+JsonValueConverter& JsonValueConverter::EndArray(SizeType elementCount) {
+    CCASSERT(_stack.back().value.getType() == cocos2d::Value::Type::VECTOR, "Something wrong here");
+    if (_stack.size() > 1) {
+        StackItem item = _stack.back();
+        _stack.pop_back();
+        this->value(item.value);
+    }
+    return *this;
+}
+
+void JsonValueConverter::value(const cocos2d::Value &v) {
+    StackItem &current = _stack.back();
+    if (current.value.getType() == cocos2d::Value::Type::MAP) {
+        if (current.index %2 == 0) {
+            CCASSERT(v.getType() == cocos2d::Value::Type::STRING, "Key must be a string");
+            current.key = v.asString();
+        } else {
+            current.value.asValueMap()[current.key] = v;
+        }
+        current.index++;
+    } else {
+        current.value.asValueVector().push_back(v);
+    }
+}
+
+cocos2d::Value &JsonValueConverter::getValue() {
+    CCASSERT(_stack.size() == 1, "Must be 1");
+    return _stack.front().value;
+}
+
+#pragma mark ValueJsonStringVisitor
+string ValueJsonStringVisitor::visit(const cocos2d::Value &v) {
+    switch (v.getType())
+    {
+        case cocos2d::Value::Type::NONE:
+        case cocos2d::Value::Type::BYTE:
+        case cocos2d::Value::Type::INTEGER:
+        case cocos2d::Value::Type::FLOAT:
+        case cocos2d::Value::Type::DOUBLE:
+        case cocos2d::Value::Type::BOOLEAN:
+            return v.asString();
+            break;
+        case cocos2d::Value::Type::STRING:
+            return string("\"") + v.asString() + string("\"");
+            break;
+        case cocos2d::Value::Type::VECTOR:
+            return visit(v.asValueVector());
+            break;
+        case cocos2d::Value::Type::MAP:
+            return visitMap<ValueMap>(v.asValueMap());
+            break;
+        case cocos2d::Value::Type::INT_KEY_MAP:
+            return visitMap<ValueMapIntKey>(v.asIntKeyMap());
+            break;
+        default:
+            CCASSERT(false, "Invalid type!");
+            break;
+    }
+}
+
+string ValueJsonStringVisitor::visit(const ValueVector &v) {
+    std::stringstream ret;
+    
+    ret << "[";
+    int i = v.size();
+    for (auto& child : v){
+        ret << visit(child);
+        if (--i)
+            ret << ",";
+    }
+    ret << "]";
+    
+    return ret.str();
+}
+
+#pragma mark JSON to CC
+cocos2d::Value JsonUtils::json2Value(rapidjson::Value &json) {
+    JsonValueConverter converter;
+    json.Accept(converter);
+    return converter.getValue();
+}
+
+cocos2d::Value JsonUtils::parse(const string &jsonString, bool *success) {
+    rapidjson::Document document;
+    document.Parse<0>(jsonString.c_str());
+    if (document.HasParseError() && success) {
+        *success = false;
+        return cocos2d::Value();
+    }
+    
+    if (success) {
+        *success = true;
+    }
+    
+    JsonValueConverter converter;
+    document.Accept(converter);
+    return converter.getValue();
+}
+
+bool JsonUtils::parse(const string &jsonString, ValueMap &m) {
+    bool ok = false;
+    auto ret = parse(jsonString, &ok);
+    if (ret.getType() == cocos2d::Value::Type::MAP) {
+        m = ret.asValueMap();
+    }
+    
+    return ok;
 }
 
 string JsonUtils::toJsonString(ValueMap &m) {
-    return map2JsonString(m);
+    return ValueJsonStringVisitor::visitMap(m);
 }
 
-static string map2JsonString(ValueMap &m) {
-    string s("{");
-    int size = m.size();
-    for (auto i : m) {
-        switch (i.second.getType()) {
-            case cocos2d::Value::Type::MAP:
-            {
-                
-                s.append("\"").append(i.first).append("\": ");
-                s.append(map2JsonString(i.second.asValueMap()));
-                if (--size)
-                    s.append(",");
-                break;
-            }
-            case cocos2d::Value::Type::VECTOR:
-            {
-                s.append("\"").append(i.first).append("\": ");
-                s.append(vector2JsonString(i.second.asValueVector()));
-                if (--size)
-                    s.append(",");
-                break;
-            }
-            default:
-            {
-                s.append("\"").append(i.first).append("\": ");
-                s.append("\"").append(i.second.asString()).append("\"");
-                if (--size)
-                    s.append(",");
-                break;
-            }
-        }
-    }
-    s.append("}");
-    
-    return s;
+string JsonUtils::toJsonString(cocos2d::Value &v) {
+    CCASSERT(v.getType() == cocos2d::Value::Type::MAP || v.getType() == cocos2d::Value::Type::VECTOR, "Only map and vector are valid");
+    return ValueJsonStringVisitor::visit(v);
 }
 
-static string vector2JsonString(ValueVector &m) {
-    string s("[");
-    int size = m.size();
-    for (auto i : m) {
-        switch (i.getType()) {
-            case cocos2d::Value::Type::MAP:
-            {
-                s.append(map2JsonString(i.asValueMap()));
-                if (--size)
-                    s.append(",");
-                break;
-            }
-            case cocos2d::Value::Type::VECTOR:
-            {
-                s.append(vector2JsonString(i.asValueVector()));
-                if (--size)
-                    s.append(",");
-                break;
-            }
-            default:
-            {
-                s.append(i.asString());
-                if (--size)
-                    s.append(",");
-                break;
-            }
-        }
-    }
-    s.append("]");
-    
-    return s;
+string JsonUtils::toJsonString(ValueVector &v) {
+    return ValueJsonStringVisitor::visit(v);
 }
 
 NS_SCREW_UTILS_END
-
-#pragma mark OOO
-static void __add_json_to_vector(ValueVector &vector, GenericValue<UTF8<>> &data) {
-    for (int i = 0; i < data.Size(); i++) {
-        GenericValue<UTF8<>> &v = data[i];
-        
-        if (v.IsArray()) {
-            ValueVector vector;
-            __add_json_to_vector(vector, v);
-            vector.push_back(cocos2d::Value(vector));
-        } else if (v.IsObject()) {
-            ValueMap m;
-            __add_json_to_map(m, v);
-            vector.push_back(cocos2d::Value(m));
-        } else if (v.IsString()) {
-            vector.push_back(cocos2d::Value(v.GetString()));
-        } else if (v.IsInt()) {
-            vector.push_back(cocos2d::Value(v.GetInt()));
-        } else if (v.IsUint()) {
-            vector.push_back(cocos2d::Value((int)v.GetUint()));
-        } else if (v.IsInt64()) {
-            CCLOG("__add_json_to_vector - treat long as int");
-            vector.push_back(cocos2d::Value((int)v.GetInt64()));
-        } else if (v.IsUint64()) {
-            CCLOG("__add_json_to_vector - treat long as int");
-            vector.push_back(cocos2d::Value((int)v.GetUint64()));
-        } else if (v.IsDouble()) {
-            vector.push_back(cocos2d::Value(v.GetDouble()));
-        } else if (v.IsBool()) {
-            vector.push_back(cocos2d::Value(v.GetBool()));
-        } else {
-            CCLOG("__add_json_to_vector - non supported type");
-        }
-    }
-}
-
-static void __add_json_to_map(ValueMap &m, GenericValue<UTF8<>> &data) {
-    for (auto it = data.MemberonBegin(); it != data.MemberonEnd(); it++) {
-        GenericValue<UTF8<>> &v = it->value;
-        
-        if (v.IsArray()) {
-            ValueVector vector;
-            __add_json_to_vector(vector, v);
-            m[it->name.GetString()] = cocos2d::Value(vector);
-        } else if (v.IsObject()) {
-            ValueMap child;
-            __add_json_to_map(child, v);
-            m[it->name.GetString()] = cocos2d::Value(child);
-        } else if (v.IsString()) {
-            m[it->name.GetString()] = cocos2d::Value(v.GetString());
-        } else if (v.IsInt()) {
-            m[it->name.GetString()] = cocos2d::Value(v.GetInt());
-        } else if (v.IsUint()) {
-            m[it->name.GetString()] = cocos2d::Value((int)v.GetUint());
-        } else if (v.IsInt64()) {
-            CCLOG("__add_json_to_vector - treat long as int");
-            m[it->name.GetString()] = cocos2d::Value((int)v.GetInt64());
-        } else if (v.IsUint64()) {
-            CCLOG("__add_json_to_vector - treat long as int");
-            m[it->name.GetString()] = cocos2d::Value((int)v.GetUint64());
-        } else if (v.IsDouble()) {
-            m[it->name.GetString()] = cocos2d::Value(v.GetDouble());
-        } else if (v.IsBool()) {
-            m[it->name.GetString()] = cocos2d::Value(v.GetBool());
-        } else {
-            CCLOG("__add_json_to_map - non supported type");
-        }
-    }
-}

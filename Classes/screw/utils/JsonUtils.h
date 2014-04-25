@@ -29,21 +29,83 @@
 #include "../macros.h"
 #include <external/json/rapidjson.h>
 #include <external/json/document.h>
+#include <external/json/stringbuffer.h>
+#include <external/json/writer.h>
 
 using namespace cocos2d;
 using namespace std;
 
 NS_SCREW_UTILS_BEGIN
 
-static string map2JsonString(ValueMap &m);
-static string vector2JsonString(ValueVector &m);
+class JsonValueConverter {
+public:
+    //Handler Implementation {
+    JsonValueConverter& Null();
+	JsonValueConverter& Bool(bool b);
+	JsonValueConverter& Int(int i);
+	JsonValueConverter& Uint(unsigned u);
+	JsonValueConverter& Int64(int64_t i64);
+	JsonValueConverter& Uint64(uint64_t u64);
+	JsonValueConverter& Double(double d);
+    
+	JsonValueConverter& String(const rapidjson::GenericValue<rapidjson::UTF8<>>::Ch* str, rapidjson::SizeType length, bool copy = false);
+	JsonValueConverter& StartObject();
+	JsonValueConverter& EndObject(rapidjson::SizeType memberCount = 0);
+	JsonValueConverter& StartArray();
+	JsonValueConverter& EndArray(rapidjson::SizeType elementCount = 0);
+    // }
+    
+    cocos2d::Value &getValue();
+private:
+    struct StackItem {
+        StackItem(bool isMap):index(0), key("") {
+            if (isMap) {
+                value = Value(ValueMap());
+            } else {
+                value = Value(ValueVector());
+            }
+        }
+        cocos2d::Value value;
+        string key;
+        int index;
+    };
+    
+    void value(const cocos2d::Value &v);
+    
+    list<StackItem> _stack;
+};
+
+class ValueJsonStringVisitor {
+public:
+    static string visit(const cocos2d::Value &value);
+    static string visit(const ValueVector &value);
+    
+    template<typename T>
+    static string visitMap(const T &v) {
+        std::stringstream ret;
+        ret << "{";
+        int i = v.size();
+        for (auto iter = v.begin(); iter != v.end(); ++iter) {
+            ret << "\"" << iter->first << "\"" << ":";
+            ret << visit(iter->second);
+            if (--i)
+                ret << ",";
+        }
+        ret << "}";
+        return ret.str();
+    }
+};
 
 class JsonUtils {
 public:
-    static ValueMap parse(const string &jsonString, bool *success = NULL);
-    static bool parse(const string &jsonString, ValueMap &vm);
+    static cocos2d::Value parse(const string &jsonString, bool *success = NULL);
+    static bool parse(const string &jsonString, ValueMap &m);
     
     static string toJsonString(ValueMap &m);
+    static string toJsonString(ValueVector &v);
+    static string toJsonString(cocos2d::Value &v);
+    
+    static cocos2d::Value json2Value(rapidjson::Value &json);    
 };
 
 NS_SCREW_UTILS_END

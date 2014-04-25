@@ -129,13 +129,14 @@ public class Dialog {
 	
 	private static OpenGraphActionDialogBuilder shareActionBuilderFromBundle(Bundle data) {
 		OpenGraphAction action = null;
-		Bundle actionData = data.getBundle("action");
-		if ( data != null) {
+		/* Action was flattened in DialogAndroid.cpp, restore it */
+		String actionString = data.getString("action");
+		if ( actionString != null) {
 			try {
-				JSONObject json = Helper.toJsonObject(actionData);
+				JSONObject json = new JSONObject(actionString);
 				action = GraphObject.Factory.create(json, OpenGraphAction.class);
 			} catch (Exception e) {
-				Log.d(TAG, "Error parse data " + Helper.toJsonString(actionData));
+				Log.d(TAG, "Error parse data: " + actionString);
 				e.printStackTrace();
 			}
 		}

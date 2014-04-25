@@ -65,7 +65,7 @@ void RequestAndroid::execute(Request *request) {
 void RequestAndroid::onRequestComplete(long requestCode, int errorCode, const string &errorMessage, const string &result) {
 	auto iter = _callbacks.find(requestCode);
 	if (iter != _callbacks.end()) {
-		(iter->second)(errorCode, GraphObject::create(Value(screw::utils::JsonUtils::parse(result))));
+		(iter->second)(errorCode, GraphObject::create(screw::utils::JsonUtils::parse(result)));
 		_callbacks.erase(iter);
 	}
 }
