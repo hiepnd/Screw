@@ -222,10 +222,12 @@ bool HelloWorld::init()
 		}
         
         RequestDialogBuilder *rdb = new RequestDialogBuilder();
-        rdb->setMessage("Hello");
+        rdb->setMessage("Give me a life, dude!");
         rdb->setTitle("title");
         rdb->setType(10);
         rdb->setData("score", "1000");
+        rdb->setActionType("askfor");
+        rdb->setObjectId("240217629512471");
         rdb->setTo("100008310340334");
         
         rdb->setCallback([](int error, const string &rid, const list<string> &recipients){

@@ -41,26 +41,6 @@ using namespace std;
 NS_SCREW_FACEBOOK_BEGIN
 
 extern const string AppRequestsParamTypeKey;
-
-class AppRequestParamsBuilder : public Object {
-public:
-    AppRequestParamsBuilder(const string &message);
-    static AppRequestParamsBuilder *create(const string &message);
-    
-    AppRequestParamsBuilder *setMessage(const string &message);
-    AppRequestParamsBuilder *setTitle(const string &title);
-    AppRequestParamsBuilder *setTo(const string &uid);
-    AppRequestParamsBuilder *setTo(vector<string> &uids);
-    AppRequestParamsBuilder *setType(int type);
-    AppRequestParamsBuilder *setData(const string &key, const string &value);
-    
-    ValueMap &build();
-    
-protected:
-    ValueMap _params;
-    ValueMap _data;
-};
-
 /* App Requests Manager
  *
  *
@@ -78,7 +58,6 @@ public:
     void clearRequest(const string &rid);
     
     void fetchAppRequests(const ApprequestsRequestCallback &callback = nullptr);
-    void sendAppRequest(const ValueMap &params, const WebDialogCallback &callback = nullptr);
     
     void purgeData();
     

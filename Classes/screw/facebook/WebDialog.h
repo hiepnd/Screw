@@ -75,6 +75,9 @@ private:
     static Vector<WebDialog *> _dialogs;
 };
 
+/*
+ * @doc https://developers.facebook.com/docs/games/requests
+ */
 class RequestDialogBuilder : public Object {
 public:
     
@@ -84,6 +87,8 @@ public:
     RequestDialogBuilder *setTo(const list<string> &uids);
     RequestDialogBuilder *setType(int type);
     RequestDialogBuilder *setData(const string &key, const string &value);
+    RequestDialogBuilder *setActionType(const string &actionType);
+    RequestDialogBuilder *setObjectId(const string &objectId);
     RequestDialogBuilder *setCallback(const RequestDialogCallback &callback);
     
     WebDialog *build();

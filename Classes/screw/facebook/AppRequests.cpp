@@ -38,53 +38,6 @@ static const string AppRequestsRequestsKey = "__requests__";
 
 const string AppRequestsParamTypeKey = "_t";
 
-#pragma mark Builder
-AppRequestParamsBuilder::AppRequestParamsBuilder(const string &message): _params(), _data() {
-    _data[AppRequestsParamTypeKey] = 0;
-    this->setMessage(message);
-}
-
-AppRequestParamsBuilder *AppRequestParamsBuilder::create(const string &message) {
-    AppRequestParamsBuilder *arp = new AppRequestParamsBuilder(message);
-    arp->autorelease();
-    return arp;
-}
-
-AppRequestParamsBuilder *AppRequestParamsBuilder::setMessage(const string &message) {
-    _params["message"] = message;
-    return this;
-}
-
-AppRequestParamsBuilder *AppRequestParamsBuilder::setTitle(const string &title) {
-    _params["title"] = title;
-    return this;
-}
-
-AppRequestParamsBuilder *AppRequestParamsBuilder::setTo(const string &uid) {
-    _params["to"] = uid;
-    return this;
-}
-
-AppRequestParamsBuilder *AppRequestParamsBuilder::setTo(vector<string> &uids) {
-    _params["to"] = utils::StringUtils::join(uids, ",");
-    return this;
-}
-
-AppRequestParamsBuilder *AppRequestParamsBuilder::setType(int type) {
-    _data[AppRequestsParamTypeKey] = type;
-    return this;
-}
-
-AppRequestParamsBuilder *AppRequestParamsBuilder::setData(const string &key, const string &value) {
-    _data[key] = value;
-    return this;
-}
-
-ValueMap &AppRequestParamsBuilder::build() {
-    _params["data"] = JsonUtils::toJsonString(_data);
-    return _params;
-}
-
 #pragma mark AppRequests
 AppRequests *AppRequests::getInstance() {
     if (!_instance) {
@@ -153,11 +106,6 @@ void AppRequests::fetchAppRequests(const ApprequestsRequestCallback &callback) {
     });
     
     request->execute();
-}
-
-void AppRequests::sendAppRequest(const ValueMap &params, const WebDialogCallback &callback) {
-    WebDialog *dialog = WebDialog::create("apprequests", params, callback);
-    dialog->show();
 }
 
 void AppRequests::didFetchAppRequests(const Vector<screw::facebook::GraphRequest *> &requests) {

@@ -135,6 +135,16 @@ RequestDialogBuilder *RequestDialogBuilder::setData(const string &key, const str
     return this;
 }
 
+RequestDialogBuilder *RequestDialogBuilder::setActionType(const string &actionType) {
+    _params["action_type"] = actionType;
+    return this;
+}
+
+RequestDialogBuilder *RequestDialogBuilder::setObjectId(const string &objectId) {
+    _params["object_id"] = objectId;
+    return this;
+}
+
 RequestDialogBuilder *RequestDialogBuilder::setCallback(const RequestDialogCallback &callback) {
     _callback = callback;
     return this;

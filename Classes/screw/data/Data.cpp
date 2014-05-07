@@ -134,16 +134,16 @@ void Data::clear(const string &path) {
     utils::ValueSetter::clear(_data, path);
 }
 
-void Data::save() {
-    this->save(_path);
-}
-
 void Data::print() {
     printf("Data at %s:\n", _path.c_str());
     printf("%s\n", _data.getDescription().c_str());
 }
 
 #pragma mark Save
+void Data::save() {
+    this->save(_path);
+}
+
 void Data::save(const string &path) {
     cocos2d::FileUtils::getInstance()->writeToFile(_data.asValueMap(), _path);
 }
