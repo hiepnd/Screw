@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef FACEBOOK_H_
-#define FACEBOOK_H_
+#ifndef _SCREW_SESSIONANDROID_H_
+#define _SCREW_SESSIONANDROID_H_
 
 #include "Helper.h"
 
@@ -45,6 +45,6 @@ public:
 	static void start();
 };
 
-NS_SCREW_JNI_END /* namespace jni */
+NS_SCREW_JNI_END
 
-#endif /* FACEBOOK_H_ */
+#endif /* _SCREW_SESSIONANDROID_H_ */

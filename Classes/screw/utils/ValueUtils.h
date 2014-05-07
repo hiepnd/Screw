@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef OBJECTUTILS_H_
-#define OBJECTUTILS_H_
+#ifndef _SCREW_VALUEUTILS_H_
+#define _SCREW_VALUEUTILS_H_
 
 #include "../macros.h"
 #include "cocos2d.h"
@@ -73,4 +73,4 @@ public:
 
 NS_SCREW_UTILS_END
 
-#endif /* OBJECTUTILS_H_ */
+#endif /* _SCREW_VALUEUTILS_H_ */

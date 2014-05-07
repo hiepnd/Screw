@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __Screw__DialogApple__
-#define __Screw__DialogApple__
+#ifndef _SCREW_WEBDIALOGAPPLE_H_
+#define _SCREW_WEBDIALOGAPPLE_H_
 
 #include <iostream>
 #include "screw.h"
@@ -39,5 +39,6 @@ public:
     virtual void show(WebDialog *dialog);
 };
 
-NS_SCREW_IOS_END /* namespace screw { namespace ios { */
-#endif /* defined(__Screw__DialogApple__) */
+NS_SCREW_IOS_END
+
+#endif /* _SCREW_WEBDIALOGAPPLE_H_ */

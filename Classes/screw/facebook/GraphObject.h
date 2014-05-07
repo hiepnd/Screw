@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef GRAPHOBJECT_H_
-#define GRAPHOBJECT_H_
+#ifndef _SCREW_GRAPHOBJECT_H_
+#define _SCREW_GRAPHOBJECT_H_
 
 #include "../macros.h"
 #include "../utils/ValueUtils.h"
@@ -307,4 +307,4 @@ public:
 
 NS_SCREW_FACEBOOK_END
 
-#endif /* GRAPHOBJECT_H_ */
+#endif /* _SCREW_GRAPHOBJECT_H_ */

@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef JSONUTILS_H_
-#define JSONUTILS_H_
+#ifndef _SCREW_JSONUTILS_H_
+#define _SCREW_JSONUTILS_H_
 
 #include "cocos2d.h"
 #include <string>
@@ -109,4 +109,5 @@ public:
 };
 
 NS_SCREW_UTILS_END
-#endif /* JSONUTILS_H_ */
+
+#endif /* _SCREW_JSONUTILS_H_ */

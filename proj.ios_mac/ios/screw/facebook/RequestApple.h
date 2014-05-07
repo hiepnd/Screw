@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __Screw__RequestApple__
-#define __Screw__RequestApple__
+#ifndef _SCREW_REQUESTAPPLE_H_
+#define _SCREW_REQUESTAPPLE_H_
 
 #include <iostream>
 #include "screw.h"
@@ -44,4 +44,4 @@ private:
 
 NS_SCREW_IOS_END
 
-#endif /* defined(__Screw__RequestApple__) */
+#endif /* _SCREW_REQUESTAPPLE_H_ */

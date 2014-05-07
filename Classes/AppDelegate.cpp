@@ -25,18 +25,24 @@ bool AppDelegate::applicationDidFinishLaunching() {
         director->setOpenGLView(glview);
     }
 	
-    //
-    glview->setDesignResolutionSize(960, 640, ResolutionPolicy::SHOW_ALL);
+    //Design size
+    Size frameSize = glview->getFrameSize();
+    float minAspectRatio = 1.5;
+    float maxAspectRatio = 1136.0/640;
+    float aspectRatio = frameSize.width / frameSize.height;
+    aspectRatio = clampf(aspectRatio, minAspectRatio, maxAspectRatio);
+    
+    glview->setDesignResolutionSize(640*aspectRatio, 640, ResolutionPolicy::SHOW_ALL);
     Application::Platform platform = Application::getInstance()->getTargetPlatform();
-    float resourceWidth;
+    float resourceHeight;
     if (platform == Application::Platform::OS_IPHONE) {
-        resourceWidth = 960;
+        resourceHeight = 640;
     } else if (platform == Application::Platform::OS_IPAD) {
-        resourceWidth = 1024;
+        resourceHeight = 640;
     } else if (platform == Application::Platform::OS_ANDROID) {
-        resourceWidth = 800;
+        resourceHeight = 480;
     }
-    director->setContentScaleFactor(resourceWidth / 960.0);
+    director->setContentScaleFactor(resourceHeight / 640);
     
     // turn on display FPS
     director->setDisplayStats(true);

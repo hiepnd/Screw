@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef WEBDIALOGANDROID_H_
-#define WEBDIALOGANDROID_H_
+#ifndef _SCREW_WEBDIALOGANDROID_H_
+#define _SCREW_WEBDIALOGANDROID_H_
 
 #include "Helper.h"
 #include "cocos2d.h"
@@ -50,4 +50,4 @@ private:
 
 NS_SCREW_JNI_END
 
-#endif /* WEBDIALOGANDROID_H_ */
+#endif /* _SCREW_WEBDIALOGANDROID_H_ */

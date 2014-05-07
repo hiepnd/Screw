@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __Screw__OpenGraphObject__
-#define __Screw__OpenGraphObject__
+#ifndef _SCREW_OPENGRAPH_H_
+#define _SCREW_OPENGRAPH_H_
 
 #include <iostream>
 #include "../macros.h"
@@ -114,4 +114,4 @@ public:
 
 NS_SCREW_FACEBOOK_END
 
-#endif /* defined(__Screw__OpenGraphObject__) */
+#endif /* _SCREW_OPENGRAPH_H_ */

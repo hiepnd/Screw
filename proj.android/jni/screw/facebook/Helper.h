@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef HELPER_H_
-#define HELPER_H_
+#ifndef _SCREW_HELPERANDROID_H_
+#define _SCREW_HELPERANDROID_H_
 
 #include <jni.h>
 #include "cocos2d.h"
@@ -87,4 +87,4 @@ public:
 
 NS_SCREW_JNI_END /* namespace jni */
 
-#endif /* HELPER_H_ */
+#endif /* _SCREW_HELPERANDROID_H_ */

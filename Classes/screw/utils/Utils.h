@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __Screw__Utils__
-#define __Screw__Utils__
+#ifndef _SCREW_UTILS_H_
+#define _SCREW_UTILS_H_
 
 #include <iostream>
 #include "../macros.h"
@@ -37,4 +37,4 @@ class Utils {
 
 NS_SCREW_UTILS_END
 
-#endif /* defined(__Screw__Utils__) */
+#endif /* _SCREW_UTILS_H_ */

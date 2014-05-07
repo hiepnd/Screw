@@ -21,8 +21,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef DATA_H_
-#define DATA_H_
+#ifndef _SCREW_DATA_H_
+#define _SCREW_DATA_H_
+
 #include "../macros.h"
 #include "../utils/ValueUtils.h"
 #include "cocos2d.h"
@@ -86,4 +87,4 @@ protected:
 
 NS_SCREW_DATA_END
 
-#endif /* DATA_H_ */
+#endif /* _SCREW_DATA_H_ */

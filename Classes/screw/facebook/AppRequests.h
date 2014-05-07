@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __Screw__AppRequests__
-#define __Screw__AppRequests__
+#ifndef _SCREW_APPREQUESTS_H_
+#define _SCREW_APPREQUESTS_H_
 
 #include <iostream>
 #include <vector>
@@ -94,4 +94,4 @@ private:
 
 NS_SCREW_FACEBOOK_END
 
-#endif /* defined(__Screw__AppRequests__) */
+#endif /* _SCREW_APPREQUESTS_H_ */

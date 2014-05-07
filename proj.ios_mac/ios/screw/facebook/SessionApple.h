@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __Screw__SessionApple__
-#define __Screw__SessionApple__
+#ifndef _SCREW_SESSIONAPPLE_H_
+#define _SCREW_SESSIONAPPLE_H_
 
 #include <iostream>
 #include "screw.h"
@@ -31,7 +31,7 @@ USING_NS_SCREW_FACEBOOK
 
 NS_SCREW_IOS_BEGIN
 
-class SessionApple : public screw::facebook::SessionImpl {
+class SessionApple : public SessionImpl {
     
 public:
     virtual void open(bool allowUi, const list<string> &permissions, DefaultAudience defaultAudience, LoginBehavior loginBehavior);
@@ -47,4 +47,4 @@ private:
 
 NS_SCREW_IOS_END
 
-#endif /* defined(__Screw__SessionApple__) */
+#endif /* _SCREW_SESSIONAPPLE_H_ */

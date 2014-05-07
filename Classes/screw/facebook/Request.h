@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef REQUEST_H_
-#define REQUEST_H_
+#ifndef _SCREW_REQUEST_H_
+#define _SCREW_REQUEST_H_
 
 #include "../macros.h"
 #include "GraphObject.h"
@@ -95,4 +95,4 @@ protected:
 
 NS_SCREW_FACEBOOK_END
 
-#endif /* REQUEST_H_ */
+#endif /* _SCREW_REQUEST_H_ */

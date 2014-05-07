@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef DIALOGANDROID_H_
-#define DIALOGANDROID_H_
+#ifndef _SCREW_DIALOGANDROID_H_
+#define _SCREW_DIALOGANDROID_H_
 
 #include "Helper.h"
 #include "cocos2d.h"
@@ -51,4 +51,4 @@ private:
 
 NS_SCREW_JNI_END
 
-#endif /* DIALOGANDROID_H_ */
+#endif /* _SCREW_DIALOGANDROID_H_ */

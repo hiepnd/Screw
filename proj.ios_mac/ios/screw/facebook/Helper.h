@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __Screw__Helper__
-#define __Screw__Helper__
+#ifndef _SCREW_HELPERAPPLE_H_
+#define _SCREW_HELPERAPPLE_H_
 
 #include <iostream>
 #include <list>
@@ -57,6 +57,6 @@ public:
     static FBOpenGraphActionShareDialogParams *fromOGParams(OpenGraphActionShareDialogParams *cparams);
 };
     
-NS_SCREW_IOS_END  /* namespace screw { namespace ios { */
+NS_SCREW_IOS_END
 
-#endif /* defined(__Screw__Helper__) */
+#endif /* _SCREW_HELPERAPPLE_H_ */

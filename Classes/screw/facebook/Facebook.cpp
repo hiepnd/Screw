@@ -22,6 +22,7 @@
  ****************************************************************************/
 
 #include "Facebook.h"
+#include "../utils/FileUtils.h"
 
 NS_SCREW_FACEBOOK_BEGIN
 
@@ -36,32 +37,33 @@ static const char *FacebookDataFacebookScoreKey         = "__fb_score__";
 static const char *FacebookDataDirtyScoreKey            = "__dirty_score__";
 static const char *FacebookDataAllTimeHightScoreKey     = "__all_time_hight_score__";
 
-#define FACEBOOK_PROFILE_KEY(uid)           screw::data::PathBuilder::create(FacebookDataProfilesKey)->append(uid)->build()
-#define FACEBOOK_PROFILE_TIMESTAMP_KEY(uid) screw::data::PathBuilder::create(FacebookDataProfilesTimestampKey)->append(uid)->build()
-#define FACEBOOK_PHOTO_TIMESTAMP_KEY(uid)   screw::data::PathBuilder::create(FacebookDataPhotosTimestampKey)->append(uid)->build()
-#define FACEBOOK_REQUEST_TIMESTAMP_KEY(uid) screw::data::PathBuilder::create(FacebookDataRequestTimestampKey)->append(uid)->build()
+#define FACEBOOK_PROFILE_KEY(uid)           PathBuilder::create(FacebookDataProfilesKey)->append(uid)->build()
+#define FACEBOOK_PROFILE_TIMESTAMP_KEY(uid) PathBuilder::create(FacebookDataProfilesTimestampKey)->append(uid)->build()
+#define FACEBOOK_PHOTO_TIMESTAMP_KEY(uid)   PathBuilder::create(FacebookDataPhotosTimestampKey)->append(uid)->build()
+#define FACEBOOK_REQUEST_TIMESTAMP_KEY(uid) PathBuilder::create(FacebookDataRequestTimestampKey)->append(uid)->build()
 
-#define RETURN_IF_STATE_SET(bit, msg) if (_loadingBits & (bit)) {CCLOG("%s", msg); return;}
+#define RETURN_IF_STATE_SET(bit, msg) if (_fetchingBits & (bit)) {CCLOG("%s", msg); return;}
 
-#define FB_SET_FETCHING_STATE(bit)      _loadingBits |= bit;
-#define FB_CLEAR_FETCHING_STATE(bit)    _loadingBits &= ~bit;
+#define FB_SET_FETCHING_STATE(bit)      _fetchingBits |= bit;
+#define FB_CLEAR_FETCHING_STATE(bit)    _fetchingBits &= ~bit;
 
 Facebook::Facebook() {
 	// TODO Auto-generated constructor stub
-    
-    _loadingBits = 0x00;
+    _data = new data::Data(ValueMap(), utils::FileUtils::getDocumentPath("facebook.plist"));
+    _fetchingBits = 0x00;
 }
 
 Facebook::~Facebook() {
 	// TODO Auto-generated destructor stub
+    delete _data;
 }
 
 
 #pragma mark Fetch
 void Facebook::fetchUserDetails(const MeRequestCallback &handler) {
-    RETURN_IF_STATE_SET(FacebookFetchingUserDetail, "Facebook::fetchUserDetails - another request is in progress");
+    RETURN_IF_STATE_SET(FacebookFetchingUserDetailBit, "Facebook::fetchUserDetails - another request is in progress");
     
-    FB_SET_FETCHING_STATE(FacebookFetchingUserDetail);
+    FB_SET_FETCHING_STATE(FacebookFetchingUserDetailBit);
     Request::requestForMe([=](int error, GraphUser *user){
         if (!error && user) {
             this->didFetchUserDetail(user);
@@ -69,14 +71,14 @@ void Facebook::fetchUserDetails(const MeRequestCallback &handler) {
         if (handler) {
             handler(error, user);
         }
-        FB_CLEAR_FETCHING_STATE(FacebookFetchingUserDetail);
+        FB_CLEAR_FETCHING_STATE(FacebookFetchingUserDetailBit);
     })->execute();
 }
 
 void Facebook::fetchFriends(const FriendsRequestCallback &handler) {
-    RETURN_IF_STATE_SET(FacebookFetchingFriends, "Facebook::fetchFriends - another request is in progress");
+    RETURN_IF_STATE_SET(FacebookFetchingFriendsBit, "Facebook::fetchFriends - another request is in progress");
     
-    FB_SET_FETCHING_STATE(FacebookFetchingFriends);
+    FB_SET_FETCHING_STATE(FacebookFetchingFriendsBit);
     Request::requestForFriends([=](int error, const Vector<GraphUser *> &friends){
         if (!error) {
             this->didFetchFriends(friends);
@@ -84,14 +86,14 @@ void Facebook::fetchFriends(const FriendsRequestCallback &handler) {
         if (handler) {
             handler(error, friends);
         }
-        FB_CLEAR_FETCHING_STATE(FacebookFetchingFriends);
+        FB_CLEAR_FETCHING_STATE(FacebookFetchingFriendsBit);
     })->execute();
 }
 
 void Facebook::fetchScores(const ScoresRequestCallback &handler){
-    RETURN_IF_STATE_SET(FacebookFetchingHighScores, "Facebook::fetchScores - another request is in progress");
+    RETURN_IF_STATE_SET(FacebookFetchingHighScoresBit, "Facebook::fetchScores - another request is in progress");
     
-    FB_SET_FETCHING_STATE(FacebookFetchingHighScores);
+    FB_SET_FETCHING_STATE(FacebookFetchingHighScoresBit);
     Request::requestForScores([=](int error, const Vector<GraphScore *> &scores){
         if (!error) {
             this->didFetchScores(scores);
@@ -99,7 +101,7 @@ void Facebook::fetchScores(const ScoresRequestCallback &handler){
         if (handler) {
             handler(error, scores);
         }
-        FB_CLEAR_FETCHING_STATE(FacebookFetchingHighScores);
+        FB_CLEAR_FETCHING_STATE(FacebookFetchingHighScoresBit);
     })->execute();
 }
 
@@ -146,7 +148,7 @@ void Facebook::clearDirtyScore() {
 void Facebook::saveUserDetail(GraphUser *user) {
     //Get current score
     Value data = user->getValue();
-    long score = _data->getLong(screw::data::PathBuilder::create(FacebookDataProfilesKey)->append(user->getId())
+    long score = _data->getLong(PathBuilder::create(FacebookDataProfilesKey)->append(user->getId())
                                                                     ->append(GraphUser::SCORE)->build());
     if (score != 0) {
         ValueSetter::set(data, GraphUser::SCORE, score);
@@ -158,7 +160,7 @@ void Facebook::saveUserDetail(GraphUser *user) {
 
 void Facebook::saveFriend(GraphUser *user) {
     Value data = user->getValue();
-    long score = _data->getLong(screw::data::PathBuilder::create(FacebookDataProfilesKey)->append(user->getId())
+    long score = _data->getLong(PathBuilder::create(FacebookDataProfilesKey)->append(user->getId())
                                                                     ->append(GraphUser::SCORE)->build());
     ValueSetter::set(data, GraphUser::SCORE, score);
     _data->set(FACEBOOK_PROFILE_KEY(user->getId()), data);
@@ -181,7 +183,7 @@ void Facebook::didFetchScores(const Vector<GraphScore *> &scores) {
         GraphUser *user = s->getUser();
         Value &data = _data->get(FACEBOOK_PROFILE_KEY(user->getId()));
         if (!data.isNull()) {
-            //User existed, update score only
+            //User exists, update score only
             ValueSetter::set(data, GraphUser::SCORE, s->getScore());
 //            if (getUser()->getId() == user->getId()) {
 //                

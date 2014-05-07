@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef REQUESTANDROID_H_
-#define REQUESTANDROID_H_
+#ifndef _SCREW_REQUESTANDROID_H_
+#define _SCREW_REQUESTANDROID_H_
 
 #include "Helper.h"
 #include <map>
@@ -48,4 +48,5 @@ private:
 };
 
 NS_SCREW_JNI_END /* namespace jni */
-#endif /* REQUESTANDROID_H_ */
+
+#endif /* _SCREW_REQUESTANDROID_H_ */

@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef FACEBOOK_H_
-#define FACEBOOK_H_
+#ifndef _SCREW_FACEBOOK_H_
+#define _SCREW_FACEBOOK_H_
 
 #include "../macros.h"
 #include "../data/Data.h"
@@ -39,10 +39,10 @@ using namespace std;
 NS_SCREW_FACEBOOK_BEGIN
 
 enum {
-    FacebookFetchingUserDetail  = 1 << 0,
-    FacebookFetchingFriends     = 1 << 1,
-    FacebookFetchingHighScores  = 1 << 2,
-    FacebookFetchingX           = 1 << 3,
+    FacebookFetchingUserDetailBit  = 1 << 0,
+    FacebookFetchingFriendsBit     = 1 << 1,
+    FacebookFetchingHighScoresBit  = 1 << 2,
+    FacebookFetchingXBit           = 1 << 3,
 };
 
 class Facebook {
@@ -76,7 +76,7 @@ private:
     
 	State _state;
 	screw::data::Data *_data;
-    int _loadingBits;
+    int _fetchingBits;
     
 #pragma mark Private Save
     void saveUserDetail(GraphUser *user);
@@ -97,4 +97,4 @@ private:
 
 NS_SCREW_FACEBOOK_END
 
-#endif /* FACEBOOK_H_ */
+#endif /* _SCREW_FACEBOOK_H_ */

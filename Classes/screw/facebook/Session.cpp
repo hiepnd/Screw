@@ -145,7 +145,7 @@ const list<string> &Session::getPermissions() {
 void Session::updateState(Session::State state, const list<string> &permissions, SessionError *error) {
 	CCASSERT(VALIDATE_STATE(state), "Invalid state");
     FB_LOG("Session::updateState - state = %s", __stateString[state]);
-    FB_LOG("Session::init - permissions = (%s)", utils::StringUtils::join(permissions, ",").c_str());
+    FB_LOG("Session::updateState - permissions = (%s)", utils::StringUtils::join(permissions, ",").c_str());
 
 	_state = state;
 	_permissions = permissions;

@@ -138,7 +138,7 @@ Request *Request::requestForMe(const MeRequestCallback &callback) {
 Request *Request::requestForFriends(const FriendsRequestCallback &callback) {
     Request *request = new Request("me/friends");
     ValueMap params;
-    params["fields"] = "id,name,username,installed,first_name,last_name";
+    params["fields"] = "id,name,installed,first_name,last_name";
     request->setParams(params);
     if (callback) {
         RequestCallback wrapper = [=](int error, GraphObject *result){
@@ -156,7 +156,7 @@ Request *Request::requestForFriends(const FriendsRequestCallback &callback) {
 
 Request *Request::requestForDelete(const string &objectId, const DeleteRequestCallback &callback) {
     Request *request = new Request(objectId);
-    request->setMethod(screw::facebook::Request::Method::DELETE);
+    request->setMethod(Method::DELETE);
     if (callback) {
         RequestCallback wrapper = [=](int error, GraphObject *result){
             callback(error, error == 0);
@@ -219,7 +219,7 @@ Request *Request::requestForAppRequests(const ApprequestsRequestCallback &callba
 
 Request *Request::requestForPostScore(long score, const PostScoreRequestCallback &callback) {
     Request *request = new Request("me/scores");
-    request->setMethod(POST);
+    request->setMethod(Method::POST);
     if (callback) {
         RequestCallback wrapper = [=](int error, GraphObject *result){
             callback(error, !error);

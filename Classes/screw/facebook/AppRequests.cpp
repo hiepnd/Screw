@@ -164,27 +164,29 @@ void AppRequests::didFetchAppRequests(const Vector<screw::facebook::GraphRequest
     for (GraphRequest *request : requests) {
         string dataStr = request->getDataString();
         Value &v = request->getValue();
-        CCLOG("AppRequests::didFetchAppRequests - data str = %s", dataStr.c_str());
+        FB_LOG_INFO("AppRequests::didFetchAppRequests - data str = %s", dataStr.c_str());
         if (dataStr.length()) {
             ValueMap m;
             if (JsonUtils::parse(dataStr, m)) {
                 if (m.find(AppRequestsParamTypeKey) == m.end()) {
-                    CCLOG("AppRequests::didFetchAppRequests - request data with no type (be aware) %s", v.getDescription().c_str());
+                    FB_LOG("AppRequests::didFetchAppRequests - request data with no type (be aware) %s", v.getDescription().c_str());
                 }
                 ValueSetter::set(v, "data", Value(m));
-                CCLOG("AppRequests::didFetchAppRequests - parsed data = %s", Value(m).getDescription().c_str());
+                FB_LOG("AppRequests::didFetchAppRequests - parsed data = %s", Value(m).getDescription().c_str());
             } else {
-                CCLOG("AppRequests::didFetchAppRequests - non JSON request data (cleared) %s", v.getDescription().c_str());
+                FB_LOG("AppRequests::didFetchAppRequests - non JSON request data (cleared) %s", v.getDescription().c_str());
                 ValueSetter::clear(v, "data");
             }
         }
         _data->set(PathBuilder::create(AppRequestsRequestsKey)->append(request->getId())->build(), v);
         
-        //Clear luon !!
-        Request *deleteRequest = Request::requestForDelete(request->getId(), nullptr);
-        deleteRequest->execute();
+        //Delete request
+        Request::requestForDelete(request->getId(), nullptr)->execute();
     }
-    _data->save();
+    
+    if (requests.size()) {
+        _data->save();
+    }
 }
 
 void AppRequests::purgeData() {

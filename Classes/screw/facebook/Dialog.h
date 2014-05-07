@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __Screw__Dialog__
-#define __Screw__Dialog__
+#ifndef _SCREW_DIALOG_H_
+#define _SCREW_DIALOG_H_
 
 #include <iostream>
 #include <functional>
@@ -54,4 +54,4 @@ private:
 NS_SCREW_FACEBOOK_END
 
 
-#endif /* defined(__Screw__Dialog__) */
+#endif /* _SCREW_DIALOG_H_ */

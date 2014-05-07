@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef MACROS_H_
-#define MACROS_H_
+#ifndef _SCREW_MACROS_H_
+#define _SCREW_MACROS_H_
 
 //Log
 #if COCOS2D_DEBUG
@@ -81,4 +81,4 @@
 #endif
 
 
-#endif /* MACROS_H_ */
+#endif /* _SCREW_MACROS_H_ */

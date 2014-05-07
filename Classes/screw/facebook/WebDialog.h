@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __Screw__WebDialog__
-#define __Screw__WebDialog__
+#ifndef _SCREW_WEBDIALOG_H_
+#define _SCREW_WEBDIALOG_H_
 
 #include <iostream>
 #include "../macros.h"
@@ -114,4 +114,4 @@ private:
 
 NS_SCREW_FACEBOOK_END
 
-#endif /* defined(__Screw__Dialog__) */
+#endif /* _SCREW_WEBDIALOG_H_ */

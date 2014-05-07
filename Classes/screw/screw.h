@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef Screw_screw_h
-#define Screw_screw_h
+#ifndef _SCREW_SCREW_H_
+#define _SCREW_SCREW_H_
 
 #include "macros.h"
 
@@ -45,4 +45,4 @@
 #include "facebook/Facebook.h"
 #include "facebook/AppRequests.h"
 
-#endif
+#endif /* _SCREW_SCREW_H_ */

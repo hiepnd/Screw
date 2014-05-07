@@ -21,8 +21,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef STRINGUTILS_H_
-#define STRINGUTILS_H_
+#ifndef _SCREW_STRINGUTILS_H_
+#define _SCREW_STRINGUTILS_H_
+
 #include "../macros.h"
 #include <vector>
 #include <string>
@@ -62,4 +63,4 @@ public:
 
 NS_SCREW_UTILS_END
 
-#endif /* STRINGUTILS_H_ */
+#endif /* _SCREW_STRINGUTILS_H_ */

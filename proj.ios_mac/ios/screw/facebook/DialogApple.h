@@ -20,8 +20,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __Screw__DialogApple__
-#define __Screw__DialogApple__
+#ifndef _SCREW_DIALOGAPPLE_H_
+#define _SCREW_DIALOGAPPLE_H_
 
 #include <iostream>
 #include "screw.h"
@@ -43,4 +43,4 @@ public:
 
 NS_SCREW_IOS_END
 
-#endif /* defined(__Screw__DialogApple__) */
+#endif /* _SCREW_DIALOGAPPLE_H_ */

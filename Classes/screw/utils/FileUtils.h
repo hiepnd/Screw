@@ -21,8 +21,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef FILEUTILS_H_
-#define FILEUTILS_H_
+#ifndef _SCREW_FILEUTILS_H_
+#define _SCREW_FILEUTILS_H_
+
 #include "../macros.h"
 #include "cocos2d.h"
 #include <string>
@@ -38,4 +39,4 @@ public:
 
 NS_SCREW_UTILS_END
 
-#endif /* FILEUTILS_H_ */
+#endif /* _SCREW_FILEUTILS_H_ */

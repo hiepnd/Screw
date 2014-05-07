@@ -21,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef SESSION_H_
-#define SESSION_H_
+#ifndef _SCREW_SESSION_H_
+#define _SCREW_SESSION_H_
 
 #include "../macros.h"
 #include "../data/Data.h"
@@ -134,4 +134,4 @@ private:
 
 NS_SCREW_FACEBOOK_END
 
-#endif /* SESSION_H_ */
+#endif /* _SCREW_SESSION_H_ */

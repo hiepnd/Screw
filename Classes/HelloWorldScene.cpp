@@ -176,6 +176,7 @@ bool HelloWorld::init()
 			return;
 		}
         
+        /*
 		Request *r = Request::requestForAppRequests([](int error, const Vector<GraphRequest *> &requests){
             CCLOG("Fetch requests call back - error = %d", error);
             for (GraphRequest *r : requests) {
@@ -192,6 +193,22 @@ bool HelloWorld::init()
         });
 		
 		r->execute();
+        */
+        
+        AppRequests::getInstance()->fetchAppRequests([](int error, const Vector<GraphRequest *> &requests){
+            CCLOG("Fetch requests call back - error = %d", error);
+            for (GraphRequest *r : requests) {
+                CCLOG("%s, from %s, to %s, message = %s", r->getId().c_str(), r->getFrom()->getName().c_str(),
+                      r->getTo()->getName().c_str(), r->getMessage().c_str());
+                
+                string rid = r->getId();
+                Request *rq = Request::requestForDelete(rid, nullptr);
+                rq->setCallback([=](int error, GraphObject *result){
+                    CCLOG("Delete %s result, error = %d, response = %s", rid.c_str(), error, result ? result->getValue().getDescription().c_str() : "");
+                });
+                rq->execute();
+            }
+        });
         
 	});
     fetch2->setPosition(visibleSize.width/2 - 200, visibleSize.height/2 - 50);
@@ -209,6 +226,7 @@ bool HelloWorld::init()
         rdb->setTitle("title");
         rdb->setType(10);
         rdb->setData("score", "1000");
+        rdb->setTo("100008310340334");
         
         rdb->setCallback([](int error, const string &rid, const list<string> &recipients){
             CCLOG("App request callback: error = %d, id = %s, recipients = %s", error, rid.c_str(), screw::utils::StringUtils::join(recipients, ",").c_str());
@@ -299,14 +317,14 @@ bool HelloWorld::init()
         params->setFriends({"100008211700580", "100008307900261"});
         params->setDataFailuresFatal(false);
         
-        if (Dialog::canPresent(params)) {
+        if (Dialog::canPresent(params) || 1) {
             Dialog::present(params, [](GraphObject *result, int error){
                 CCLOG("Share dialog callback: result = %s\nerror = %d", result ? result->getValue().getDescription().c_str() : "(null)", error);
             });
         } else {
             CCLOG("Cannot show share dialog, fallback to webview");
             FeedDialogBuilder *fbd = new FeedDialogBuilder();
-            fbd->setLink(params->getLink())->setDescription(params->getDescription())->setTo("100008211700580");
+            fbd->setLink(params->getLink())->setDescription(params->getDescription());//->setTo("100008211700580");
             
             fbd->setCallback([](int error, const string &rid){
                 CCLOG("Feed dialog result: error = %d, rid = %s", error, rid.c_str());
