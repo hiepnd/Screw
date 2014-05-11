@@ -41,7 +41,7 @@ void WebDialogApple::show(WebDialog *dialog) {
                                               NSLog(@"DialogApple::DialogCallback - result = %d, url = %@, error = %@", result, resultURL, error);
 #endif
                                               if (dialog->getCallback()) {
-                                                  int errorCode = 1;
+                                                  int errorCode = error.code;
                                                   NSMutableDictionary *queries = [NSMutableDictionary dictionary];
                                                   if (resultURL) {
                                                       NSString *queryStr = [resultURL query];

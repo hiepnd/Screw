@@ -130,6 +130,14 @@ bool Home::init() {
     item->setPosition(size.width/2, size.height/2 + offset);
     menu->addChild(item);
     
+    // Fetch Permissions
+    offset -= 75;
+    item = MenuItemFont::create("Fetch Permissions", [=](Ref *sender){
+        this->fetchPermissions();
+    });
+    item->setPosition(size.width/2, size.height/2 + offset);
+    menu->addChild(item);
+    
     // Request publish
     offset -= 75;
     item = MenuItemFont::create("Request publish", [=](Ref *sender){
@@ -208,9 +216,7 @@ void Home::updateAvatar() {
     if (Session::getActiveSession()->isOpened()) {
         auto user = Facebook::getInstance()->getUser();
         Texture2D *texture;
-        if (user) {
-            texture = PhotoLoader::getInstance()->loadTexture(user->getId());
-        }
+        texture = PhotoLoader::getInstance()->loadTexture(user ? user->getId() : "zz");
         if (texture) {
             _avatar->setTexture(texture);
             _avatar->setTextureRect(Rect(0, 0, texture->getContentSize().width, texture->getContentSize().height));
@@ -263,6 +269,18 @@ void Home::fetchInvitableFriends() {
             }
         });
         request->execute();
+    } else {
+        Notification::getInstance()->show("Login first");
+    }
+}
+
+void Home::fetchPermissions() {
+    if (Session::getActiveSession()->isOpened()) {
+        Request *r = Request::create("me/permissions");
+        r->setCallback([](int error, GraphObject *result){
+            CCLOG("Permissions = %s", result ? result->getValue().getDescription().c_str() : "(error)");
+        });
+        r->execute();
     } else {
         Notification::getInstance()->show("Login first");
     }

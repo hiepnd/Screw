@@ -58,6 +58,7 @@ private:
     void fetchUserDetail();
     void fetchFriends();
     void fetchInvitableFriends();
+    void fetchPermissions();
     void shareLink();
     void shareStatus();
     void shareOpenGraph();

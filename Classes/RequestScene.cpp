@@ -201,6 +201,7 @@ void RequestTable::sendAFish(const string &uid, const string &rid) {
     builder->setType(RequestTypeSendFish);
     builder->setMessage("Enjoy the fish!");
     builder->setTo(uid);
+    
     //Explicitly state an object and action
     builder->setActionType("send");
     builder->setObjectId("773781669301483");
