@@ -44,6 +44,12 @@ Request *Request::create(const string &graphPath, const ValueMap &params, Method
     return request;
 }
 
+Request *Request::create(const string &graphPath) {
+    Request *request = new Request(graphPath);
+    request->autorelease();
+    return request;
+}
+
 Request::Request():
 _graphPath(""), _params(ValueMap()), _method(Method::GET), _callback(nullptr)
 {
@@ -202,7 +208,13 @@ Request *Request::requestForMyScore(const ScoresRequestCallback &callback) {
 }
 
 Request *Request::requestForAppRequests(const ApprequestsRequestCallback &callback) {
+    /* Work on iOS but not on Android
+     Request *request = new Request("me/apprequests?fields=action_type,application,from,to,message,data,object.id,object.title,object.type");
+     */
     Request *request = new Request("me/apprequests");
+    ValueMap params;
+    params["fields"] = "action_type,application,from,to,message,data,object.id,object.title,object.type";
+    request->setParams(params);
     if (callback) {
         RequestCallback wrapper = [=](int error, GraphObject *result){
             Vector<GraphRequest *> requests;

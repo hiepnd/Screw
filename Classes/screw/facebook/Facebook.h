@@ -38,6 +38,11 @@ using namespace std;
 
 NS_SCREW_FACEBOOK_BEGIN
 
+extern const string FacebookLoginStatusChangedNotification;
+extern const string FacebookUserDetailDidFetchNotification;
+extern const string FacebookFriendsDidFetchNotification;
+extern const string FacebookScoresDidFetchNotification;
+
 enum {
     FacebookFetchingUserDetailBit  = 1 << 0,
     FacebookFetchingFriendsBit     = 1 << 1,
@@ -59,6 +64,8 @@ public:
 	State getState();
     int getFetchingBits();
     
+    void start();
+    
 #pragma mark Get
     GraphUser *getUser();
     Vector<GraphUser *> getFriends();
@@ -74,6 +81,9 @@ private:
     Facebook();
 	virtual ~Facebook();
     
+    void purgeData();
+    
+    static Facebook *_instance;
 	State _state;
 	screw::data::Data *_data;
     int _fetchingBits;
@@ -86,8 +96,8 @@ private:
     void didFetchFriends(const Vector<GraphUser *> &friends);
     void didFetchScores(const Vector<GraphScore *> &scores);
     
-    void didAuthorizeNewUser(GraphUser *user);
-    
+    void sessionStatusCallback(Session *session, SessionError *error);
+        
 #pragma mark Score
     void setDirtyScore(long score);
     long getDirtyScore();

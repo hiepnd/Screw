@@ -1,6 +1,5 @@
 /****************************************************************************
  Copyright (c) hiepndhut@gmail.com
- Copyright (c) 2014 No PowerUp Games
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -21,57 +20,31 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef _SCREW_APPREQUESTS_H_
-#define _SCREW_APPREQUESTS_H_
+#ifndef _SCREW_SETTINGS_H_
+#define _SCREW_SETTINGS_H_
 
 #include <iostream>
-#include <vector>
-#include "../macros.h"
-#include "../data/Data.h"
-#include "GraphObject.h"
-#include "WebDialog.h"
-#include "Request.h"
+#include "screw/screw.h"
 #include "cocos2d.h"
 
+USING_NS_SCREW;
 USING_NS_CC;
-USING_NS_SCREW_FACEBOOK;
 
-using namespace std;
-
-NS_SCREW_FACEBOOK_BEGIN
-
-extern const string FacebookRequestsDidFetchNotification;
-
-/* App Requests Manager
- *
- *
- */
-class AppRequests {
-    
+class Settings : public Ref {
 public:
-    static AppRequests *getInstance();
+    static Settings *getInstance();
     
-    Vector<GraphRequest *> getRequests();
-    Vector<GraphRequest *> getRequests(int type);
-    GraphRequest *getRequest(const string &rid);
+    int totalFish();
+    void addFish(int count);
+    void eatFish(int count);
     
-    void clearRequest(GraphRequest *request);
-    void clearRequest(const string &rid);
-    
-    void fetchAppRequests(const ApprequestsRequestCallback &callback = nullptr);
-    
-    void purgeData();
     
 private:
-    AppRequests();
-    virtual ~AppRequests();
+    Settings();
+    ~Settings();
     
-    void didFetchAppRequests(const Vector<GraphRequest *> &request);
-    
-    static AppRequests *_instance;
+    static Settings *_instance;
     data::Data *_data;
 };
 
-NS_SCREW_FACEBOOK_END
-
-#endif /* _SCREW_APPREQUESTS_H_ */
+#endif /* _SCREW_SETTINGS_H_ */

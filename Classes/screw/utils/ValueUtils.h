@@ -45,7 +45,8 @@ private:
 class ValueGetter {
 public:
 	static Value &get(const Value &data, const string &path);
-
+    static Value &get(const Value &data, const vector<string> &paths);
+    
     static bool getBool(const Value &data, const string &path);
 	static int getInt(const Value &data, const string &path);
 	static long getLong(const Value &data, const string &path);
@@ -66,6 +67,7 @@ public:
     static void set(Value& data, const string &path, double value);
     static void set(Value& data, const string &path, bool value);
     static void set(Value& data, const string &path, const string& value);
+    static void set(Value& data, const string &path, const char *value);
     
     static void clear(Value& data, const string &path);
 };

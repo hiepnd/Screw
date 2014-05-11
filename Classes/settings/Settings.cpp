@@ -1,6 +1,5 @@
 /****************************************************************************
  Copyright (c) hiepndhut@gmail.com
- Copyright (c) 2014 No PowerUp Games
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -21,57 +20,41 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef _SCREW_APPREQUESTS_H_
-#define _SCREW_APPREQUESTS_H_
+#include "Settings.h"
 
-#include <iostream>
-#include <vector>
-#include "../macros.h"
-#include "../data/Data.h"
-#include "GraphObject.h"
-#include "WebDialog.h"
-#include "Request.h"
-#include "cocos2d.h"
+Settings *Settings::_instance = nullptr;
 
-USING_NS_CC;
-USING_NS_SCREW_FACEBOOK;
+Settings::Settings() {
+    _data = new data::Data(ValueMap(),
+                           screw::utils::FileUtils::getDocumentPath("settings.plist"));
+}
 
-using namespace std;
+Settings::~Settings() {
+    delete _data;
+}
 
-NS_SCREW_FACEBOOK_BEGIN
+Settings *Settings::getInstance() {
+    if (!_instance) {
+        _instance = new Settings();
+    }
+    
+    return _instance;
+}
 
-extern const string FacebookRequestsDidFetchNotification;
+int Settings::totalFish() {
+    return _data->getInt("__fishes__");
+}
 
-/* App Requests Manager
- *
- *
- */
-class AppRequests {
-    
-public:
-    static AppRequests *getInstance();
-    
-    Vector<GraphRequest *> getRequests();
-    Vector<GraphRequest *> getRequests(int type);
-    GraphRequest *getRequest(const string &rid);
-    
-    void clearRequest(GraphRequest *request);
-    void clearRequest(const string &rid);
-    
-    void fetchAppRequests(const ApprequestsRequestCallback &callback = nullptr);
-    
-    void purgeData();
-    
-private:
-    AppRequests();
-    virtual ~AppRequests();
-    
-    void didFetchAppRequests(const Vector<GraphRequest *> &request);
-    
-    static AppRequests *_instance;
-    data::Data *_data;
-};
+void Settings::addFish(int count) {
+    CCASSERT(count > 0, "");
+    _data->set("__fishes__", totalFish() + count);
+    _data->save();
+}
 
-NS_SCREW_FACEBOOK_END
-
-#endif /* _SCREW_APPREQUESTS_H_ */
+void Settings::eatFish(int count) {
+    CCASSERT(count > 0, "");
+    if (totalFish() >= count) {
+        _data->set("__fishes__", totalFish() - count);
+        _data->save();
+    }
+}

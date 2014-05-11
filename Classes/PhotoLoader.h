@@ -1,6 +1,5 @@
 /****************************************************************************
  Copyright (c) hiepndhut@gmail.com
- Copyright (c) 2014 No PowerUp Games
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -21,57 +20,47 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef _SCREW_APPREQUESTS_H_
-#define _SCREW_APPREQUESTS_H_
+#ifndef __Screw__PhotoLoader__
+#define __Screw__PhotoLoader__
 
 #include <iostream>
-#include <vector>
-#include "../macros.h"
-#include "../data/Data.h"
-#include "GraphObject.h"
-#include "WebDialog.h"
-#include "Request.h"
 #include "cocos2d.h"
+#include "network/HttpClient.h"
+#include <set>
 
 USING_NS_CC;
-USING_NS_SCREW_FACEBOOK;
-
+using namespace cocos2d::network;
 using namespace std;
 
-NS_SCREW_FACEBOOK_BEGIN
+extern const string PhotoLoaderLoadedNotification;
 
-extern const string FacebookRequestsDidFetchNotification;
-
-/* App Requests Manager
- *
- *
- */
-class AppRequests {
-    
+class PhotoLoaderEvent : public EventCustom {
 public:
-    static AppRequests *getInstance();
+    PhotoLoaderEvent(const string &evenName, const string &uid):EventCustom(evenName), _uid(uid) {}
     
-    Vector<GraphRequest *> getRequests();
-    Vector<GraphRequest *> getRequests(int type);
-    GraphRequest *getRequest(const string &rid);
-    
-    void clearRequest(GraphRequest *request);
-    void clearRequest(const string &rid);
-    
-    void fetchAppRequests(const ApprequestsRequestCallback &callback = nullptr);
-    
-    void purgeData();
-    
+    const string &getUid() {
+        return _uid;
+    }
 private:
-    AppRequests();
-    virtual ~AppRequests();
-    
-    void didFetchAppRequests(const Vector<GraphRequest *> &request);
-    
-    static AppRequests *_instance;
-    data::Data *_data;
+    string _uid;
 };
 
-NS_SCREW_FACEBOOK_END
 
-#endif /* _SCREW_APPREQUESTS_H_ */
+class PhotoLoader : public Ref {
+public:
+    static PhotoLoader *getInstance();
+    
+    bool isPhotoExist(const string &uid);
+    void download(const string &uid);
+    
+    Texture2D *loadTexture(const string &uid);
+    void httpCallback(HttpClient* client, HttpResponse* response);
+    
+private:
+    PhotoLoader() {}
+        
+    static PhotoLoader *_instance;
+    set<string> _dowloadings;
+};
+
+#endif /* defined(__Screw__PhotoLoader__) */

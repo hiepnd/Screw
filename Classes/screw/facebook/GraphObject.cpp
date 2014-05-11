@@ -23,6 +23,8 @@
 
 #include "GraphObject.h"
 
+const string AppRequestsDataTypeKey = "_t";
+
 NS_SCREW_FACEBOOK_BEGIN
 
 const string GraphUser::ID("id");
@@ -31,6 +33,13 @@ const string GraphUser::FIRST_NAME("first_name");
 const string GraphUser::LAST_NAME("last_name");
 const string GraphUser::SCORE("score");
 const string GraphUser::INSTALLED("installed");
+
+GraphObject *GraphObject::createForPost() {
+    GraphObject *object = new GraphObject();
+    object->set("fbsdk:create_object", 1);
+    object->autorelease();
+    return object;
+}
 
 GraphObject::GraphObject():
 _data(Value(ValueMap()))
@@ -98,6 +107,10 @@ void GraphObject::set(const string &path, long value) {
 }
 
 void GraphObject::set(const string &path, const string &value) {
+    ValueSetter::set(_data, path, value);
+}
+
+void GraphObject::set(const string &path, const char *value) {
     ValueSetter::set(_data, path, value);
 }
 

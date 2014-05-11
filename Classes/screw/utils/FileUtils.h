@@ -35,6 +35,14 @@ class FileUtils {
 public:
 	static string getResourcePath(const string &path);
     static string getDocumentPath(const string &path);
+    
+    /* Create a director in writable directory */
+    static bool createDirectory(const string &dirname);
+    
+    static bool isFileExist(const string &fileOrDirectory);
+    
+    static bool createFile(const unsigned char *buff, long size, const string &filepath);
+    static bool createFile(const char *buff, const string &filepath);
 };
 
 NS_SCREW_UTILS_END

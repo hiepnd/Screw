@@ -36,6 +36,33 @@ USING_NS_SCREW_FACEBOOK;
 
 NS_SCREW_IOS_BEGIN
 
+class NSObjectVisitor {
+public:
+    virtual void visitObject(id object);
+    virtual void visitDictionary(NSDictionary *dictionary);
+    virtual void visitDictionaryStart() = 0;
+    virtual void visitDictionaryEnd() = 0;
+    virtual void visitArray(NSArray *array);
+    virtual void visitArrayStart() = 0;
+    virtual void visitArrayEnd() = 0;
+    virtual void visitNumber(NSNumber *number) = 0;
+    virtual void visitString(NSString *string) = 0;
+};
+
+class NSObjectValueConverter : public NSObjectVisitor {
+public:
+    virtual void visitDictionaryStart();
+    virtual void visitDictionaryEnd();
+    virtual void visitArrayStart();
+    virtual void visitArrayEnd();
+    virtual void visitNumber(NSNumber *number);
+    virtual void visitString(NSString *string);
+    
+    Value &getResult();
+private:
+    NSMutableArray *_stack;
+};
+
 class Helper {
     
 public:

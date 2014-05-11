@@ -1,6 +1,5 @@
 /****************************************************************************
  Copyright (c) hiepndhut@gmail.com
- Copyright (c) 2014 No PowerUp Games
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -21,57 +20,54 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef _SCREW_APPREQUESTS_H_
-#define _SCREW_APPREQUESTS_H_
+#ifndef __Screw__Notification__
+#define __Screw__Notification__
 
 #include <iostream>
-#include <vector>
-#include "../macros.h"
-#include "../data/Data.h"
-#include "GraphObject.h"
-#include "WebDialog.h"
-#include "Request.h"
 #include "cocos2d.h"
+#include "extensions/cocos-ext.h"
+#include <list>
 
-USING_NS_CC;
-USING_NS_SCREW_FACEBOOK;
-
+using namespace cocos2d;
 using namespace std;
+using namespace cocos2d::extension;
 
-NS_SCREW_FACEBOOK_BEGIN
-
-extern const string FacebookRequestsDidFetchNotification;
-
-/* App Requests Manager
- *
- *
- */
-class AppRequests {
-    
-public:
-    static AppRequests *getInstance();
-    
-    Vector<GraphRequest *> getRequests();
-    Vector<GraphRequest *> getRequests(int type);
-    GraphRequest *getRequest(const string &rid);
-    
-    void clearRequest(GraphRequest *request);
-    void clearRequest(const string &rid);
-    
-    void fetchAppRequests(const ApprequestsRequestCallback &callback = nullptr);
-    
-    void purgeData();
-    
-private:
-    AppRequests();
-    virtual ~AppRequests();
-    
-    void didFetchAppRequests(const Vector<GraphRequest *> &request);
-    
-    static AppRequests *_instance;
-    data::Data *_data;
+enum NotificationAnchor{
+    TOP,
+    CENTER,
+    LEFT,
+    RIGHT
 };
 
-NS_SCREW_FACEBOOK_END
+struct NotificationMessage{
+    NotificationMessage(const string &msg, float d, const Point &off, NotificationAnchor a):
+    message(msg), duration(d), offset(off), anchor(a){
+        
+    }
+    
+    string message;
+    float duration;
+    Point offset;
+    NotificationAnchor anchor;
+};
 
-#endif /* _SCREW_APPREQUESTS_H_ */
+class Notification: public Scale9Sprite {
+    
+public:
+    Notification();
+    static Notification *getInstance();
+    
+    void show(const string &msg, float duration = 2.0f, const Point offset = Point(), NotificationAnchor anchor = NotificationAnchor::TOP);
+    void setOpacity(GLubyte opacity) override;
+    
+private:
+    static Notification *_instance;
+    
+    void showNext();
+    
+    list<NotificationMessage>   _messages;
+    LabelTTF                    *_label;
+    Size                        _designSize;
+};
+
+#endif /* defined(__Screw__Notification__) */

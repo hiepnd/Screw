@@ -22,6 +22,7 @@
  ****************************************************************************/
 
 #include "JsonUtils.h"
+#include "StringUtils.h"
 
 using namespace rapidjson;
 
@@ -51,12 +52,12 @@ JsonValueConverter& JsonValueConverter::Uint(unsigned u) {
 }
 
 JsonValueConverter& JsonValueConverter::Int64(int64_t i64) {
-    this->value(cocos2d::Value(StringUtils::toString(i64)));
+    this->value(cocos2d::Value(StringUtils::toString((long)i64)));
     return *this;
 }
 
 JsonValueConverter& JsonValueConverter::Uint64(uint64_t u64) {
-    this->value(cocos2d::Value(StringUtils::toString(u64)));
+    this->value(cocos2d::Value(StringUtils::toString((long)u64)));
     return *this;
 }
 
@@ -118,7 +119,7 @@ void JsonValueConverter::value(const cocos2d::Value &v) {
 }
 
 cocos2d::Value &JsonValueConverter::getValue() {
-    CCASSERT(_stack.size() == 1, "Must be 1");
+    CCASSERT(_stack.size() == 1, (string("Must be 1 - got ") + utils::StringUtils::toString((long)_stack.size())).c_str());
     return _stack.front().value;
 }
 
@@ -177,8 +178,10 @@ cocos2d::Value JsonUtils::json2Value(rapidjson::Value &json) {
 cocos2d::Value JsonUtils::parse(const string &jsonString, bool *success) {
     rapidjson::Document document;
     document.Parse<0>(jsonString.c_str());
-    if (document.HasParseError() && success) {
-        *success = false;
+    if (document.HasParseError()) {
+        if (success) {
+            *success = false;
+        }
         return cocos2d::Value();
     }
     
@@ -206,7 +209,8 @@ string JsonUtils::toJsonString(ValueMap &m) {
 }
 
 string JsonUtils::toJsonString(cocos2d::Value &v) {
-    CCASSERT(v.getType() == cocos2d::Value::Type::MAP || v.getType() == cocos2d::Value::Type::VECTOR, "Only map and vector are valid");
+    CCASSERT(v.getType() == cocos2d::Value::Type::INT_KEY_MAP || v.getType() == cocos2d::Value::Type::MAP ||
+             v.getType() == cocos2d::Value::Type::VECTOR, "Only map and vector are valid");
     return ValueJsonStringVisitor::visit(v);
 }
 

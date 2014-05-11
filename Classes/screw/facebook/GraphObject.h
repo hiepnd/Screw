@@ -33,6 +33,8 @@ USING_NS_CC;
 USING_NS_SCREW_UTILS;
 using namespace std;
 
+extern const string AppRequestsDataTypeKey;
+
 NS_SCREW_FACEBOOK_BEGIN
 
 /** Macros */
@@ -182,6 +184,9 @@ NS_SCREW_FACEBOOK_BEGIN
 class GraphObject : public Object {
 public:
     GO_CREATE(GraphObject);
+    GO_CREATE_EMPTY(GraphObject);
+    static GraphObject *createForPost();
+    
 	GraphObject();
 	virtual ~GraphObject();
 	virtual bool init(const Value &data);
@@ -202,6 +207,7 @@ public:
     void set(const string &path, int value);
     void set(const string &path, long value);
     void set(const string &path, const string &value);
+    void set(const string &path, const char *value);
     void set(const string &path, const Value &value);
     
     void clear(const string &path);
@@ -302,6 +308,15 @@ public:
     GO_GET_STRING(DataString, "data");
     GO_GET_STRING(Message, "message");
     GO_GET_GRAPH_OBJECT(GraphObject, DataObject, "data");
+    
+    int getType() {
+        GraphObject *data = this->getDataObject();
+        if (data) {
+            return data->getInt(AppRequestsDataTypeKey);
+        }
+        
+        return 0;
+    }
 };
 
 

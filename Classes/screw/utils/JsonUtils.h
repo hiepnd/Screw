@@ -37,6 +37,7 @@ using namespace std;
 
 NS_SCREW_UTILS_BEGIN
 
+/* rapidjson::Value to cocos2d::Value Converter */
 class JsonValueConverter {
 public:
     //Handler Implementation {

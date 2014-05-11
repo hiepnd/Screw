@@ -33,12 +33,16 @@ Value ValueGetter::NonConstNull;
 Value &ValueGetter::get(const Value &data, const string &path) {
     vector<string> coms = StringUtils::split(path, "/");
     
+    return get(data, coms);
+}
+
+Value &ValueGetter::get(const Value &data, const vector<string> &paths) {
     Value* d = const_cast<Value*>(&data);
-    for (vector<string>::iterator it = coms.begin(); it != coms.end(); it++) {
+    for (auto it = paths.begin(); it != paths.end(); it++) {
         if (d->getType() != Value::Type::MAP) {
             CCLOG("type = %d", d->getType());
         }
-        CCASSERT(d->getType() == Value::Type::MAP, (string("Fix me ") + path).c_str());
+        CCASSERT(d->getType() == Value::Type::MAP, (string("Fix me ") + *it).c_str());
         CCASSERT(it->length(), "Fix me - empty key is not allowed");
         
         ValueMap& v = d->asValueMap();
@@ -127,6 +131,10 @@ void ValueSetter::set(Value& data, const string &path, const string& value){
     set(data, path, Value(value));
 }
 
+void ValueSetter::set(Value& data, const string &path, const char *value) {
+    set(data, path, Value(value));
+}
+
 void ValueSetter::clear(Value& data, const string &path){
     vector<string> coms = StringUtils::split(path, "/");
     if (coms.size() >= 1) {
@@ -135,8 +143,7 @@ void ValueSetter::clear(Value& data, const string &path){
             parent.push_back(coms[i]);
         }
         
-        string parentPath = StringUtils::join(parent, "/");
-        Value& obj = ValueGetter::get(data, parentPath.c_str());
+        Value& obj = ValueGetter::get(data, parent);
         if (obj.getType() == Value::Type::MAP) {
             ValueMap& m = obj.asValueMap();
             ValueMap::iterator it = m.find(coms[coms.size() - 1]);

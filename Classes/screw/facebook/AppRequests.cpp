@@ -26,6 +26,7 @@
 #include "../utils/ValueUtils.h"
 #include "../utils/JsonUtils.h"
 #include "../utils/FileUtils.h"
+#include "GraphObject.h"
 
 USING_NS_SCREW_DATA;
 USING_NS_SCREW_UTILS;
@@ -36,7 +37,7 @@ AppRequests *AppRequests::_instance = nullptr;
 
 static const string AppRequestsRequestsKey = "__requests__";
 
-const string AppRequestsParamTypeKey = "_t";
+const string FacebookRequestsDidFetchNotification = "FacebookRequestsDidFetchNotification";
 
 #pragma mark AppRequests
 AppRequests *AppRequests::getInstance() {
@@ -70,7 +71,7 @@ Vector<GraphRequest *> AppRequests::getRequests(int type) {
     Vector<GraphRequest *> ret;
     for (GraphRequest *r : all) {
         GraphObject *data = r->getDataObject();
-        if (data && data->getInt(AppRequestsParamTypeKey) == type) {
+        if (data && data->getInt(AppRequestsDataTypeKey) == type) {
             ret.pushBack(r);
         }
     }
@@ -78,7 +79,7 @@ Vector<GraphRequest *> AppRequests::getRequests(int type) {
 }
 
 GraphRequest *AppRequests::getRequest(const string &rid) {
-    Value &data = _data->get(PathBuilder::create(AppRequestsRequestsKey)->append(rid)->build());
+    Value &data = _data->get(AppRequestsRequestsKey + "/" + rid);
     if (!data.isNull()) {
         return GraphRequest::create(data);
     }
@@ -91,7 +92,8 @@ void AppRequests::clearRequest(GraphRequest *request) {
 }
 
 void AppRequests::clearRequest(const string &rid) {
-    _data->clear(PathBuilder::create(AppRequestsRequestsKey)->append(rid)->build());
+    _data->clear(AppRequestsRequestsKey + "/" + rid);
+    _data->save();
 }
 
 void AppRequests::fetchAppRequests(const ApprequestsRequestCallback &callback) {
@@ -103,6 +105,8 @@ void AppRequests::fetchAppRequests(const ApprequestsRequestCallback &callback) {
         if (callback) {
             callback(error, requests);
         }
+        //Fire notification
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(FacebookRequestsDidFetchNotification);
     });
     
     request->execute();
@@ -116,7 +120,7 @@ void AppRequests::didFetchAppRequests(const Vector<screw::facebook::GraphRequest
         if (dataStr.length()) {
             ValueMap m;
             if (JsonUtils::parse(dataStr, m)) {
-                if (m.find(AppRequestsParamTypeKey) == m.end()) {
+                if (m.find(AppRequestsDataTypeKey) == m.end()) {
                     FB_LOG("AppRequests::didFetchAppRequests - request data with no type (be aware) %s", v.getDescription().c_str());
                 }
                 ValueSetter::set(v, "data", Value(m));
@@ -126,7 +130,7 @@ void AppRequests::didFetchAppRequests(const Vector<screw::facebook::GraphRequest
                 ValueSetter::clear(v, "data");
             }
         }
-        _data->set(PathBuilder::create(AppRequestsRequestsKey)->append(request->getId())->build(), v);
+        _data->set(AppRequestsRequestsKey + "/" + request->getId(), v);
         
         //Delete request
         Request::requestForDelete(request->getId(), nullptr)->execute();

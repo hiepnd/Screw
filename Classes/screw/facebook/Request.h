@@ -59,6 +59,7 @@ public:
     Request(const string &graphPath);
 	Request(const string &graphPath, const ValueMap &params, Method method, const RequestCallback &callback);
     static Request *create(const string &graphPath, const ValueMap &params, Method method, const RequestCallback &callback);
+    static Request *create(const string &graphPath);
 	virtual ~Request();
     
     void setGraphPath(const string &graphPath);

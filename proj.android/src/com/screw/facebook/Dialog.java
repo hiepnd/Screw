@@ -131,16 +131,20 @@ public class Dialog {
 		OpenGraphAction action = null;
 		/* Action was flattened in DialogAndroid.cpp, restore it */
 		String actionString = data.getString("action");
+		String previewPropertyName = data.getString("previewPropertyName");
+		String actionType = data.getString("actionType");
+		
 		if ( actionString != null) {
 			try {
 				JSONObject json = new JSONObject(actionString);
+				json.put("type", actionType);
 				action = GraphObject.Factory.create(json, OpenGraphAction.class);
 			} catch (Exception e) {
 				Log.d(TAG, "Error parse data: " + actionString);
 				e.printStackTrace();
 			}
 		}
-		OpenGraphActionDialogBuilder builder = new OpenGraphActionDialogBuilder(Facebook.getActivity(), action, null);
+		OpenGraphActionDialogBuilder builder = new OpenGraphActionDialogBuilder(Facebook.getActivity(), action, previewPropertyName);
 		
 		return builder;
 	}

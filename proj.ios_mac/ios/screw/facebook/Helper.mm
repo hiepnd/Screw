@@ -25,6 +25,66 @@
 
 NS_SCREW_IOS_BEGIN
 
+#pragma mark NSObjectVisitor
+void NSObjectVisitor::visitObject(id object) {
+    if ([object isKindOfClass:[NSDictionary class]]) {
+        this->visitDictionaryStart();
+        this->visitDictionary((NSDictionary *) object);
+        this->visitDictionaryEnd();
+    } else if ([object isKindOfClass:[NSArray class]]) {
+        this->visitArrayStart();
+        this->visitArray((NSArray *) object);
+        this->visitArrayEnd();
+    } else if ([object isKindOfClass:[NSNumber class]]) {
+        this->visitNumber((NSNumber *) object);
+    } else if ([object isKindOfClass:[NSString class]]) {
+        this->visitString((NSString *) object);
+    } else {
+        CCLOG("%s - not support type %s", __func__, [NSStringFromClass([object class]) cStringUsingEncoding:NSUTF8StringEncoding]);
+    }
+}
+
+void NSObjectVisitor::visitDictionary(NSDictionary *dictionary) {
+    for (id key in dictionary.allKeys) {
+        CCASSERT([key isKindOfClass:[NSString class]], "Key must be a string");
+        this->visitString((NSString *)key);
+        this->visitObject(dictionary[key]);
+    }
+}
+
+void NSObjectVisitor::visitArray(NSArray *array) {
+    for (id elm in array) {
+        visitObject(elm);
+    }
+}
+
+#pragma mark NSObjectValueConverter
+void NSObjectValueConverter::visitDictionaryStart() {
+
+}
+
+void NSObjectValueConverter::visitDictionaryEnd() {
+    
+}
+
+void NSObjectValueConverter::visitArrayStart() {
+    
+}
+
+void NSObjectValueConverter::visitArrayEnd() {
+    
+}
+
+void NSObjectValueConverter::visitString(NSString *string) {
+    
+}
+
+void NSObjectValueConverter::visitNumber(NSNumber *number) {
+    
+}
+
+
+#pragma mark Helper
 string Helper::nsString2cString(NSString *str) {
     return [str cStringUsingEncoding:NSUTF8StringEncoding];
 }

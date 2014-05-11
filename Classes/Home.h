@@ -1,6 +1,5 @@
 /****************************************************************************
  Copyright (c) hiepndhut@gmail.com
- Copyright (c) 2014 No PowerUp Games
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -21,57 +20,54 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef _SCREW_APPREQUESTS_H_
-#define _SCREW_APPREQUESTS_H_
+#ifndef __Screw__Home__
+#define __Screw__Home__
 
 #include <iostream>
-#include <vector>
-#include "../macros.h"
-#include "../data/Data.h"
-#include "GraphObject.h"
-#include "WebDialog.h"
-#include "Request.h"
+#include "screw/screw.h"
 #include "cocos2d.h"
+#include "network/HttpClient.h"
+#include "settings/Settings.h"
 
 USING_NS_CC;
+USING_NS_SCREW;
 USING_NS_SCREW_FACEBOOK;
+using namespace cocos2d::network;
 
-using namespace std;
-
-NS_SCREW_FACEBOOK_BEGIN
-
-extern const string FacebookRequestsDidFetchNotification;
-
-/* App Requests Manager
- *
- *
- */
-class AppRequests {
-    
+class Home : public Scene {
 public:
-    static AppRequests *getInstance();
+    static Home *create();
+    bool init();
     
-    Vector<GraphRequest *> getRequests();
-    Vector<GraphRequest *> getRequests(int type);
-    GraphRequest *getRequest(const string &rid);
-    
-    void clearRequest(GraphRequest *request);
-    void clearRequest(const string &rid);
-    
-    void fetchAppRequests(const ApprequestsRequestCallback &callback = nullptr);
-    
-    void purgeData();
+    void onEnter() override;
+    void onExit() override;
     
 private:
-    AppRequests();
-    virtual ~AppRequests();
+    void onSessionStateChanged(EventCustom *event);
+    void onUserDetailFetched(EventCustom *event);
+    void onFriendsFetched(EventCustom *event);
+    void onPhotoDownloaded(EventCustom *event);
     
-    void didFetchAppRequests(const Vector<GraphRequest *> &request);
+    void updateUI();
+    void updateGreeting();
+    void updateAvatar();
+    void updateFishCount();
     
-    static AppRequests *_instance;
-    data::Data *_data;
+    void login();
+    void logout();
+    void fetchUserDetail();
+    void fetchFriends();
+    void fetchInvitableFriends();
+    void shareLink();
+    void shareStatus();
+    void shareOpenGraph();
+    void requestPublish();
+    void deauthorize();
+    
+    Label *_greetingLbl;
+    Label *_loginLbl;
+    Label *_fishCount;
+    Sprite *_avatar;
 };
 
-NS_SCREW_FACEBOOK_END
-
-#endif /* _SCREW_APPREQUESTS_H_ */
+#endif /* defined(__Screw__Home__) */

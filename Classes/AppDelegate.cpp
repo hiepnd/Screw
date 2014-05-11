@@ -1,6 +1,8 @@
 #include "AppDelegate.h"
 #include "HelloWorldScene.h"
 #include "screw/screw.h"
+#include "Home.h"
+#include "Notification.h"
 
 USING_NS_CC;
 USING_NS_SCREW_FACEBOOK;
@@ -29,33 +31,23 @@ bool AppDelegate::applicationDidFinishLaunching() {
     Size frameSize = glview->getFrameSize();
     float minAspectRatio = 1.5;
     float maxAspectRatio = 1136.0/640;
-    float aspectRatio = frameSize.width / frameSize.height;
+    float aspectRatio = frameSize.height / frameSize.width;
     aspectRatio = clampf(aspectRatio, minAspectRatio, maxAspectRatio);
     
-    glview->setDesignResolutionSize(640*aspectRatio, 640, ResolutionPolicy::SHOW_ALL);
-    Application::Platform platform = Application::getInstance()->getTargetPlatform();
-    float resourceHeight;
-    if (platform == Application::Platform::OS_IPHONE) {
-        resourceHeight = 640;
-    } else if (platform == Application::Platform::OS_IPAD) {
-        resourceHeight = 640;
-    } else if (platform == Application::Platform::OS_ANDROID) {
-        resourceHeight = 480;
-    }
-    director->setContentScaleFactor(resourceHeight / 640);
+    glview->setDesignResolutionSize(640, 640*aspectRatio, ResolutionPolicy::SHOW_ALL);
+    director->setContentScaleFactor(1.0);
     
     // turn on display FPS
-    director->setDisplayStats(true);
+    director->setDisplayStats(false);
 
     // set FPS. the default value is 1.0/60 if you don't call this
     director->setAnimationInterval(1.0 / 60);
 
-    if (Session::getActiveSession()->getState() == Session::State::CREATED_TOKEN_LOADED) {
-        Session::getActiveSession()->open(false);
-    }
+    Facebook::getInstance()->start();
+    director->setNotificationNode(Notification::getInstance());
     
     // create a scene. it's an autorelease object
-    auto scene = HelloWorld::createScene();
+    auto scene = Home::create();
 
     // run
     director->runWithScene(scene);

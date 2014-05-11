@@ -26,38 +26,93 @@
 
 NS_SCREW_FACEBOOK_BEGIN
 
-//Data key
-static const char *FacebookDataProfilesKey              = "__profiles__";
-static const char *FacebookDataProfilesTimestampKey     = "__profiles_timestamp__";
-static const char *FacebookDataPhotosTimestampKey       = "__photos_timestamp__";
-static const char *FacebookDataRequestTimestampKey      = "__request_timestamp__";
-static const char *FacebookDataUserIDKey                = "__user_id__";
-static const char *FacebookDataLocalUserKey             = "__local_user__";
-static const char *FacebookDataFacebookScoreKey         = "__fb_score__";
-static const char *FacebookDataDirtyScoreKey            = "__dirty_score__";
-static const char *FacebookDataAllTimeHightScoreKey     = "__all_time_hight_score__";
+#define FACEBOOK_KEEP_ALL_FRIENDS 1
 
-#define FACEBOOK_PROFILE_KEY(uid)           PathBuilder::create(FacebookDataProfilesKey)->append(uid)->build()
-#define FACEBOOK_PROFILE_TIMESTAMP_KEY(uid) PathBuilder::create(FacebookDataProfilesTimestampKey)->append(uid)->build()
-#define FACEBOOK_PHOTO_TIMESTAMP_KEY(uid)   PathBuilder::create(FacebookDataPhotosTimestampKey)->append(uid)->build()
-#define FACEBOOK_REQUEST_TIMESTAMP_KEY(uid) PathBuilder::create(FacebookDataRequestTimestampKey)->append(uid)->build()
+const string FacebookLoginStatusChangedNotification = "FacebookLoginStatusChangedNotification";
+const string FacebookUserDetailDidFetchNotification = "FacebookUserDetailDidFetchNotification";
+const string FacebookFriendsDidFetchNotification = "FacebookFriendsDidFetchNotification";
+const string FacebookScoresDidFetchNotification = "FacebookScoresDidFetchNotification";
+
+
+//Data key
+static const string FacebookDataProfilesKey              = "__profiles__";
+static const string FacebookDataUserIDKey                = "__user_id__";
+static const string FacebookDataDirtyScoreKey            = "__dirty_score__";
+
+#define FACEBOOK_PROFILE_KEY(uid)           (FacebookDataProfilesKey + "/" + uid)
+#define PATH_JOIN(s1, s2) (s1 + string("/") + s2)
 
 #define RETURN_IF_STATE_SET(bit, msg) if (_fetchingBits & (bit)) {CCLOG("%s", msg); return;}
 
 #define FB_SET_FETCHING_STATE(bit)      _fetchingBits |= bit;
 #define FB_CLEAR_FETCHING_STATE(bit)    _fetchingBits &= ~bit;
 
+Facebook *Facebook::_instance = nullptr;
+
+Facebook *Facebook::getInstance() {
+    if (!_instance) {
+        _instance = new Facebook();
+    }
+    
+    return _instance;
+}
+
 Facebook::Facebook() {
 	// TODO Auto-generated constructor stub
     _data = new data::Data(ValueMap(), utils::FileUtils::getDocumentPath("facebook.plist"));
     _fetchingBits = 0x00;
+    
+    //Facebook instance is the exclusive status callback
+    Session::getActiveSession()->setStatusCallback([=](Session *session, SessionError *error){
+        this->sessionStatusCallback(session, error);
+    });
 }
 
 Facebook::~Facebook() {
 	// TODO Auto-generated destructor stub
+    Session::getActiveSession()->setStatusCallback(nullptr);
     delete _data;
 }
 
+void Facebook::start() {
+    if (Session::getActiveSession()->getState() == Session::State::CREATED_TOKEN_LOADED) {
+        Session::getActiveSession()->open(false);
+    }
+}
+
+#pragma mark Get
+GraphUser *Facebook::getUser() {
+    string uid = _data->getString(FacebookDataUserIDKey);
+    if (uid.length()) {
+        Value &userData = _data->get(FACEBOOK_PROFILE_KEY(uid));
+        if (!userData.isNull()) {
+            return GraphUser::create(userData);
+        }
+    }
+    
+    return nullptr;
+}
+
+Vector<GraphUser *> Facebook::getFriends() {
+    Vector<GraphUser *> friends;
+    ValueMap &friendData = _data->get(FacebookDataProfilesKey).asValueMap();
+    string uid = _data->getString(FacebookDataUserIDKey);
+    for (auto i : friendData) {
+        if (i.first != uid) {
+            friends.pushBack(GraphUser::create(i.second));
+        }
+    }
+    
+    return friends;
+}
+
+GraphUser *Facebook::getFriend(const string &uid) {
+    Value &userData = _data->get(FACEBOOK_PROFILE_KEY(uid));
+    if (!userData.isNull()) {
+        return GraphUser::create(userData);
+    }
+    return nullptr;
+}
 
 #pragma mark Fetch
 void Facebook::fetchUserDetails(const MeRequestCallback &handler) {
@@ -67,6 +122,8 @@ void Facebook::fetchUserDetails(const MeRequestCallback &handler) {
     Request::requestForMe([=](int error, GraphUser *user){
         if (!error && user) {
             this->didFetchUserDetail(user);
+            //Fire notification
+            Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(FacebookUserDetailDidFetchNotification);
         }
         if (handler) {
             handler(error, user);
@@ -87,6 +144,8 @@ void Facebook::fetchFriends(const FriendsRequestCallback &handler) {
             handler(error, friends);
         }
         FB_CLEAR_FETCHING_STATE(FacebookFetchingFriendsBit);
+        //Fire notification
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(FacebookFriendsDidFetchNotification);
     })->execute();
 }
 
@@ -102,9 +161,12 @@ void Facebook::fetchScores(const ScoresRequestCallback &handler){
             handler(error, scores);
         }
         FB_CLEAR_FETCHING_STATE(FacebookFetchingHighScoresBit);
+        //Fire notification
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(FacebookScoresDidFetchNotification);
     })->execute();
 }
 
+#pragma mark Score
 void Facebook::postScore(long score) {
     this->setDirtyScore(score);
     Request::requestForMyScore([=](int error, const Vector<GraphScore *> &scores){
@@ -131,7 +193,6 @@ void Facebook::doPostScore(long score) {
     })->execute();
 }
 
-#pragma mark Score
 void Facebook::setDirtyScore(long score) {
     _data->set(FacebookDataDirtyScoreKey, score);
 }
@@ -144,36 +205,70 @@ void Facebook::clearDirtyScore() {
     _data->clear(FacebookDataDirtyScoreKey);
 }
 
+#pragma mark Status Callback
+void Facebook::sessionStatusCallback(Session *session, SessionError *error) {
+    if (session->isOpened()) {
+        //Check if user detail has fetched
+        string uid = _data->getString(FacebookDataUserIDKey);
+        if (uid.length()) {
+            _state = State::LOGIN_WITH_ID;
+        } else {
+            _state = State::LOGIN_NO_ID;
+            //Try to fecth user detail
+            Request::requestForMe([=](int error, GraphUser *user){
+                if (!error && user) {
+                    this->didFetchUserDetail(user);
+                }
+            })->execute();
+        }
+    } else {
+        _state = State::NOT_LOGIN;
+    }
+    
+    if (session->isClosed()) {
+        this->purgeData();
+    }
+    
+    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent(FacebookLoginStatusChangedNotification);
+}
+
 #pragma mark Private Save
 void Facebook::saveUserDetail(GraphUser *user) {
     //Get current score
     Value data = user->getValue();
-    long score = _data->getLong(PathBuilder::create(FacebookDataProfilesKey)->append(user->getId())
-                                                                    ->append(GraphUser::SCORE)->build());
+    long score = _data->getLong(FACEBOOK_PROFILE_KEY(user->getId()) + "/" + GraphUser::SCORE);
     if (score != 0) {
         ValueSetter::set(data, GraphUser::SCORE, score);
     }
     ValueSetter::set(data, GraphUser::INSTALLED, true);
     _data->set(FACEBOOK_PROFILE_KEY(user->getId()), data);
+    //Record the user id
     _data->set(FacebookDataUserIDKey, user->getId());
+    
+    _data->save();
 }
 
 void Facebook::saveFriend(GraphUser *user) {
     Value data = user->getValue();
-    long score = _data->getLong(PathBuilder::create(FacebookDataProfilesKey)->append(user->getId())
-                                                                    ->append(GraphUser::SCORE)->build());
+    long score = _data->getLong(FACEBOOK_PROFILE_KEY(user->getId()) + "/" + GraphUser::SCORE);
     ValueSetter::set(data, GraphUser::SCORE, score);
     _data->set(FACEBOOK_PROFILE_KEY(user->getId()), data);
 }
 
 void Facebook::didFetchUserDetail(GraphUser *user) {
-    
+    this->saveUserDetail(user);
     _state = State::LOGIN_WITH_ID;
 }
 
 void Facebook::didFetchFriends(const Vector<GraphUser *> &friends) {
     for (auto f : friends) {
+#if FACEBOOK_KEEP_ALL_FRIENDS
         this->saveFriend(f);
+#else
+        if (f->isInstalled()) {
+            this->saveFriend(f);
+        }
+#endif
     }
     _data->save();
 }
@@ -185,9 +280,9 @@ void Facebook::didFetchScores(const Vector<GraphScore *> &scores) {
         if (!data.isNull()) {
             //User exists, update score only
             ValueSetter::set(data, GraphUser::SCORE, s->getScore());
-//            if (getUser()->getId() == user->getId()) {
-//                
-//            }
+            if (getUser()->getId() == user->getId()) {
+                
+            }
         } else {
             Value &newData = user->getValue();
             ValueSetter::set(newData, GraphUser::INSTALLED, true);
@@ -195,11 +290,14 @@ void Facebook::didFetchScores(const Vector<GraphScore *> &scores) {
             _data->set(FACEBOOK_PROFILE_KEY(user->getId()), newData);
         }
     }
-}
-
-void Facebook::didAuthorizeNewUser(GraphUser *user) {
     
+    _data->save();
 }
 
+void Facebook::purgeData() {
+    _data->clear(FacebookDataProfilesKey);
+    _data->clear(FacebookDataUserIDKey);
+    _data->save();
+}
 
 NS_SCREW_FACEBOOK_END
