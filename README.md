@@ -46,10 +46,10 @@ Setup
 -----
 All the sources lie under `Classes/screw`, `proj.ios_mac/screw`, `proj.android/jni/screw` and `proj.android/src/com/screw`, so basically you should mimic this structure in your project.
 ###Integrate Screw into your iOS cocos2d-x app###
-* Copy `Classes/screw` and `proj.ios_mac/ios/screw` to the corresponding folders and them as groups into your Xcode project
+* Copy `Classes/screw` and `proj.ios_mac/ios/screw` to the corresponding folders and add them as groups into your Xcode project
 * Modify your `AppDelegate.cpp` to include `screw/screw.h` and add `screw::facebook::Session::start();` as the first command in `AppDelegate::applicationDidFinishLaunching()`
 * Modify `- (BOOL) application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation ` in your `AppControler.mm` to invoke `[FBAppCall handleOpenURL:url sourceApplication:sourceApplication];`
-* Copy `fb-default.png` to `Resources` folder and add to Xcode project
+* Copy `fb-default.png` to `Resources` folder and add it to Xcode project
 
 ###Integrate Screw into your Android cocos2d-x app###
 * Copy `Classes/screw` to your project if you haven't
@@ -103,13 +103,14 @@ Request::requestForMe([](int error, GraphUser *user){
     // Log it out
     CCLOG("Fetch User Details Callback: error = %d, user = %s", error, 
         user ? user->getValue()->getDescription().c_str() : "(null)");
+    // user does not persist anywhere, so this is the only chance to deal with it
 })->execute();
 ```
 
-Using `screw::facebook::Facebook` as helper
+Using `screw::facebook::Facebook`. Every results of `fetch*` by `screw::facebook::Facebook` are store locally for further `get*`
 ```
 // You first need to add an Event Listener to listen to FacebookUserDetailDidFetchNotification event 
-// (assume that these codes are executed inside an instance method of a Node)
+// (Assume that these codes are executed inside an instance method of a Node)
 EventListenerCustom *listener = EventListenerCustom::create(FacebookUserDetailDidFetchNotification, [=](EventCustom *event){
     // Get the user object from Facebook
     GraphUser *user = Facebook::getInstance()->getUser();
@@ -197,12 +198,12 @@ Send to specific friend(s)
 ```
 builder->setTo({"id1", "id2"})
 ```
-Explicitly state an object and action - the request will appear in notification as "Mark sent you a fish" rather than boring "Mark sent you a request"
+Explicitly state an object and action - the request will appear in notification as "Mark sent you a fish" instead of boring "Mark sent you a request"
 ```
 builder->setActionType("send"); // May be 'askfor' if you want to ask for a fish
 builder->setObjectId("773781669301483"); // A fish object id
 ```
-Support 'typed' requests (Screw specific, not official facebook functionality)
+Support 'typed' requests (*Screw specific, not official facebook functionality*)
 ```
 // First declare some types
 enum {
@@ -216,11 +217,12 @@ builder->setType(RequestTypeSendFish);
 // You can add more to 'data'
 builder->setData("count", "10"); // ==> data = "{_t:1,count:10}", ie. send 10 fishes
 ```
-Fetch app requests - use `screw::facebook::AppRequests` as app request manager
+Fetch app requests - use `screw::facebook::AppRequests` as app request manager.
 Upon app requests fetched, `AppRequests`:
 
 * Removes non-JSON 'data' fields and parses JSON 'data' into `ValueMap`
 * Deletes requests from facebook (read `AppRequests::didFetchAppRequests` for details)
+* Store the requests locally for further `get*`
 ```
 EventListenerCustom *listener = EventListenerCustom::create(FacebookRequestsDidFetchNotification, [=](EventCustom *event){
     // 
@@ -229,7 +231,7 @@ _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
 
 AppRequests::getInstance()->fetchAppRequests();
 ```
-Get the app requests from `AppRequests`
+Get the fetched app requests from `AppRequests`
 ```
 Vector<GraphRequest *> getRequests(); // Get all requests
 Vector<GraphRequest *> getRequests(int type); // Get requests with type as specified in builder->setType(type)
@@ -336,7 +338,7 @@ _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
 **Notes**
 
 * `PhotoLoader::getInstance()->loadTexture(uid)` guarantees to return a non-nil texture (if the image for uid doesn't exist, it loads the default texture, so don't forget to copy `fb-default.png` to your `Resources` folder)
-* Texture returned by `PhotoLoader::getInstance()->loadTexture` is not managed by `TextureCache` (except the defaut texture)
+* Textures returned by `PhotoLoader::getInstance()->loadTexture` are not managed by `TextureCache` (except the defaut texture)
 
 Notes
 -----
