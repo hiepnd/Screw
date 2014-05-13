@@ -1,0 +1,14 @@
+{
+    "ndk_module_path" :[
+        "../cocos2d",
+        "../cocos2d/cocos",
+        "../cocos2d/external",
+	"jni/screw"
+    ],
+    "copy_resources": [
+        {
+            "from": "../Resources",
+            "to": ""
+        }
+    ]
+}

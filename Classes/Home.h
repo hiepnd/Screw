@@ -1,5 +1,6 @@
 /****************************************************************************
  Copyright (c) hiepndhut@gmail.com
+ Copyright (c) 2014 No PowerUp Games
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -20,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __Screw__Home__
-#define __Screw__Home__
+#ifndef _SCREW_HOME_H_
+#define _SCREW_HOME_H_
 
 #include <iostream>
 #include "screw/screw.h"
@@ -71,4 +72,4 @@ private:
     Sprite *_avatar;
 };
 
-#endif /* defined(__Screw__Home__) */
+#endif /* _SCREW_HOME_H_ */

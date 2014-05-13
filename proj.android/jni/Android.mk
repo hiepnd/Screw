@@ -8,12 +8,10 @@ LOCAL_MODULE_FILENAME := libcocos2dcpp
 
 LOCAL_SRC_FILES := main/main.cpp \
                    ../../Classes/AppDelegate.cpp \
-                   ../../Classes/HelloWorldScene.cpp \
                    ../../Classes/Home.cpp \
                    ../../Classes/RequestScene.cpp \
                    ../../Classes/Notification.cpp \
                    ../../Classes/settings/Settings.cpp \
-                   ../../Classes/PhotoLoader.cpp \
                    
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../Classes \

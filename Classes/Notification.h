@@ -1,5 +1,6 @@
 /****************************************************************************
  Copyright (c) hiepndhut@gmail.com
+ Copyright (c) 2014 No PowerUp Games
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -20,8 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __Screw__Notification__
-#define __Screw__Notification__
+#ifndef _SCREW_NOTIFICATION_H_
+#define _SCREW_NOTIFICATION_H_
 
 #include <iostream>
 #include "cocos2d.h"
@@ -70,4 +71,4 @@ private:
     Size                        _designSize;
 };
 
-#endif /* defined(__Screw__Notification__) */
+#endif /* _SCREW_NOTIFICATION_H_ */

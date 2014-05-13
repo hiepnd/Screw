@@ -22,7 +22,6 @@
 
 #include "RequestScene.h"
 #include "Notification.h"
-#include "PhotoLoader.h"
 #include "Home.h"
 
 static const Size __table_size__ = Size(640, 600);

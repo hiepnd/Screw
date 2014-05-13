@@ -1,5 +1,6 @@
 /****************************************************************************
  Copyright (c) hiepndhut@gmail.com
+ Copyright (c) 2014 No PowerUp Games
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -20,17 +21,21 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __Screw__PhotoLoader__
-#define __Screw__PhotoLoader__
+#ifndef _SCREW_PHOTOLOADER_H_
+#define _SCREW_PHOTOLOADER_H_
 
 #include <iostream>
 #include "cocos2d.h"
 #include "network/HttpClient.h"
+#include "../macros.h"
 #include <set>
+
 
 USING_NS_CC;
 using namespace cocos2d::network;
 using namespace std;
+
+NS_SCREW_FACEBOOK_BEGIN
 
 extern const string PhotoLoaderLoadedNotification;
 
@@ -51,16 +56,18 @@ public:
     static PhotoLoader *getInstance();
     
     bool isPhotoExist(const string &uid);
-    void download(const string &uid);
+    void download(const string &uid, int size = 128);
     
     Texture2D *loadTexture(const string &uid);
     void httpCallback(HttpClient* client, HttpResponse* response);
     
 private:
-    PhotoLoader() {}
+    PhotoLoader();
         
     static PhotoLoader *_instance;
     set<string> _dowloadings;
 };
 
-#endif /* defined(__Screw__PhotoLoader__) */
+NS_SCREW_FACEBOOK_END
+
+#endif /* _SCREW_PHOTOLOADER_H_ */

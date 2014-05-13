@@ -1,5 +1,4 @@
 #include "AppDelegate.h"
-#include "HelloWorldScene.h"
 #include "screw/screw.h"
 #include "Home.h"
 #include "Notification.h"

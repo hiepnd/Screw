@@ -25,6 +25,8 @@
 
 using namespace screw;
 
+NS_SCREW_FACEBOOK_BEGIN
+
 PhotoLoader *PhotoLoader::_instance = nullptr;
 const string PhotoLoaderLoadedNotification = "PhotoLoaderLoadedNotification";
 
@@ -36,14 +38,21 @@ PhotoLoader *PhotoLoader::getInstance() {
     return _instance;
 }
 
-void PhotoLoader::download(const string &uid) {
+PhotoLoader::PhotoLoader() {
+    if (!utils::FileUtils::isFileExist(utils::FileUtils::getDocumentPath("facebook-images"))) {
+        utils::FileUtils::createDirectory("facebook-images");
+    }
+}
+
+void PhotoLoader::download(const string &uid, int size) {
     if (_dowloadings.find(uid) != _dowloadings.end()) {
         return;
     }
     _dowloadings.insert(uid);
     HttpRequest *r = new HttpRequest();
     r->setRequestType(HttpRequest::Type::GET);
-    string url = string("http://graph.facebook.com/") + uid + "/picture?width=128&height=128";
+    string url = string("http://graph.facebook.com/") + uid + "/picture?width=" +
+                            utils::StringUtils::toString(size) + "&height=" + utils::StringUtils::toString(size);
     r->setUrl(url.c_str());
     r->setResponseCallback(this, (SEL_HttpResponse)&PhotoLoader::httpCallback);
     HttpClient::getInstance()->send(r);
@@ -52,9 +61,6 @@ void PhotoLoader::download(const string &uid) {
 }
 
 void PhotoLoader::httpCallback(HttpClient* client, HttpResponse* response) {
-    if (!utils::FileUtils::isFileExist(utils::FileUtils::getDocumentPath("facebook-images"))) {
-        utils::FileUtils::createDirectory("facebook-images");
-    }
     _dowloadings.erase(response->getHttpRequest()->getTag());
     CCLOG("%s, code = %ld, error = %s", __func__, response->getResponseCode(),
           response->getErrorBuffer() ? response->getErrorBuffer() : "(null)");
@@ -91,3 +97,5 @@ Texture2D *PhotoLoader::loadTexture(const string &uid) {
 bool PhotoLoader::isPhotoExist(const string &uid) {
     return utils::FileUtils::isFileExist(utils::FileUtils::getDocumentPath("facebook-images/" + uid + ".png"));
 }
+
+NS_SCREW_FACEBOOK_END

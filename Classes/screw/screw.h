@@ -44,5 +44,6 @@
 #include "facebook/Dialog.h"
 #include "facebook/Facebook.h"
 #include "facebook/AppRequests.h"
+#include "facebook/PhotoLoader.h"
 
 #endif /* _SCREW_SCREW_H_ */

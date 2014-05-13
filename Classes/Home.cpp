@@ -23,7 +23,6 @@
 #include "Home.h"
 #include "Notification.h"
 #include "RequestScene.h"
-#include "PhotoLoader.h"
 
 Home *Home::create() {
     Home *home = new Home();
