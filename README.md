@@ -1,22 +1,27 @@
 Screw
-=====
+-----
 Screw aims to bring native Facebook SDK functionalities to cocos2d-x.
 
-Run the Sample
+Run the Project
 --------------
+The project accompanies with a simple sample for demo. You should run the project to explore the basic functionalities of Screw. Besides, examining the sample files (`Home.cpp` and `RequestScene.cpp`) is a good reference.
+In Android, due to the requirement of adding a Key Hash (which is developer specific) in App Dashboard, you must use your own Facebook app and follow Facebook instruction to setup your app.
 
+**Note to use your own Facebook app:** 
+You must configure your app to include:
+
+* A *Fish* object type
+* A *Catch fish* action type
+* An *Eat fish* action type
+* A sample *Fish* id
+
+And then scan `Home.cpp` and `RequestScene.cpp` to update these info.
 
 Requirements
 ------------
+* iOS/Android
 * cocos2d-x v3.0beta or higher (Not compatible with cocos2d-x 2.x)
 * Screw is built against Facebook SDK 3.14 (both iOS and Android), but older SDKs may work
-
-Setup
------
-###Integrate Screw into your iOS cocos2d-x app###
-* Copy `Classes/screw` and `proj.ios_mac/ios/screw` to the coresponding folders and them as groups into your Xcode project
-* Modify your `AppDelegate.cpp` to include `screw/screw.h` and add `screw::facebook::Session::start();` as the first command in `AppDelegate::applicationDidFinishLaunching()`
-* Modify `- (BOOL) application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation ` in your `AppControler.mm` to invoke `[FBAppCall handleOpenURL:url sourceApplication:sourceApplication];`
 
 Features
 --------
@@ -36,6 +41,27 @@ Features
 * `screw::Data` to read/write plist file with convenient path based key getters/setters
 * `screw::facebook::Facebook` to fetch/cache Facebook profiles/scores and more
 * Many other utils
+
+Setup
+-----
+All the sources lie under `Classes/screw`, `proj.ios_mac/screw`, `proj.android/jni/screw` and `proj.android/src/com/screw`, so basically you should mimic this structure in your project.
+###Integrate Screw into your iOS cocos2d-x app###
+* Copy `Classes/screw` and `proj.ios_mac/ios/screw` to the corresponding folders and them as groups into your Xcode project
+* Modify your `AppDelegate.cpp` to include `screw/screw.h` and add `screw::facebook::Session::start();` as the first command in `AppDelegate::applicationDidFinishLaunching()`
+* Modify `- (BOOL) application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation ` in your `AppControler.mm` to invoke `[FBAppCall handleOpenURL:url sourceApplication:sourceApplication];`
+* Copy `fb-default.png` to `Resources` folder and add to Xcode project
+
+###Integrate Screw into your Android cocos2d-x app###
+* Copy `Classes/screw` to your project if you haven't
+* Modify `AppDelegate.cpp` as with iOS project
+* Copy `proj.android/jni/screw` and `proj.android/src/com/screw` to corresponding locations in your project
+* Make `jni/screw` part of NDK_MODULE_PATH
+* Update your Android.mk to have `LOCAL_WHOLE_STATIC_LIBRARIES += screw_static` and `$(call import-module,screw)`
+* In `AppActivity.onCreate` add `Facebook.onActivityCreate(this, savedInstanceState);`
+* In `AppActivity.onPause` add `Facebook.onActivityPause();`
+* In `AppActivity.onResume` add `Facebook.onActivityResume();`
+* In `AppActivity.onActivityResult` add `Facebook.onActivityResult(requestCode, resultCode, data)`
+* Copy `fb-default.png` to `Resources` folder (if you haven't)
 
 Tutorial
 --------
@@ -102,7 +128,7 @@ Facebook::getInstance()->fetchUserDetail();
 Using `screw::facebook::Request`
 ```
 Request::requestForFriends([](int error, const Vector<GraphUser *> &friends){
-    // Do something with the friends list
+    // This friends list is only available in this callback
 })->execute();
 ```
 
@@ -115,6 +141,7 @@ EventListenerCustom *listener = EventListenerCustom::create(FacebookFriendsDidFe
 });
 _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
 
+// Friends fetched with this call is stored 
 Facebook::getInstance()->fetchFriends();
 ```
 
@@ -131,7 +158,7 @@ Using `screw::facebook::Facebook` as helper (the same pattern as with fetching u
 ```
 EventListenerCustom *listener = EventListenerCustom::create(FacebookScoresDidFetchNotification, [=](EventCustom *event){
     // Get the friend list from Facebook
-    // Friends along with scores are stored persistently so you can also access them outside callback 
+    // Friends along with scores are stored persistently if you fetch them via screw::facebook::Facebook so you can also get them outside callback 
     Vector<GraphUser *> friends = Facebook::getInstance()->getFriends();
     for (auto f : friends) {
         CCLOG("(user %s, score %ls)", f->getName(), f->getScore());
@@ -228,14 +255,97 @@ AppRequests::getInstance()->clearRequest(requestId);
 ```
 
 ###Sharing
+Share a link
 ```
-
+ShareDialogParams *params = ShareDialogParams::create();
+params->setLink("http://www.cocos2d-x.org/");
+//    params->setName("A name");
+//    params->setCaption("A caption");
+//    params->setDescription("A description");
+//    params->setFriends({"100008289311268"});
+//    params->setDataFailuresFatal(false);
+    
+// Check if can share via Share Dialog 
+if (Dialog::canPresent(params)) {
+    Dialog::present(params, [](GraphObject *result, int error){
+        if (result && result->getString("completionGesture") == "post") {
+            // Share succeeded
+        }
+    });
+} else {
+    // Fallback to web view
+    CCLOG("Cannot show share dialog, fallback to webview");
+    FeedDialogBuilder *fbd = new FeedDialogBuilder();
+    fbd->setLink(params->getLink())->setDescription(params->getDescription());
+    //fbd->setTo("100008289311268");
+        
+    fbd->setCallback([](int error, const string &rid){
+        if (rid.length()) {
+            // Share succeeded
+        }
+    });
+        
+    fbd->build()->show();
+    delete fbd;
+}
+```
+Share status: identical to share link without providing a link parameter
+Share Open Graph Story
+```
+// Share a "Catch Fish" story
+OpenGraphActionShareDialogParams *params = OpenGraphActionShareDialogParams::create();
+params->setActionType("screwfb:catch");
+params->setPreviewPropertyName("fish");
+ 
+GraphObject *fish = GraphObject::createForPost();
+fish->set("type", "screwfb:fish");
+fish->set("title", "Selfish");
+fish->set("description", "The biggest fish in the sea!!!");
+//    fish->set("url", "http://samples.ogp.me/344468272304428");
+//    fish->set("image", "http://i.imgur.com/g3Qc1HN.png");
+    
+OpenGraphAction *action = OpenGraphAction::create();
+action->set("fish", fish->getValue());
+//    action->set("fish", "773781669301483"); //For catching a fish with its id
+params->setAction(action);
+if (Dialog::canPresent(params)) {
+    Dialog::present(params, [=](GraphObject *result, int error){
+        if (result && result->getString("completionGesture") == "post") {
+            // Share succeeded
+        }
+    });
+} else {
+    // Fallback to app request: require "publish_actions" permission and a litte more work
+}
 ```
 
 ###Photo Loader
+Download profile picture
 ```
+PhotoLoader::getInstance()->download(uid, size);
+```
+Upon donload finished, `PhotoLoader` saves image under `facebook-images` folder inside writable directory.
+Handle download finish event and load texture
+```
+EventListenerCustom *listener = EventListenerCustom::create(PhotoLoaderLoadedNotification, [=](EventCustom *event){
+    PhotoLoaderEvent *ev = (PhotoLoaderEvent *) event;
+    Texture2D *texture = PhotoLoader::getInstance()->loadTexture(ev->getUid());
+});
+_eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
+```
+**Notes**
 
-```
+* `PhotoLoader::getInstance()->loadTexture(uid)` guarantees to return a non-nil texture (if the image for uid doesn't exist, it loads the default texture, so don't forget to copy `fb-default.png` to your `Resources` folder)
+* Texture returned by `PhotoLoader::getInstance()->loadTexture` is not managed by `TextureCache` (except the defaut texture)
+
+Notes
+-----
+* If you decide to use `screw::facebook::Facebook`
+  * You must NOT set up your own session callback via `screw::facebook::Session::setStatusCallback`, instead observing status changes via `FacebookLoginStatusChangedNotification` event.
+  * You should use `screw::facebook::Facebook::fetch*` methods, observe fetch completion via event dispatcher and get the data via `screw::facebook::Facebook::get*`
+  * Although all `fetch*` method accept a callback, you should not use it to reduce the overhead of managing objects life cycle
+* If you decide to use `screw::facebook::AppRequests`
+  * You MUST use `screw::facebook::AppRequests::fetchAppRequests` instead of `Request::requestForAppRequests`
 
 Contact
 -------
