@@ -115,23 +115,24 @@ void Helper::nsDictionary2ValueMap(NSDictionary *dic, ValueMap &vm) {
     NSArray *keys = [dic allKeys];
     for (NSString *k : keys) {
         id obj = dic[k];
+        string key([k cStringUsingEncoding:NSUTF8StringEncoding]);
         
         if ([obj isKindOfClass:[NSDictionary class]]) {
             //Dictionary
             ValueMap vmm;
             nsDictionary2ValueMap((NSDictionary *) obj, vmm);
-            vm[[k cStringUsingEncoding:NSUTF8StringEncoding]] = vmm;
+            vm[key] = vmm;
         } else if ([obj isKindOfClass:[NSArray class]]) {
             //Array
             ValueVector vv;
             nsArray2ValueVector((NSArray *) obj, vv);
-            vm[[k cStringUsingEncoding:NSUTF8StringEncoding]] = vv;
+            vm[key] = vv;
         } else if ([obj isKindOfClass:[NSString class]]) {
             //String
-            vm[[k cStringUsingEncoding:NSUTF8StringEncoding]] = [(NSString *) obj cStringUsingEncoding:NSUTF8StringEncoding];
+            vm[key] = [(NSString *) obj cStringUsingEncoding:NSUTF8StringEncoding];
         } else if ([obj isKindOfClass:[NSNumber class]]) {
             //Number
-            vm[[k cStringUsingEncoding:NSUTF8StringEncoding]] = [obj stringValue];
+            vm[key] = [[(NSNumber *)obj stringValue] cStringUsingEncoding:NSUTF8StringEncoding];
         } else {
             NSLog(@"%s - Non supported type %@", __FUNCTION__, [obj class]);
         }
