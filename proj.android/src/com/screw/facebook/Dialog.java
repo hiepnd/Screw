@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.UUID;
 
+import org.cocos2dx.lib.Cocos2dxHelper;
 import org.json.JSONObject;
 
 import android.os.Bundle;
@@ -189,7 +190,7 @@ public class Dialog {
 	}
 	
 	private static void completeDialog(final long code, final boolean didCancel, final String completionGesture, final String postId, final int error) {
-		Facebook.getActivity().runOnUiThread(new Runnable() {
+		Cocos2dxHelper.runOnGLThread(new Runnable() {
 			
 			@Override
 			public void run() {
