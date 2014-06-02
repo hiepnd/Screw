@@ -292,6 +292,7 @@ if (Dialog::canPresent(params)) {
 }
 ```
 Share status: identical to share link without providing a link parameter
+
 Share Open Graph Story
 ```
 // Share a "Catch Fish" story
@@ -327,6 +328,7 @@ Download profile picture
 PhotoLoader::getInstance()->download(uid, size);
 ```
 Upon donload finished, `PhotoLoader` saves image under `facebook-images` folder inside writable directory.
+
 Handle download finish event and load texture
 ```
 EventListenerCustom *listener = EventListenerCustom::create(PhotoLoaderLoadedNotification, [=](EventCustom *event){
