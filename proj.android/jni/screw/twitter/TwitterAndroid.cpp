@@ -1,17 +1,17 @@
 /****************************************************************************
  Copyright (c) hiepndhut@gmail.com
  Copyright (c) 2014 No PowerUp Games
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,32 +21,38 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef _SCREW_SCREW_H_
-#define _SCREW_SCREW_H_
+#include "TwitterAndroid.h"
+#include "cocos/2d/platform/android/jni/JniHelper.h"
 
-#include "macros.h"
+NS_SCREW_JNI_BEGIN
 
-/* Utils */
-#include "utils/ValueUtils.h"
-#include "utils/FileUtils.h"
-#include "utils/JsonUtils.h"
-#include "utils/StringUtils.h"
+TwitterTweetCallback TwitterAndroid::_currentCallback = nullptr;
 
-/* Data */
-#include "data/Data.h"
+void TwitterAndroid::tweet(const string &message, const TwitterTweetCallback &callback) {
+	if (_currentCallback) {
+		CCLOG("TwitterAndroid::tweet - possible bug");
+	}
+	_currentCallback = callback;
 
-/* facebook */
-#include "facebook/Session.h"
-#include "facebook/Request.h"
-#include "facebook/WebDialog.h"
-#include "facebook/GraphObject.h"
-#include "facebook/OpenGraph.h"
-#include "facebook/Dialog.h"
-#include "facebook/Facebook.h"
-#include "facebook/AppRequests.h"
-#include "facebook/PhotoLoader.h"
+	JNIEnv *env = JniHelper::getEnv();
+	jstring jmessage = env->NewStringUTF(message.c_str());
+	env->CallStaticVoidMethod(Helper::jTwitterClassID, Helper::jTwitterTweetMethodID,
+			jmessage
+		);
+}
 
-/* Twitter */
-#include "twitter/Twitter.h"
+void TwitterAndroid::onComplete(int error) {
+	if (_currentCallback) {
+		_currentCallback(error);
+	}
+	_currentCallback = nullptr;
+}
 
-#endif /* _SCREW_SCREW_H_ */
+NS_SCREW_JNI_END
+
+extern "C" {
+JNIEXPORT void JNICALL Java_com_screw_twitter_Twitter_nativeCallback (JNIEnv *env, jclass jclass, jint jerror) {
+	screw::jni::TwitterAndroid::onComplete((int)jerror);
+}
+
+} //of extern "C"

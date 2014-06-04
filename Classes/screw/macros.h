@@ -66,6 +66,10 @@
 #define NS_SCREW_FACEBOOK_END NS_SCREW_END }
 #define USING_NS_SCREW_FACEBOOK using namespace screw::facebook;
 
+#define NS_SCREW_TWITTER_BEGIN NS_SCREW_BEGIN namespace twitter {
+#define NS_SCREW_TWITTER_END NS_SCREW_END }
+#define USING_NS_SCREW_TWITTER using namespace screw::twitter;
+
 #define NS_SCREW_DATA_BEGIN NS_SCREW_BEGIN namespace data {
 #define NS_SCREW_DATA_END NS_SCREW_END }
 #define USING_NS_SCREW_DATA using namespace screw::data;

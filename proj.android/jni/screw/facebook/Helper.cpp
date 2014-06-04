@@ -36,6 +36,7 @@ jclass Helper::jRequestClassID = NULL;
 jclass Helper::jWebDialogClassID = NULL;
 jclass Helper::jDialogClassID = NULL;
 jclass Helper::jObjectClassID = NULL;
+jclass Helper::jTwitterClassID = NULL;
 
 jmethodID Helper::jBundleConstructor = NULL;
 jmethodID Helper::jBundlePutStringMethodID = NULL;
@@ -47,6 +48,7 @@ jmethodID Helper::jDialogCanPresentShareDialogMethodID = NULL;
 jmethodID Helper::jDialogCanPresentShareActionDialogMethodID = NULL;
 jmethodID Helper::jDialogPresentShareDialogMethodID = NULL;
 jmethodID Helper::jDialogPresentShareActionDialogMethodID = NULL;
+jmethodID Helper::jTwitterTweetMethodID = NULL;
 
 Helper::Helper() {
 
@@ -68,6 +70,7 @@ void Helper::initialize(JNIEnv *env) {
 	jWebDialogClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/facebook/WebDialog")));
 	jStringClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("java/lang/String")));
 	jDialogClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/facebook/Dialog")));
+	jTwitterClassID = (jclass)env->NewGlobalRef((jobject)(env->FindClass("com/screw/twitter/Twitter")));
 
 	jBundleConstructor = env->GetMethodID(jBundleClassID, "<init>", "()V");
 	jBundlePutStringMethodID = env->GetMethodID(jBundleClassID, "putString", "(Ljava/lang/String;Ljava/lang/String;)V");
@@ -93,6 +96,9 @@ void Helper::initialize(JNIEnv *env) {
 	//public static void presentShareOpenGraphActionDialog(final long requestCode, final Bundle data)
 	jDialogPresentShareActionDialogMethodID = env->GetStaticMethodID(jDialogClassID, "presentShareOpenGraphActionDialog",
 																"(JLandroid/os/Bundle;)V");
+
+	//public static void tweet(final String message)
+	jTwitterTweetMethodID = env->GetStaticMethodID(jTwitterClassID, "tweet", "(Ljava/lang/String;)V");
 }
 
 jstring Helper::string2jString(JNIEnv *env, const string &str) {

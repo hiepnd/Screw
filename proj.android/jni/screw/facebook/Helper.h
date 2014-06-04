@@ -68,6 +68,7 @@ public:
 	static jclass jRequestClassID;
 	static jclass jWebDialogClassID;
 	static jclass jDialogClassID;
+	static jclass jTwitterClassID;
 
 	/* Method IDs */
 	static jmethodID jBundleConstructor;
@@ -80,6 +81,7 @@ public:
 	static jmethodID jDialogCanPresentShareActionDialogMethodID;
 	static jmethodID jDialogPresentShareDialogMethodID;
 	static jmethodID jDialogPresentShareActionDialogMethodID;
+	static jmethodID jTwitterTweetMethodID;
 
 
 	static bool _initialized;

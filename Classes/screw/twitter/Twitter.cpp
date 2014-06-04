@@ -21,32 +21,26 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef _SCREW_SCREW_H_
-#define _SCREW_SCREW_H_
+#include "Twitter.h"
 
-#include "macros.h"
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#include "TwitterApple.h"
+#endif
 
-/* Utils */
-#include "utils/ValueUtils.h"
-#include "utils/FileUtils.h"
-#include "utils/JsonUtils.h"
-#include "utils/StringUtils.h"
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#include "jni/screw/twitter/TwitterAndroid.h"
+#endif
 
-/* Data */
-#include "data/Data.h"
+NS_SCREW_TWITTER_BEGIN
 
-/* facebook */
-#include "facebook/Session.h"
-#include "facebook/Request.h"
-#include "facebook/WebDialog.h"
-#include "facebook/GraphObject.h"
-#include "facebook/OpenGraph.h"
-#include "facebook/Dialog.h"
-#include "facebook/Facebook.h"
-#include "facebook/AppRequests.h"
-#include "facebook/PhotoLoader.h"
+void Twitter::tweet(const string &message, const TwitterTweetCallback &callback) {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+    screw::ios::TwitterApple::tweet(message, callback);
+#endif
+    
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    screw::jni::TwitterAndroid::tweet(message, callback);
+#endif
+}
 
-/* Twitter */
-#include "twitter/Twitter.h"
-
-#endif /* _SCREW_SCREW_H_ */
+NS_SCREW_TWITTER_END

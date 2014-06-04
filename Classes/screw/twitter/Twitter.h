@@ -21,32 +21,26 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef _SCREW_SCREW_H_
-#define _SCREW_SCREW_H_
+#ifndef _SCREW_TWITTER_H_
+#define _SCREW_TWITTER_H_
 
-#include "macros.h"
+#include "../macros.h"
+#include "../data/Data.h"
+#include "cocos2d.h"
+#include <functional>
 
-/* Utils */
-#include "utils/ValueUtils.h"
-#include "utils/FileUtils.h"
-#include "utils/JsonUtils.h"
-#include "utils/StringUtils.h"
+USING_NS_CC;
+using namespace std;
 
-/* Data */
-#include "data/Data.h"
+NS_SCREW_TWITTER_BEGIN
 
-/* facebook */
-#include "facebook/Session.h"
-#include "facebook/Request.h"
-#include "facebook/WebDialog.h"
-#include "facebook/GraphObject.h"
-#include "facebook/OpenGraph.h"
-#include "facebook/Dialog.h"
-#include "facebook/Facebook.h"
-#include "facebook/AppRequests.h"
-#include "facebook/PhotoLoader.h"
+typedef std::function<void(int error)> TwitterTweetCallback;
 
-/* Twitter */
-#include "twitter/Twitter.h"
+class Twitter {
+public:
+    static void tweet(const string &message, const TwitterTweetCallback &callback);
+};
 
-#endif /* _SCREW_SCREW_H_ */
+NS_SCREW_TWITTER_END
+
+#endif /* _SCREW_TWITTER_H_ */
