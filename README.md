@@ -344,12 +344,13 @@ _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
 
 Notes
 -----
-* If you decide to use `screw::facebook::Facebook`
-  - You must NOT set up your own session callback via `screw::facebook::Session::setStatusCallback`, instead observing status changes via `FacebookLoginStatusChangedNotification` event.
-  - You should use `screw::facebook::Facebook::fetch*` methods, observe fetch completion via event dispatcher and get the data via `screw::facebook::Facebook::get*`
-  - Although all `fetch*` method accept a callback, you should not use it to reduce the overhead of managing objects life cycle
-* If you decide to use `screw::facebook::AppRequests`
-  - You MUST use `screw::facebook::AppRequests::fetchAppRequests` instead of `Request::requestForAppRequests`
+If you decide to use `screw::facebook::Facebook`
+* You must NOT set up your own session callback via `screw::facebook::Session::setStatusCallback`, instead observing status changes via `FacebookLoginStatusChangedNotification` event.
+* You should use `screw::facebook::Facebook::fetch*` methods, observe fetch completion via event dispatcher and get the data via `screw::facebook::Facebook::get*`
+* Although all `fetch*` method accept a callback, you should not use it to reduce the overhead of managing objects life cycle
+
+If you decide to use `screw::facebook::AppRequests`
+* You MUST use `screw::facebook::AppRequests::fetchAppRequests` instead of `Request::requestForAppRequests`
 
 Contact
 -------
