@@ -28,7 +28,7 @@ NS_SCREW_JNI_BEGIN
 
 TwitterTweetCallback TwitterAndroid::_currentCallback = nullptr;
 
-void TwitterAndroid::tweet(const string &message, const TwitterTweetCallback &callback) {
+void TwitterAndroid::tweet(const string &message, const string &imagePath, const TwitterTweetCallback &callback) {
 	if (_currentCallback) {
 		CCLOG("TwitterAndroid::tweet - possible bug");
 	}
@@ -36,8 +36,9 @@ void TwitterAndroid::tweet(const string &message, const TwitterTweetCallback &ca
 
 	JNIEnv *env = JniHelper::getEnv();
 	jstring jmessage = env->NewStringUTF(message.c_str());
+	jstring jimagePath = env->NewStringUTF(imagePath.c_str());
 	env->CallStaticVoidMethod(Helper::jTwitterClassID, Helper::jTwitterTweetMethodID,
-			jmessage
+			jmessage, jimagePath
 		);
 }
 

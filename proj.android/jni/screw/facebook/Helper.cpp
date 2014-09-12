@@ -1,17 +1,17 @@
 /****************************************************************************
  Copyright (c) hiepndhut@gmail.com
  Copyright (c) 2014 No PowerUp Games
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -77,28 +77,28 @@ void Helper::initialize(JNIEnv *env) {
 	jBundlePutBundleMethodID = env->GetMethodID(jBundleClassID, "putBundle", "(Ljava/lang/String;Landroid/os/Bundle;)V");
 	jBundlePutStringArrayMethodID = env->GetMethodID(jBundleClassID, "putStringArray", "(Ljava/lang/String;[Ljava/lang/String;)V");
 
-	//Java: void request(long requestCode, String graphPath, Bundle parameters, int httpMethod)
+	// void request(long requestCode, String graphPath, Bundle parameters, int httpMethod)
 	jRequestRequestMethodID = env->GetStaticMethodID(jRequestClassID, "request", "(JLjava/lang/String;Landroid/os/Bundle;I)V");
 
-	//Java: static void showRequest(long requestCode, String dialog, Bundle params)
+	// static void showRequest(long requestCode, String dialog, Bundle params)
 	jWebDialogShowMethodID = env->GetStaticMethodID(jWebDialogClassID, "show", "(JLjava/lang/String;Landroid/os/Bundle;)V");
 
-	//public static boolean canPresentShareDialog()
+	// public static boolean canPresentShareDialog()
 	jDialogCanPresentShareDialogMethodID = env->GetStaticMethodID(jDialogClassID, "canPresentShareDialog" ,"()Z");
 
-	//public static boolean canSharePresentShareOpenGraphAction()
+	// public static boolean canSharePresentShareOpenGraphAction()
 	jDialogCanPresentShareActionDialogMethodID = env->GetStaticMethodID(jDialogClassID, "canPresentShareDialog" ,"()Z");
 
-	//public static void presentShareDialog(final long requestCode, final Bundle data)
+	// public static void presentShareDialog(final long requestCode, final Bundle data)
 	jDialogPresentShareDialogMethodID = env->GetStaticMethodID(jDialogClassID, "presentShareDialog",
 																"(JLandroid/os/Bundle;)V");
 
-	//public static void presentShareOpenGraphActionDialog(final long requestCode, final Bundle data)
+	// public static void presentShareOpenGraphActionDialog(final long requestCode, final Bundle data)
 	jDialogPresentShareActionDialogMethodID = env->GetStaticMethodID(jDialogClassID, "presentShareOpenGraphActionDialog",
 																"(JLandroid/os/Bundle;)V");
 
-	//public static void tweet(final String message)
-	jTwitterTweetMethodID = env->GetStaticMethodID(jTwitterClassID, "tweet", "(Ljava/lang/String;)V");
+	// public static void tweet(final String message, final String imagePath)
+	jTwitterTweetMethodID = env->GetStaticMethodID(jTwitterClassID, "tweet", "(Ljava/lang/String;Ljava/lang/String;)V");
 }
 
 jstring Helper::string2jString(JNIEnv *env, const string &str) {

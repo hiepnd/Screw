@@ -33,13 +33,13 @@
 
 NS_SCREW_TWITTER_BEGIN
 
-void Twitter::tweet(const string &message, const TwitterTweetCallback &callback) {
+void Twitter::tweet(const string &message, const string &imagePath, const TwitterTweetCallback &callback) {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-    screw::ios::TwitterApple::tweet(message, callback);
+    screw::ios::TwitterApple::tweet(message, imagePath, callback);
 #endif
     
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-    screw::jni::TwitterAndroid::tweet(message, callback);
+    screw::jni::TwitterAndroid::tweet(message, imagePath, callback);
 #endif
 }
 

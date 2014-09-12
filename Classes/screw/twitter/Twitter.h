@@ -38,7 +38,7 @@ typedef std::function<void(int error)> TwitterTweetCallback;
 
 class Twitter {
 public:
-    static void tweet(const string &message, const TwitterTweetCallback &callback);
+    static void tweet(const string &message, const string &imagePath, const TwitterTweetCallback &callback=nullptr);
 };
 
 NS_SCREW_TWITTER_END

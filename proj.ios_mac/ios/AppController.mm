@@ -30,6 +30,7 @@
 #import <FacebookSDK/FacebookSDK.h>
 
 @implementation AppController
+@synthesize viewController = viewController;
 
 #pragma mark -
 #pragma mark Application lifecycle

@@ -40,6 +40,10 @@
 		4727F48618ED86EA00F83968 /* FacebookSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4727F48518ED86EA00F83968 /* FacebookSDK.framework */; };
 		4727F48918ED877900F83968 /* WebDialogApple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4727F48718ED877900F83968 /* WebDialogApple.mm */; };
 		4727F48D18ED89F900F83968 /* Helper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4727F48B18ED89F900F83968 /* Helper.mm */; };
+		4745A67619C29F69001B4109 /* Twitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4745A67419C29F69001B4109 /* Twitter.cpp */; };
+		4745A67A19C29FB6001B4109 /* TwitterApple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4745A67919C29FB6001B4109 /* TwitterApple.mm */; };
+		4745A67D19C2A11E001B4109 /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4745A67C19C2A11E001B4109 /* Social.framework */; };
+		4745A67F19C2A125001B4109 /* Accounts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4745A67E19C2A125001B4109 /* Accounts.framework */; };
 		47719705191F08F2001BA3B9 /* Settings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 47719703191F08F2001BA3B9 /* Settings.cpp */; };
 		477A0F41191E11CA00EF4B45 /* RequestScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 477A0F3F191E11CA00EF4B45 /* RequestScene.cpp */; };
 		479D623218E503F4008F9DB2 /* ValueUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 479D623018E503F4008F9DB2 /* ValueUtils.cpp */; };
@@ -284,6 +288,12 @@
 		4727F48818ED877900F83968 /* WebDialogApple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebDialogApple.h; sourceTree = "<group>"; };
 		4727F48B18ED89F900F83968 /* Helper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Helper.mm; sourceTree = "<group>"; };
 		4727F48C18ED89F900F83968 /* Helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Helper.h; sourceTree = "<group>"; };
+		4745A67419C29F69001B4109 /* Twitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Twitter.cpp; sourceTree = "<group>"; };
+		4745A67519C29F69001B4109 /* Twitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Twitter.h; sourceTree = "<group>"; };
+		4745A67819C29FB6001B4109 /* TwitterApple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TwitterApple.h; sourceTree = "<group>"; };
+		4745A67919C29FB6001B4109 /* TwitterApple.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TwitterApple.mm; sourceTree = "<group>"; };
+		4745A67C19C2A11E001B4109 /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/Social.framework; sourceTree = DEVELOPER_DIR; };
+		4745A67E19C2A125001B4109 /* Accounts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accounts.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/Accounts.framework; sourceTree = DEVELOPER_DIR; };
 		47719703191F08F2001BA3B9 /* Settings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Settings.cpp; sourceTree = "<group>"; };
 		47719704191F08F2001BA3B9 /* Settings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Settings.h; sourceTree = "<group>"; };
 		477A0F3F191E11CA00EF4B45 /* RequestScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RequestScene.cpp; path = ../Classes/RequestScene.cpp; sourceTree = "<group>"; };
@@ -352,6 +362,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4745A67F19C2A125001B4109 /* Accounts.framework in Frameworks */,
+				4745A67D19C2A11E001B4109 /* Social.framework in Frameworks */,
 				4727F48618ED86EA00F83968 /* FacebookSDK.framework in Frameworks */,
 				1AC6FB2E180E99EB004C840B /* libbox2d iOS.a in Frameworks */,
 				1AC6FB2F180E99EB004C840B /* libchipmunk iOS.a in Frameworks */,
@@ -474,6 +486,8 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4745A67E19C2A125001B4109 /* Accounts.framework */,
+				4745A67C19C2A11E001B4109 /* Social.framework */,
 				4727F48518ED86EA00F83968 /* FacebookSDK.framework */,
 				D6B0611A1803AB670077942B /* CoreMotion.framework */,
 				503AE11A17EB9C5A00D1A890 /* IOKit.framework */,
@@ -497,6 +511,7 @@
 		4717492C18D4DC8D00473A82 /* screw */ = {
 			isa = PBXGroup;
 			children = (
+				4745A67319C29F69001B4109 /* twitter */,
 				4717492D18D4DC8D00473A82 /* crypto */,
 				4717492E18D4DC8D00473A82 /* data */,
 				4717493118D4DC8D00473A82 /* facebook */,
@@ -577,6 +592,7 @@
 		4727F47B18ED850500F83968 /* screw */ = {
 			isa = PBXGroup;
 			children = (
+				4745A67719C29FB6001B4109 /* twitter */,
 				4727F47C18ED850500F83968 /* facebook */,
 			);
 			name = screw;
@@ -598,6 +614,24 @@
 				4727F48C18ED89F900F83968 /* Helper.h */,
 			);
 			path = facebook;
+			sourceTree = "<group>";
+		};
+		4745A67319C29F69001B4109 /* twitter */ = {
+			isa = PBXGroup;
+			children = (
+				4745A67419C29F69001B4109 /* Twitter.cpp */,
+				4745A67519C29F69001B4109 /* Twitter.h */,
+			);
+			path = twitter;
+			sourceTree = "<group>";
+		};
+		4745A67719C29FB6001B4109 /* twitter */ = {
+			isa = PBXGroup;
+			children = (
+				4745A67819C29FB6001B4109 /* TwitterApple.h */,
+				4745A67919C29FB6001B4109 /* TwitterApple.mm */,
+			);
+			path = twitter;
 			sourceTree = "<group>";
 		};
 		47719700191F08E2001BA3B9 /* settings */ = {
@@ -894,7 +928,9 @@
 				4727F48418ED854000F83968 /* RequestApple.mm in Sources */,
 				4717494318D4DC8D00473A82 /* Request.cpp in Sources */,
 				4722744219081350001AD126 /* DialogApple.mm in Sources */,
+				4745A67A19C29FB6001B4109 /* TwitterApple.mm in Sources */,
 				47719705191F08F2001BA3B9 /* Settings.cpp in Sources */,
+				4745A67619C29F69001B4109 /* Twitter.cpp in Sources */,
 				470DBBFE19069F88002EF87B /* Dialog.cpp in Sources */,
 				47E59EA31921AD6D0066950A /* PhotoLoader.cpp in Sources */,
 				4727F48D18ED89F900F83968 /* Helper.mm in Sources */,
@@ -1002,7 +1038,7 @@
 				INFOPLIST_FILE = ios/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = "";
-				PROVISIONING_PROFILE = "ACACFDA8-103A-431B-AB58-DD0331CF04B2";
+				PROVISIONING_PROFILE = "fa1cf247-e277-41c6-bde0-8c1b192f30f4";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/../cocos2d/cocos/math/kazmath";
@@ -1037,7 +1073,7 @@
 				INFOPLIST_FILE = ios/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = "";
-				PROVISIONING_PROFILE = "ACACFDA8-103A-431B-AB58-DD0331CF04B2";
+				PROVISIONING_PROFILE = "fa1cf247-e277-41c6-bde0-8c1b192f30f4";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/../cocos2d/cocos/math/kazmath";

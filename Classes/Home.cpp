@@ -145,6 +145,14 @@ bool Home::init() {
     item->setPosition(size.width/2, size.height/2 + offset);
     menu->addChild(item);
 
+    // Tweet
+    offset -= 75;
+    item = MenuItemFont::create("Tweet", [=](Ref *sender){
+        screw::twitter::Twitter::tweet("Checkout the Screw https://github.com/hiepnd/Screw/",
+                                       screw::utils::FileUtils::getResourcePath("HelloWorld.png"));
+    });
+    item->setPosition(size.width/2, size.height/2 + offset);
+    menu->addChild(item);
     
     // Login/Logout
     _loginLbl = Label::createWithTTF("Login ", "fonts/Marker Felt.ttf", 40);
@@ -299,10 +307,10 @@ void Home::requestPublish() {
 
 void Home::shareLink() {
     ShareDialogParams *params = ShareDialogParams::create();
-    params->setLink("http://www.cocos2d-x.org/");
+    params->setLink("http://wingup.nopowerup.com");
 //    params->setName("A name");
 //    params->setCaption("A caption");
-//    params->setDescription("A description");
+//    params->setDescription("Screw aims to bring native Facebook SDK functionalities to cocos2d-x");
 //    params->setFriends({"100008289311268"});
 //    params->setDataFailuresFatal(false);
     
