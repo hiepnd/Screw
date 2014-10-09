@@ -23,6 +23,7 @@
 #include "TwitterApple.h"
 #import <Social/Social.h>
 #import "AppController.h"
+#import "RootViewController.h"
 
 NS_SCREW_IOS_BEGIN
 
@@ -37,7 +38,15 @@ void shareSheet(NSString *text, UIImage *image) {
     }
     
     RootViewController *vc = [(AppController *) [UIApplication sharedApplication].delegate viewController];
-    UIActivityViewController *activityController = [[UIActivityViewController alloc] initWithActivityItems:sharingItems applicationActivities:nil];
+    UIActivityViewController *activityController = [[[UIActivityViewController alloc] initWithActivityItems:sharingItems
+                                                                                     applicationActivities:nil] autorelease];
+    // Fix for iOS 8
+    if ([[UIDevice currentDevice] systemVersion].floatValue >= 8.0) {
+        CGRect frame = vc.view.frame;
+        activityController.popoverPresentationController.sourceView = vc.view;
+        activityController.popoverPresentationController.permittedArrowDirections = UIPopoverArrowDirectionDown;
+        activityController.popoverPresentationController.sourceRect = CGRectMake(0.5 * frame.size.width, frame.size.height, 1, 1);
+    }
     [vc presentViewController:activityController animated:YES completion:nil];
 }
 
