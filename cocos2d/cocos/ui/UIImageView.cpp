@@ -24,6 +24,7 @@ THE SOFTWARE.
 
 #include "ui/UIImageView.h"
 #include "extensions/GUI/CCControlExtension/CCScale9Sprite.h"
+#include "2d/CCSprite.h"
 
 NS_CC_BEGIN
 
@@ -43,8 +44,8 @@ _prevIgnoreSize(true),
 _capInsets(Rect::ZERO),
 _imageRenderer(nullptr),
 _textureFile(""),
-_imageTexType(UI_TEX_TYPE_LOCAL),
-_imageTextureSize(_size),
+_imageTexType(TextureResType::LOCAL),
+_imageTextureSize(_contentSize),
 _imageRendererAdaptDirty(true)
 {
 
@@ -86,7 +87,7 @@ bool ImageView::init()
             ret = false;
             break;
         }
-        _imageTexType = UI_TEX_TYPE_LOCAL;
+        _imageTexType = TextureResType::LOCAL;
     } while (0);
     return ret;
 }
@@ -121,7 +122,7 @@ void ImageView::loadTexture(const std::string& fileName, TextureResType texType)
     _imageTexType = texType;
     switch (_imageTexType)
     {
-        case UI_TEX_TYPE_LOCAL:
+        case TextureResType::LOCAL:
             if (_scale9Enabled)
             {
                 extension::Scale9Sprite* imageRendererScale9 = STATIC_CAST_SCALE9SPRITE;
@@ -134,7 +135,7 @@ void ImageView::loadTexture(const std::string& fileName, TextureResType texType)
                 imageRenderer->setTexture(fileName);
             }
             break;
-        case UI_TEX_TYPE_PLIST:
+        case TextureResType::PLIST:
             if (_scale9Enabled)
             {
                 extension::Scale9Sprite* imageRendererScale9 = STATIC_CAST_SCALE9SPRITE;
@@ -153,7 +154,7 @@ void ImageView::loadTexture(const std::string& fileName, TextureResType texType)
     _imageTextureSize = _imageRenderer->getContentSize();
     updateFlippedX();
     updateFlippedY();
-    updateRGBAToRenderer(_imageRenderer);
+    
     updateContentSizeWithTextureSize(_imageTextureSize);
     _imageRendererAdaptDirty = true;
 }
@@ -230,7 +231,7 @@ void ImageView::setScale9Enabled(bool able)
     setCapInsets(_capInsets);
 }
     
-bool ImageView::isScale9Enabled()
+bool ImageView::isScale9Enabled()const
 {
     return _scale9Enabled;
 }
@@ -254,7 +255,7 @@ void ImageView::setCapInsets(const Rect &capInsets)
     STATIC_CAST_SCALE9SPRITE->setCapInsets(capInsets);
 }
 
-const Rect& ImageView::getCapInsets()
+const Rect& ImageView::getCapInsets()const
 {
     return _capInsets;
 }
@@ -297,7 +298,7 @@ void ImageView::imageTextureScaleChangedWithSize()
     {
         if (_scale9Enabled)
         {
-            static_cast<extension::Scale9Sprite*>(_imageRenderer)->setPreferredSize(_size);
+            static_cast<extension::Scale9Sprite*>(_imageRenderer)->setPreferredSize(_contentSize);
         }
         else
         {
@@ -307,8 +308,8 @@ void ImageView::imageTextureScaleChangedWithSize()
                 _imageRenderer->setScale(1.0f);
                 return;
             }
-            float scaleX = _size.width / textureSize.width;
-            float scaleY = _size.height / textureSize.height;
+            float scaleX = _contentSize.width / textureSize.width;
+            float scaleY = _contentSize.height / textureSize.height;
             _imageRenderer->setScaleX(scaleX);
             _imageRenderer->setScaleY(scaleY);
         }
@@ -319,21 +320,6 @@ void ImageView::imageTextureScaleChangedWithSize()
 std::string ImageView::getDescription() const
 {
     return "ImageView";
-}
-    
-void ImageView::updateTextureColor()
-{
-    updateColorToRenderer(_imageRenderer);
-}
-
-void ImageView::updateTextureOpacity()
-{
-    updateOpacityToRenderer(_imageRenderer);
-}
-
-void ImageView::updateTextureRGBA()
-{
-    updateRGBAToRenderer(_imageRenderer);
 }
 
 Widget* ImageView::createCloneInstance()

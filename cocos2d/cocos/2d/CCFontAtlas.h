@@ -25,10 +25,11 @@
 #ifndef _CCFontAtlas_h_
 #define _CCFontAtlas_h_
 
-#include <unordered_map>
-#include "CCPlatformMacros.h"
-#include "CCRef.h"
+#include "base/CCPlatformMacros.h"
+#include "base/CCRef.h"
 #include "CCStdC.h"
+#include <string>
+#include <unordered_map>
 
 NS_CC_BEGIN
 
@@ -71,9 +72,9 @@ public:
     virtual ~FontAtlas();
     
     void addLetterDefinition(const FontLetterDefinition &letterDefinition);
-    bool getLetterDefinitionForChar(unsigned short  letteCharUTF16, FontLetterDefinition &outDefinition);
+    bool getLetterDefinitionForChar(char16_t letteCharUTF16, FontLetterDefinition &outDefinition);
     
-    bool prepareLetterDefinitions(unsigned short  *utf16String);
+    bool prepareLetterDefinitions(const std::u16string& utf16String);
 
     inline const std::unordered_map<ssize_t, Texture2D*>& getTextures() const{ return _atlasTextures;}
     void  addTexture(Texture2D *texture, int slot);
@@ -83,15 +84,10 @@ public:
     Texture2D* getTexture(int slot);
     const Font* getFont() const;
 
-    /** Listen "come to background" message, and clear the texture atlas.
-     It only has effect on Android.
+    /** listen the event that renderer was recreated on Android/WP8
+     It only has effect on Android and WP8.
      */
-    void listenToBackground(EventCustom *event);
-
-    /** Listen "come to foreground" message and restore the texture atlas.
-     It only has effect on Android.
-     */
-    void listenToForeground(EventCustom *event);
+    void listenRendererRecreated(EventCustom *event);
     
     /** Removes textures atlas.
      It will purge the textures atlas and if multiple texture exist in the FontAtlas.
@@ -128,9 +124,9 @@ private:
     bool  _makeDistanceMap;
 
     int _fontAscender;
-    EventListenerCustom* _toBackgroundListener;
-    EventListenerCustom* _toForegroundListener;
+    EventListenerCustom* _rendererRecreatedListener;
     bool _antialiasEnabled;
+    bool _rendererRecreate;
 };
 
 

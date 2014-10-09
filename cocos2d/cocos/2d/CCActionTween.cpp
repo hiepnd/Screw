@@ -24,14 +24,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-#include "CCActionTween.h"
+#include "2d/CCActionTween.h"
 
 NS_CC_BEGIN
 
-ActionTween* ActionTween::create(float aDuration, const std::string& key, float from, float to)
+ActionTween* ActionTween::create(float duration, const std::string& key, float from, float to)
 {
     ActionTween* ret = new ActionTween();
-    if (ret && ret->initWithDuration(aDuration, key, from, to))
+    if (ret && ret->initWithDuration(duration, key, from, to))
     {
         ret->autorelease();
     }

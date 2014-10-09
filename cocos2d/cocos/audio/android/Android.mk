@@ -13,13 +13,6 @@ LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/../include
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../include \
                     $(LOCAL_PATH)/../.. \
-                    $(LOCAL_PATH)/../../math/kazmath \
-                    $(LOCAL_PATH)/../../2d \
-                    $(LOCAL_PATH)/../../2d/platform/android \
-                    $(LOCAL_PATH)/../../base \
-                    $(LOCAL_PATH)/../../physics
-
-LOCAL_CFLAGS += -Wno-psabi
-LOCAL_EXPORT_CFLAGS += -Wno-psabi
+                    $(LOCAL_PATH)/../../platform/android
 
 include $(BUILD_STATIC_LIBRARY)

@@ -28,8 +28,8 @@
  ****************************************************************************/
 
 #include "WebSocket.h"
-#include "CCDirector.h"
-#include "CCScheduler.h"
+#include "base/CCDirector.h"
+#include "base/CCScheduler.h"
 
 #include <thread>
 #include <mutex>
@@ -445,7 +445,7 @@ void WebSocket::onSubThreadStarted()
                                              _path.c_str(), _host.c_str(), _host.c_str(),
                                              name.c_str(), -1);
                                              
-        if(NULL == _wsInstance) {
+        if(nullptr == _wsInstance) {
             WsMessage* msg = new WsMessage();
             msg->what = WS_MSG_TO_UITHREAD_ERROR;
             _readyState = State::CLOSING;

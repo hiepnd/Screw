@@ -25,7 +25,7 @@ THE SOFTWARE.
 #ifndef __CCSKIN_H__
 #define __CCSKIN_H__
 
-#include "CCSprite.h"
+#include "2d/CCSprite.h"
 #include "renderer/CCQuadCommand.h"
 
 #include "cocostudio/CCArmatureDefine.h"
@@ -51,10 +51,10 @@ public:
     void updateArmatureTransform();
     void updateTransform() override;
 
-    kmMat4 getNodeToWorldTransform() const override;
-    kmMat4 getNodeToWorldTransformAR() const;
+    cocos2d::Mat4 getNodeToWorldTransform() const override;
+    cocos2d::Mat4 getNodeToWorldTransformAR() const;
     
-    virtual void draw(cocos2d::Renderer *renderer, const kmMat4 &transform, bool transformUpdated) override;
+    virtual void draw(cocos2d::Renderer *renderer, const cocos2d::Mat4 &transform, uint32_t flags) override;
     
     /**
      *  @js NA
@@ -75,7 +75,7 @@ protected:
     BaseData _skinData;
     Bone *_bone;
     Armature *_armature;
-    kmMat4 _skinTransform;
+    cocos2d::Mat4 _skinTransform;
     std::string _displayName;
     cocos2d::QuadCommand _quadCommand;     // quad command
 };

@@ -97,10 +97,10 @@ public:
     virtual const char* getText(void);
     virtual void refreshInactiveText();
     virtual void setPlaceHolder(const char* pText);
-    virtual void setPosition(const Point& pos);
+    virtual void setPosition(const Vec2& pos);
     virtual void setVisible(bool visible);
     virtual void setContentSize(const Size& size);
-	virtual void setAnchorPoint(const Point& anchorPoint);
+	virtual void setAnchorPoint(const Vec2& anchorPoint);
     virtual void updatePosition(float dt) override;
     /**
      * @js NA
@@ -126,8 +126,8 @@ private:
     Label*     _label;
     Label*     _labelPlaceHolder;
     Size          _contentSize;
-    Point         _position;
-    Point         _anchorPoint;
+    Vec2         _position;
+    Vec2         _anchorPoint;
     CCEditBoxImplIOS_objc* _systemControl;
     int             _maxTextLength;
     bool            _inRetinaMode;

@@ -31,8 +31,9 @@ THE SOFTWARE.
 
 #include "renderer/CCRenderer.h"
 #include "renderer/CCGroupCommand.h"
-#include "CCShaderCache.h"
-#include "CCDrawingPrimitives.h"
+#include "renderer/CCGLProgramState.h"
+#include "2d/CCDrawingPrimitives.h"
+#include "base/CCDirector.h"
 
 #if ENABLE_PHYSICS_BOX2D_DETECT
 #include "Box2D/Box2D.h"
@@ -181,7 +182,7 @@ bool Armature::init(const std::string& name)
 
         }
 
-        setShaderProgram(ShaderCache::getInstance()->getProgram(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR));
+        setGLProgramState(GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR));
 
         setCascadeOpacityEnabled(true);
         setCascadeColorEnabled(true);
@@ -315,7 +316,7 @@ const cocos2d::Map<std::string, Bone*>& Armature::getBoneDic() const
     return _boneDic;
 }
 
-const kmMat4& Armature::getNodeToParentTransform() const
+const Mat4& Armature::getNodeToParentTransform() const
 {
     if (_transformDirty)
         _armatureTransformDirty = true;
@@ -328,25 +329,25 @@ void Armature::updateOffsetPoint()
     // Set contentsize and Calculate anchor point.
     Rect rect = getBoundingBox();
     setContentSize(rect.size);
-    _offsetPoint = Point(-rect.origin.x,  -rect.origin.y);
+    _offsetPoint = Vec2(-rect.origin.x,  -rect.origin.y);
     if (rect.size.width != 0 && rect.size.height != 0)
     {
-        setAnchorPoint(Point(_offsetPoint.x / rect.size.width, _offsetPoint.y / rect.size.height));
+        setAnchorPoint(Vec2(_offsetPoint.x / rect.size.width, _offsetPoint.y / rect.size.height));
     }
 }
 
-void Armature::setAnchorPoint(const Point& point)
+void Armature::setAnchorPoint(const Vec2& point)
 {
     if( ! point.equals(_anchorPoint))
     {
         _anchorPoint = point;
-        _anchorPointInPoints = Point(_contentSize.width * _anchorPoint.x - _offsetPoint.x, _contentSize.height * _anchorPoint.y - _offsetPoint.y);
-        _realAnchorPointInPoints = Point(_contentSize.width * _anchorPoint.x, _contentSize.height * _anchorPoint.y);
+        _anchorPointInPoints = Vec2(_contentSize.width * _anchorPoint.x - _offsetPoint.x, _contentSize.height * _anchorPoint.y - _offsetPoint.y);
+        _realAnchorPointInPoints = Vec2(_contentSize.width * _anchorPoint.x, _contentSize.height * _anchorPoint.y);
         _transformDirty = _inverseDirty = true;
     }
 }
 
-const Point& Armature::getAnchorPointInPoints() const
+const Vec2& Armature::getAnchorPointInPoints() const
 {
     return _realAnchorPointInPoints;
 }
@@ -377,7 +378,7 @@ void Armature::update(float dt)
     _armatureTransformDirty = false;
 }
 
-void Armature::draw(cocos2d::Renderer *renderer, const kmMat4 &transform, bool transformUpdated)
+void Armature::draw(cocos2d::Renderer *renderer, const Mat4 &transform, uint32_t flags)
 {
     if (_parentBone == nullptr && _batchNode == nullptr)
     {
@@ -401,23 +402,27 @@ void Armature::draw(cocos2d::Renderer *renderer, const kmMat4 &transform, bool t
                 Skin *skin = static_cast<Skin *>(node);
                 skin->updateTransform();
                 
-                bool blendDirty = bone->isBlendDirty();
+                BlendFunc func = bone->getBlendFunc();
                 
-                if (blendDirty)
+                if (func.src != _blendFunc.src || func.dst != _blendFunc.dst)
                 {
                     skin->setBlendFunc(bone->getBlendFunc());
                 }
-                skin->draw(renderer, transform, transformUpdated);
+                else
+                {
+                    skin->setBlendFunc(_blendFunc);
+                }
+                skin->draw(renderer, transform, flags);
             }
             break;
             case CS_DISPLAY_ARMATURE:
             {
-                node->draw(renderer, transform, transformUpdated);
+                node->draw(renderer, transform, flags);
             }
             break;
             default:
             {
-                node->visit(renderer, transform, transformUpdated);
+                node->visit(renderer, transform, flags);
 //                CC_NODE_DRAW_SETUP();
             }
             break;
@@ -425,7 +430,7 @@ void Armature::draw(cocos2d::Renderer *renderer, const kmMat4 &transform, bool t
         }
         else if(Node *node = dynamic_cast<Node *>(object))
         {
-            node->visit(renderer, transform, transformUpdated);
+            node->visit(renderer, transform, flags);
 //            CC_NODE_DRAW_SETUP();
         }
     }
@@ -433,6 +438,14 @@ void Armature::draw(cocos2d::Renderer *renderer, const kmMat4 &transform, bool t
 
 void Armature::onEnter()
 {
+#if CC_ENABLE_SCRIPT_BINDING
+    if (_scriptType == kScriptTypeJavascript)
+    {
+        if (ScriptEngineManager::sendNodeEventToJSExtended(this, kNodeOnEnter))
+            return;
+    }
+#endif
+    
     Node::onEnter();
     scheduleUpdate();
 }
@@ -444,7 +457,7 @@ void Armature::onExit()
 }
 
 
-void Armature::visit(cocos2d::Renderer *renderer, const kmMat4 &parentTransform, bool parentTransformUpdated)
+void Armature::visit(cocos2d::Renderer *renderer, const Mat4 &parentTransform, uint32_t parentFlags)
 {
     // quick return if not visible. children won't be drawn.
     if (!_visible)
@@ -452,24 +465,24 @@ void Armature::visit(cocos2d::Renderer *renderer, const kmMat4 &parentTransform,
         return;
     }
 
-    bool dirty = parentTransformUpdated || _transformUpdated;
-    if(dirty)
-        _modelViewTransform = transform(parentTransform);
-    _transformUpdated = false;
+    uint32_t flags = processParentFlags(parentTransform, parentFlags);
 
     // IMPORTANT:
-    // To ease the migration to v3.0, we still support the kmGL stack,
+    // To ease the migration to v3.0, we still support the Mat4 stack,
     // but it is deprecated and your code should not rely on it
-    kmGLPushMatrix();
-    kmGLLoadMatrix(&_modelViewTransform);
+    Director* director = Director::getInstance();
+    CCASSERT(nullptr != director, "Director is null when seting matrix stack");
+    director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+    director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
+
 
     sortAllChildren();
-    draw(renderer, _modelViewTransform, dirty);
+    draw(renderer, _modelViewTransform, flags);
 
     // reset for next frame
     _orderOfArrival = 0;
 
-    kmGLPopMatrix();
+    director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 }
 
 Rect Armature::getBoundingBox() const
@@ -485,6 +498,8 @@ Rect Armature::getBoundingBox() const
         if (Bone *bone = dynamic_cast<Bone *>(object))
         {
             Rect r = bone->getDisplayManager()->getBoundingBox();
+            if (r.equals(Rect::ZERO)) 
+                continue;
 
             if(first)
             {
@@ -569,13 +584,13 @@ void CCArmature::drawContour()
         for (auto& object : bodyList)
         {
             ColliderBody *body = static_cast<ColliderBody*>(object);
-            const std::vector<Point> &vertexList = body->getCalculatedVertexList();
+            const std::vector<Vec2> &vertexList = body->getCalculatedVertexList();
 
             unsigned long length = vertexList.size();
-            Point *points = new Point[length];
+            Vec2 *points = new Vec2[length];
             for (unsigned long i = 0; i<length; i++)
             {
-                Point p = vertexList.at(i);
+                Vec2 p = vertexList.at(i);
                 points[i].x = p.x;
                 points[i].y = p.y;
             }

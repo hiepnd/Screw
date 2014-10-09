@@ -26,11 +26,10 @@
 #ifndef _CCFontAtlasCache_h_
 #define _CCFontAtlasCache_h_
 
-#include <iostream>
 #include <unordered_map>
 
-#include "CCFontAtlas.h"
-#include "CCLabel.h"
+#include "2d/CCFontAtlas.h"
+#include "2d/CCLabel.h"
 
 NS_CC_BEGIN
 
@@ -38,7 +37,7 @@ class CC_DLL FontAtlasCache
 {  
 public:
     static FontAtlas * getFontAtlasTTF(const TTFConfig & config);
-    static FontAtlas * getFontAtlasFNT(const std::string& fontFileName, const Point& imageOffset = Point::ZERO);
+    static FontAtlas * getFontAtlasFNT(const std::string& fontFileName, const Vec2& imageOffset = Vec2::ZERO);
 
     static FontAtlas * getFontAtlasCharMap(const std::string& charMapFile, int itemWidth, int itemHeight, int startCharMap);
     static FontAtlas * getFontAtlasCharMap(Texture2D* texture, int itemWidth, int itemHeight, int startCharMap);

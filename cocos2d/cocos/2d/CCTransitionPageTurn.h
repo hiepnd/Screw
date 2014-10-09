@@ -27,7 +27,7 @@ THE SOFTWARE.
 #ifndef __CCPAGE_TURN_TRANSITION_H__
 #define __CCPAGE_TURN_TRANSITION_H__
 
-#include "CCTransition.h"
+#include "2d/CCTransition.h"
 #include "renderer/CCCustomCommand.h"
 
 NS_CC_BEGIN
@@ -59,20 +59,11 @@ public:
      * scene is being turned from left over the outgoing scene.
      */
     static TransitionPageTurn* create(float t,Scene* scene,bool backwards);
-    /**
-     * @js ctor
-     */
-    TransitionPageTurn();
-    /**
-     * @js NA
-     * @lua NA
-     */
-    virtual ~TransitionPageTurn();
     
     //
     // Overrides
     //
-    virtual void draw(Renderer *renderer, const kmMat4 &transform, bool transformUpdated) override;
+    virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
 
     /**
     * Creates a base transition with duration and incoming scene.
@@ -88,6 +79,17 @@ public:
     //
     virtual void onEnter() override;
     virtual void onExit() override;
+
+CC_CONSTRUCTOR_ACCESS:
+    /**
+     * @js ctor
+     */
+    TransitionPageTurn();
+    /**
+     * @js NA
+     * @lua NA
+     */
+    virtual ~TransitionPageTurn();
 
 protected:
     virtual void sceneOrder() override;

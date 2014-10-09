@@ -24,9 +24,9 @@
 
 #import "CocosDenshion.h"
 #if __IPHONE_OS_VERSION_MIN_REQUIRED >= 30000
-    #import <AVFoundation/AVFoundation.h>
+#import <AVFoundation/AVFoundation.h>
 #else
-    #import "CDXMacOSXSupport.h"
+#import "CDXMacOSXSupport.h"
 #endif
 
 /** Different modes of the engine */
@@ -54,14 +54,14 @@ typedef enum {
 /** Notifications */
 extern NSString * const kCDN_AudioManagerInitialised;
 
-@interface CDAsynchInitialiser : NSOperation {}    
+@interface CDAsynchInitialiser : NSOperation {}
 @end
 
 /** CDAudioManager supports two long audio source channels called left and right*/
 typedef enum {
     kASC_Left = 0,
     kASC_Right = 1
-} tAudioSourceChannel;    
+} tAudioSourceChannel;
 
 typedef enum {
     kLAS_Init,
@@ -94,19 +94,19 @@ typedef enum {
     NSString        *audioSourceFilePath;
     NSInteger        numberOfLoops;
     float            volume;
-    id<CDLongAudioSourceDelegate> delegate; 
+    id<CDLongAudioSourceDelegate> delegate;
     BOOL            mute;
     BOOL            enabled_;
     BOOL            backgroundMusic;
     // whether background music is paused
     BOOL            paused;
     BOOL            stopped;
-@public    
+@public
     BOOL            systemPaused;//Used for auto resign handling
     NSTimeInterval    systemPauseLocation;//Used for auto resign handling
 @protected
     tLongAudioSourceState state;
-}    
+}
 @property (readonly) AVAudioPlayer *audioSourcePlayer;
 @property (readonly) NSString *audioSourceFilePath;
 @property (readwrite, nonatomic) NSInteger numberOfLoops;
@@ -133,7 +133,7 @@ typedef enum {
 
 @end
 
-/** 
+/**
  CDAudioManager manages audio requirements for a game.  It provides access to a CDSoundEngine object
  for playing sound effects.  It provides access to two CDLongAudioSource object (left and right channel)
  for playing long duration audio such as background music and narration tracks.  Additionally it manages
@@ -141,7 +141,7 @@ typedef enum {
  of other apps that are running on the device.
  
  Requirements:
- - Firmware: OS 2.2 or greater 
+ - Firmware: OS 2.2 or greater
  - Files: CDAudioManager.*, CocosDenshion.*
  - Frameworks: OpenAL, AudioToolbox, AVFoundation
  @since v0.8

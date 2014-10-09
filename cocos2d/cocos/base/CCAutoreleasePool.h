@@ -28,7 +28,7 @@ THE SOFTWARE.
 #include <stack>
 #include <vector>
 #include <string>
-#include "CCRef.h"
+#include "base/CCRef.h"
 
 NS_CC_BEGIN
 
@@ -163,8 +163,7 @@ private:
     
     static PoolManager* s_singleInstance;
     
-    std::deque<AutoreleasePool*> _releasePoolStack;
-    AutoreleasePool *_curReleasePool;
+    std::vector<AutoreleasePool*> _releasePoolStack;
 };
 
 // end of base_nodes group

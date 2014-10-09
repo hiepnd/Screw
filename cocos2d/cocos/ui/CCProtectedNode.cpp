@@ -28,12 +28,12 @@
 
 #include "CCProtectedNode.h"
 
-#include "kazmath/GL/matrix.h"
+#include "base/CCDirector.h"
 
 #if CC_USE_PHYSICS
-#include "CCPhysicsBody.h"
+#include "physics/CCPhysicsBody.h"
 #endif
-#include "CCScene.h"
+#include "2d/CCScene.h"
 
 NS_CC_BEGIN
 
@@ -95,26 +95,23 @@ void ProtectedNode::addProtectedChild(Node *child, int zOrder, int tag)
     
     this->insertProtectedChild(child, zOrder);
     
-#if CC_USE_PHYSICS
-    if (child->getPhysicsBody() != nullptr)
-    {
-        child->getPhysicsBody()->setPosition(this->convertToWorldSpace(child->getPosition()));
-    }
-    
-    for (Node* node = this->getParent(); node != nullptr; node = node->getParent())
-    {
-        if (dynamic_cast<Scene*>(node) != nullptr)
-        {
-            (dynamic_cast<Scene*>(node))->addChildToPhysicsWorld(child);
-            break;
-        }
-    }
-#endif
-    
     child->setTag(tag);
     
     child->setParent(this);
     child->setOrderOfArrival(s_globalOrderOfArrival++);
+    
+#if CC_USE_PHYSICS
+    // Recursive add children with which have physics body.
+    for (Node* node = this; node != nullptr; node = node->getParent())
+    {
+        Scene* scene = dynamic_cast<Scene*>(node);
+        if (scene != nullptr && scene->getPhysicsWorld() != nullptr)
+        {
+            scene->addChildToPhysicsWorld(child);
+            break;
+        }
+    }
+#endif
     
     if( _running )
     {
@@ -271,7 +268,7 @@ void ProtectedNode::reorderProtectedChild(cocos2d::Node *child, int localZOrder)
     child->_setLocalZOrder(localZOrder);
 }
 
-void ProtectedNode::visit(Renderer* renderer, const kmMat4 &parentTransform, bool parentTransformUpdated)
+void ProtectedNode::visit(Renderer* renderer, const Mat4 &parentTransform, uint32_t parentFlags)
 {
     // quick return if not visible. children won't be drawn.
     if (!_visible)
@@ -279,17 +276,15 @@ void ProtectedNode::visit(Renderer* renderer, const kmMat4 &parentTransform, boo
         return;
     }
     
-    bool dirty = _transformUpdated || parentTransformUpdated;
-    if(dirty)
-        _modelViewTransform = this->transform(parentTransform);
-    _transformUpdated = false;
-    
+    uint32_t flags = processParentFlags(parentTransform, parentFlags);
     
     // IMPORTANT:
-    // To ease the migration to v3.0, we still support the kmGL stack,
+    // To ease the migration to v3.0, we still support the Mat4 stack,
     // but it is deprecated and your code should not rely on it
-    kmGLPushMatrix();
-    kmGLLoadMatrix(&_modelViewTransform);
+    Director* director = Director::getInstance();
+    CCASSERT(nullptr != director, "Director is null when seting matrix stack");
+    director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+    director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
     
     int i = 0;      // used by _children
     int j = 0;      // used by _protectedChildren
@@ -305,7 +300,7 @@ void ProtectedNode::visit(Renderer* renderer, const kmMat4 &parentTransform, boo
         auto node = _children.at(i);
         
         if ( node && node->getLocalZOrder() < 0 )
-            node->visit(renderer, _modelViewTransform, dirty);
+            node->visit(renderer, _modelViewTransform, flags);
         else
             break;
     }
@@ -315,7 +310,7 @@ void ProtectedNode::visit(Renderer* renderer, const kmMat4 &parentTransform, boo
         auto node = _protectedChildren.at(j);
         
         if ( node && node->getLocalZOrder() < 0 )
-            node->visit(renderer, _modelViewTransform, dirty);
+            node->visit(renderer, _modelViewTransform, flags);
         else
             break;
     }
@@ -323,25 +318,33 @@ void ProtectedNode::visit(Renderer* renderer, const kmMat4 &parentTransform, boo
     //
     // draw self
     //
-    this->draw(renderer, _modelViewTransform, dirty);
+    this->draw(renderer, _modelViewTransform, flags);
     
     //
     // draw children and protectedChildren zOrder >= 0
     //
     for(auto it=_protectedChildren.cbegin()+j; it != _protectedChildren.cend(); ++it)
-        (*it)->visit(renderer, _modelViewTransform, dirty);
+        (*it)->visit(renderer, _modelViewTransform, flags);
     
     for(auto it=_children.cbegin()+i; it != _children.cend(); ++it)
-        (*it)->visit(renderer, _modelViewTransform, dirty);
+        (*it)->visit(renderer, _modelViewTransform, flags);
     
     // reset for next frame
     _orderOfArrival = 0;
     
-    kmGLPopMatrix();
+    director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 }
 
 void ProtectedNode::onEnter()
 {
+#if CC_ENABLE_SCRIPT_BINDING
+    if (_scriptType == kScriptTypeJavascript)
+    {
+        if (ScriptEngineManager::sendNodeEventToJSExtended(this, kNodeOnEnter))
+            return;
+    }
+#endif
+    
     Node::onEnter();
     for( const auto &child: _protectedChildren)
         child->onEnter();

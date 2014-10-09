@@ -26,10 +26,10 @@ THE SOFTWARE.
 #ifndef __CCMOTION_STREAK_H__
 #define __CCMOTION_STREAK_H__
 
-#include "CCProtocols.h"
-#include "CCTexture2D.h"
-#include "ccTypes.h"
-#include "CCNode.h"
+#include "base/CCProtocols.h"
+#include "renderer/CCTexture2D.h"
+#include "base/ccTypes.h"
+#include "2d/CCNode.h"
 #include "renderer/CCCustomCommand.h"
 #ifdef EMSCRIPTEN
 #include "CCGLBufferedNode.h"
@@ -73,9 +73,9 @@ public:
     }
 
     // Overrides
-    virtual void setPosition(const Point& position) override;
+    virtual void setPosition(const Vec2& position) override;
     virtual void setPosition(float x, float y) override;
-    virtual const Point& getPosition() const override;
+    virtual const Vec2& getPosition() const override;
     virtual void getPosition(float* x, float* y) const override;
     virtual void setPositionX(float x) override;
     virtual void setPositionY(float y) override;
@@ -85,7 +85,7 @@ public:
     * @js NA
     * @lua NA
     */
-    virtual void draw(Renderer *renderer, const kmMat4 &transform, bool transformUpdated) override;
+    virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
     /**
     * @js NA
     * @lua NA
@@ -120,7 +120,7 @@ CC_CONSTRUCTOR_ACCESS:
 
 protected:
     //renderer callback
-    void onDraw(const kmMat4 &transform, bool transformUpdated);
+    void onDraw(const Mat4 &transform, uint32_t flags);
 
     bool _fastMode;
     bool _startingPositionInitialized;
@@ -128,7 +128,7 @@ protected:
     /** texture used for the motion streak */
     Texture2D* _texture;
     BlendFunc _blendFunc;
-    Point _positionR;
+    Vec2 _positionR;
 
     float _stroke;
     float _fadeDelta;
@@ -139,11 +139,11 @@ protected:
     unsigned int _previousNuPoints;
 
     /** Pointers */
-    Point* _pointVertexes;
+    Vec2* _pointVertexes;
     float* _pointState;
 
     // Opengl
-    Vertex2F* _vertices;
+    Vec2* _vertices;
     GLubyte* _colorPointer;
     Tex2F* _texCoords;
     

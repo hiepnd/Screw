@@ -48,7 +48,7 @@ ControlPotentiometer::~ControlPotentiometer()
 ControlPotentiometer* ControlPotentiometer::create(const char* backgroundFile, const char* progressFile, const char* thumbFile)
 {
     ControlPotentiometer* pRet = new ControlPotentiometer();
-    if (pRet != NULL)
+    if (pRet != nullptr)
     {
         // Prepare track for potentiometer
         Sprite *backgroundSprite      = Sprite::create(backgroundFile);
@@ -97,7 +97,7 @@ bool ControlPotentiometer::initWithTrackSprite_ProgressTimer_ThumbSprite(Sprite*
 void ControlPotentiometer::setEnabled(bool enabled)
 {
     Control::setEnabled(enabled);
-    if (_thumbSprite != NULL)
+    if (_thumbSprite != nullptr)
     {
         _thumbSprite->setOpacity((enabled) ? 255 : 128);
     }
@@ -167,7 +167,7 @@ float ControlPotentiometer::getMaximumValue()
 
 bool ControlPotentiometer::isTouchInside(Touch * touch)
 {
-    Point touchLocation   = this->getTouchLocation(touch);
+    Vec2 touchLocation   = this->getTouchLocation(touch);
     
     float distance          = this->distanceBetweenPointAndPoint(_progressTimer->getPosition(), touchLocation);
 
@@ -190,17 +190,17 @@ bool ControlPotentiometer::onTouchBegan(Touch *pTouch, Event *pEvent)
 
 void ControlPotentiometer::onTouchMoved(Touch *pTouch, Event *pEvent)
 {
-    Point location    = this->getTouchLocation(pTouch);
+    Vec2 location    = this->getTouchLocation(pTouch);
 
     this->potentiometerMoved(location);
 }
 
 void ControlPotentiometer::onTouchEnded(Touch *pTouch, Event *pEvent)
 {
-    this->potentiometerEnded(Point::ZERO);
+    this->potentiometerEnded(Vec2::ZERO);
 }
 
-float ControlPotentiometer::distanceBetweenPointAndPoint(Point point1, Point point2)
+float ControlPotentiometer::distanceBetweenPointAndPoint(Vec2 point1, Vec2 point2)
 {
     float dx = point1.x - point2.x;
     float dy = point1.y - point2.y;
@@ -208,10 +208,10 @@ float ControlPotentiometer::distanceBetweenPointAndPoint(Point point1, Point poi
 }
 
 float ControlPotentiometer::angleInDegreesBetweenLineFromPoint_toPoint_toLineFromPoint_toPoint(
-    Point beginLineA, 
-    Point endLineA,
-    Point beginLineB,
-    Point endLineB)
+    Vec2 beginLineA, 
+    Vec2 endLineA,
+    Vec2 beginLineB,
+    Vec2 endLineB)
 {
     float a = endLineA.x - beginLineA.x;
     float b = endLineA.y - beginLineA.y;
@@ -225,13 +225,13 @@ float ControlPotentiometer::angleInDegreesBetweenLineFromPoint_toPoint_toLineFro
     return (atanA - atanB) * 180 / M_PI;
 }
 
-void ControlPotentiometer::potentiometerBegan(Point location)
+void ControlPotentiometer::potentiometerBegan(Vec2 location)
 {
     setSelected(true);
     getThumbSprite()->setColor(Color3B::GRAY);
 }
 
-void ControlPotentiometer::potentiometerMoved(Point location)
+void ControlPotentiometer::potentiometerMoved(Vec2 location)
 {
     float angle       = this->angleInDegreesBetweenLineFromPoint_toPoint_toLineFromPoint_toPoint(
         _progressTimer->getPosition(),
@@ -254,7 +254,7 @@ void ControlPotentiometer::potentiometerMoved(Point location)
     _previousLocation    = location;
 }
 
-void ControlPotentiometer::potentiometerEnded(Point location)
+void ControlPotentiometer::potentiometerEnded(Vec2 location)
 {
     getThumbSprite()->setColor(Color3B::WHITE);
     setSelected(false);

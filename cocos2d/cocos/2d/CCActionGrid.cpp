@@ -23,10 +23,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#include "CCActionGrid.h"
-#include "CCDirector.h"
-#include "CCGrid.h"
-#include "CCNodeGrid.h"
+
+#include "2d/CCActionGrid.h"
+
+#include "2d/CCGrid.h"
+#include "2d/CCNodeGrid.h"
+#include "base/CCDirector.h"
 
 NS_CC_BEGIN
 // implementation of GridAction
@@ -103,19 +105,19 @@ GridBase* Grid3DAction::getGrid()
     return Grid3D::create(_gridSize);
 }
 
-Vertex3F Grid3DAction::getVertex(const Point& position) const
+Vec3 Grid3DAction::getVertex(const Vec2& position) const
 {
     Grid3D *g = (Grid3D*)_gridNodeTarget->getGrid();
     return g->getVertex(position);
 }
 
-Vertex3F Grid3DAction::getOriginalVertex(const Point& position) const
+Vec3 Grid3DAction::getOriginalVertex(const Vec2& position) const
 {
     Grid3D *g = (Grid3D*)_gridNodeTarget->getGrid();
     return g->getOriginalVertex(position);
 }
 
-void Grid3DAction::setVertex(const Point& position, const Vertex3F& vertex)
+void Grid3DAction::setVertex(const Vec2& position, const Vec3& vertex)
 {
     Grid3D *g = (Grid3D*)_gridNodeTarget->getGrid();
     g->setVertex(position, vertex);
@@ -128,19 +130,19 @@ GridBase* TiledGrid3DAction::getGrid(void)
     return TiledGrid3D::create(_gridSize);
 }
 
-Quad3 TiledGrid3DAction::getTile(const Point& pos) const
+Quad3 TiledGrid3DAction::getTile(const Vec2& pos) const
 {
     TiledGrid3D *g = (TiledGrid3D*)_gridNodeTarget->getGrid();
     return g->getTile(pos);
 }
 
-Quad3 TiledGrid3DAction::getOriginalTile(const Point& pos) const
+Quad3 TiledGrid3DAction::getOriginalTile(const Vec2& pos) const
 {
     TiledGrid3D *g = (TiledGrid3D*)_gridNodeTarget->getGrid();
     return g->getOriginalTile(pos);
 }
 
-void TiledGrid3DAction::setTile(const Point& pos, const Quad3& coords)
+void TiledGrid3DAction::setTile(const Vec2& pos, const Quad3& coords)
 {
     TiledGrid3D *g = (TiledGrid3D*)_gridNodeTarget->getGrid();
     return g->setTile(pos, coords);
@@ -261,7 +263,7 @@ AccelAmplitude* AccelAmplitude::clone() const
 	return a;
 }
 
-AccelAmplitude::~AccelAmplitude(void)
+AccelAmplitude::~AccelAmplitude()
 {
     CC_SAFE_DELETE(_other);
 }

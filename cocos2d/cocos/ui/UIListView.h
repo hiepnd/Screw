@@ -31,17 +31,6 @@ THE SOFTWARE.
 NS_CC_BEGIN
 
 namespace ui{
-
-typedef enum
-{
-    LISTVIEW_GRAVITY_LEFT,
-    LISTVIEW_GRAVITY_RIGHT,
-    LISTVIEW_GRAVITY_CENTER_HORIZONTAL,
-    
-    LISTVIEW_GRAVITY_TOP,
-    LISTVIEW_GRAVITY_BOTTOM,
-    LISTVIEW_GRAVITY_CENTER_VERTICAL,
-}ListViewGravity;
     
 typedef enum
 {
@@ -58,6 +47,23 @@ class ListView : public ScrollView
     DECLARE_CLASS_GUI_INFO
     
 public:
+    enum class Gravity
+    {
+        LEFT,
+        RIGHT,
+        CENTER_HORIZONTAL,
+        TOP,
+        BOTTOM,
+        CENTER_VERTICAL
+    };
+    
+    enum class EventType
+    {
+        ON_SELECTED_ITEM_START,
+        ON_SELECTED_ITEM_END
+    };
+    
+    typedef std::function<void(Ref*, EventType)> ccListViewCallback;
     
     /**
      * Default constructor
@@ -124,7 +130,7 @@ public:
      *
      * @return the item widget.
      */
-    Widget* getItem(ssize_t index);
+    Widget* getItem(ssize_t index)const;
     
     /**
      * Returns the item container.
@@ -144,7 +150,7 @@ public:
      * Changes the gravity of listview.
      * @see ListViewGravity
      */
-    void setGravity(ListViewGravity gravity);
+    void setGravity(Gravity gravity);
     
     /**
      * Changes the margin between each item.
@@ -153,22 +159,32 @@ public:
      */
     void setItemsMargin(float margin);
     
-    float getItemsMargin();
+    float getItemsMargin()const;
     
-    virtual void sortAllChildren() override;
+    virtual void doLayout() override;
+    
+    virtual void addChild(Node* child)override;
+    virtual void addChild(Node * child, int localZOrder)override;
+    virtual void addChild(Node* child, int zOrder, int tag) override;
+    virtual void addChild(Node* child, int zOrder, const std::string &name) override;
+    virtual void removeAllChildren() override;
+    virtual void removeAllChildrenWithCleanup(bool cleanup) override;
+	virtual void removeChild(Node* child, bool cleaup = true) override;
     
     ssize_t getCurSelectedIndex() const;
     
-    void addEventListenerListView(Ref* target, SEL_ListViewEvent selector);
-    
+    CC_DEPRECATED_ATTRIBUTE void addEventListenerListView(Ref* target, SEL_ListViewEvent selector);
+    void addEventListener(const ccListViewCallback& callback);
+    using ScrollView::addEventListener;
+
     /**
      * Changes scroll direction of scrollview.
      *
-     * @see SCROLLVIEW_DIR      SCROLLVIEW_DIR_VERTICAL means vertical scroll, SCROLLVIEW_DIR_HORIZONTAL means horizontal scroll
+     * @see Direction Direction::VERTICAL means vertical scroll, Direction::HORIZONTAL means horizontal scroll
      *
-     * @param SCROLLVIEW_DIR
+     * @param dir, set the list view's scroll direction
      */
-    virtual void setDirection(SCROLLVIEW_DIR dir) override;
+    virtual void setDirection(Direction dir) override;
     
     virtual std::string getDescription() const override;
     
@@ -179,36 +195,41 @@ CC_CONSTRUCTOR_ACCESS:
     virtual bool init() override;
     
 protected:
-    virtual void addChild(Node* child) override{ScrollView::addChild(child);};
-    virtual void addChild(Node * child, int zOrder) override{ScrollView::addChild(child, zOrder);};
-    virtual void addChild(Node* child, int zOrder, int tag) override{ScrollView::addChild(child, zOrder, tag);};
-    virtual void removeChild(Node* widget, bool cleanup = true) override{ScrollView::removeChild(widget, cleanup);};
     
-    virtual void removeAllChildren() override{removeAllChildrenWithCleanup(true);};
-    virtual void removeAllChildrenWithCleanup(bool cleanup) override {ScrollView::removeAllChildrenWithCleanup(cleanup);};
-    virtual Vector<Node*>& getChildren() override{return ScrollView::getChildren();};
-    virtual const Vector<Node*>& getChildren() const override{return ScrollView::getChildren();};
-    virtual ssize_t getChildrenCount() const override {return ScrollView::getChildrenCount();};
-    virtual Node * getChildByTag(int tag) override {return ScrollView::getChildByTag(tag);};
-    virtual Widget* getChildByName(const char* name) override {return ScrollView::getChildByName(name);};
     void updateInnerContainerSize();
     void remedyLayoutParameter(Widget* item);
     virtual void onSizeChanged() override;
     virtual Widget* createCloneInstance() override;
     virtual void copySpecialProperties(Widget* model) override;
     virtual void copyClonedWidgetChildren(Widget* model) override;
-    void selectedItemEvent(int state);
-    virtual void interceptTouchEvent(int handleState,Widget* sender,const Point &touchPoint) override;
+    void selectedItemEvent(TouchEventType event);
+    virtual void interceptTouchEvent(Widget::TouchEventType event,Widget* sender,Touch* touch) override;
 protected:
-    
     Widget* _model;
+    
     Vector<Widget*> _items;
-    ListViewGravity _gravity;
+    
+    Gravity _gravity;
+    
     float _itemsMargin;
-    Ref*       _listViewEventListener;
-    SEL_ListViewEvent    _listViewEventSelector;
+    
     ssize_t _curSelectedIndex;
     bool _refreshViewDirty;
+    
+    Ref*       _listViewEventListener;
+#if defined(__GNUC__) && ((__GNUC__ >= 4) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#elif _MSC_VER >= 1400 //vs 2005 or higher
+#pragma warning (push)
+#pragma warning (disable: 4996)
+#endif
+    SEL_ListViewEvent    _listViewEventSelector;
+#if defined(__GNUC__) && ((__GNUC__ >= 4) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
+#pragma GCC diagnostic warning "-Wdeprecated-declarations"
+#elif _MSC_VER >= 1400 //vs 2005 or higher
+#pragma warning (pop)
+#endif
+    ccListViewCallback _eventCallback;
 };
 
 }

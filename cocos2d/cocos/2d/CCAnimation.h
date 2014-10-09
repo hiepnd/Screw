@@ -27,12 +27,12 @@ THE SOFTWARE.
 #ifndef __CC_ANIMATION_H__
 #define __CC_ANIMATION_H__
 
-#include "CCPlatformConfig.h"
-#include "CCRef.h"
-#include "CCValue.h"
-#include "CCGeometry.h"
-#include "CCSpriteFrame.h"
-#include "CCVector.h"
+#include "base/CCPlatformConfig.h"
+#include "base/CCRef.h"
+#include "base/CCValue.h"
+#include "math/CCGeometry.h"
+#include "2d/CCSpriteFrame.h"
+#include "base/CCVector.h"
 
 #include <string>
 
@@ -57,6 +57,13 @@ class SpriteFrame;
 class CC_DLL AnimationFrame : public Ref, public Clonable
 {
 public:
+    
+    struct DisplayedEventInfo
+    {
+        Node* target;
+        const ValueMap* userInfo;
+    };
+    
     /**
      * Creates the animation frame with a spriteframe, number of delay units and a notification user info
      * @since 3.0

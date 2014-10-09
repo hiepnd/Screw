@@ -24,35 +24,34 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#include "CCSprite.h"
-#include "CCSpriteBatchNode.h"
-#include "CCAnimation.h"
-#include "CCAnimationCache.h"
-#include "ccConfig.h"
-#include "CCSpriteFrame.h"
-#include "CCSpriteFrameCache.h"
-#include "CCTextureCache.h"
-#include "CCDrawingPrimitives.h"
-#include "CCShaderCache.h"
-#include "ccGLStateCache.h"
-#include "CCGLProgram.h"
-#include "CCDirector.h"
-#include "CCGeometry.h"
-#include "CCTexture2D.h"
-#include "CCAffineTransform.h"
-#include "TransformUtils.h"
-#include "CCProfiling.h"
-#include "CCDirector.h"
-#include "renderer/CCRenderer.h"
-#include "renderer/CCFrustum.h"
 
-// external
-#include "kazmath/GL/matrix.h"
-#include "kazmath/kazmath.h"
-#include "deprecated/CCString.h"
+#include "2d/CCSprite.h"
 
 #include <string.h>
 #include <algorithm>
+
+#include "2d/CCSpriteBatchNode.h"
+#include "2d/CCAnimation.h"
+#include "2d/CCAnimationCache.h"
+#include "2d/CCSpriteFrame.h"
+#include "2d/CCSpriteFrameCache.h"
+#include "2d/CCDrawingPrimitives.h"
+#include "renderer/CCTextureCache.h"
+#include "renderer/CCTexture2D.h"
+#include "renderer/CCGLProgramState.h"
+#include "renderer/ccGLStateCache.h"
+#include "renderer/CCGLProgram.h"
+#include "renderer/CCRenderer.h"
+#include "base/CCProfiling.h"
+#include "base/CCDirector.h"
+#include "base/CCDirector.h"
+#include "base/ccConfig.h"
+#include "math/CCGeometry.h"
+#include "math/CCAffineTransform.h"
+#include "math/TransformUtils.h"
+
+#include "deprecated/CCString.h"
+
 
 NS_CC_BEGIN
 
@@ -64,7 +63,7 @@ NS_CC_BEGIN
 
 Sprite* Sprite::createWithTexture(Texture2D *texture)
 {
-    Sprite *sprite = new Sprite();
+    Sprite *sprite = new (std::nothrow) Sprite();
     if (sprite && sprite->initWithTexture(texture))
     {
         sprite->autorelease();
@@ -76,7 +75,7 @@ Sprite* Sprite::createWithTexture(Texture2D *texture)
 
 Sprite* Sprite::createWithTexture(Texture2D *texture, const Rect& rect, bool rotated)
 {
-    Sprite *sprite = new Sprite();
+    Sprite *sprite = new (std::nothrow) Sprite();
     if (sprite && sprite->initWithTexture(texture, rect, rotated))
     {
         sprite->autorelease();
@@ -88,7 +87,7 @@ Sprite* Sprite::createWithTexture(Texture2D *texture, const Rect& rect, bool rot
 
 Sprite* Sprite::create(const std::string& filename)
 {
-    Sprite *sprite = new Sprite();
+    Sprite *sprite = new (std::nothrow) Sprite();
     if (sprite && sprite->initWithFile(filename))
     {
         sprite->autorelease();
@@ -100,7 +99,7 @@ Sprite* Sprite::create(const std::string& filename)
 
 Sprite* Sprite::create(const std::string& filename, const Rect& rect)
 {
-    Sprite *sprite = new Sprite();
+    Sprite *sprite = new (std::nothrow) Sprite();
     if (sprite && sprite->initWithFile(filename, rect))
     {
         sprite->autorelease();
@@ -112,8 +111,8 @@ Sprite* Sprite::create(const std::string& filename, const Rect& rect)
 
 Sprite* Sprite::createWithSpriteFrame(SpriteFrame *spriteFrame)
 {
-    Sprite *sprite = new Sprite();
-    if (spriteFrame && sprite && sprite->initWithSpriteFrame(spriteFrame))
+    Sprite *sprite = new (std::nothrow) Sprite();
+    if (sprite && spriteFrame && sprite->initWithSpriteFrame(spriteFrame))
     {
         sprite->autorelease();
         return sprite;
@@ -137,7 +136,7 @@ Sprite* Sprite::createWithSpriteFrameName(const std::string& spriteFrameName)
 
 Sprite* Sprite::create()
 {
-    Sprite *sprite = new Sprite();
+    Sprite *sprite = new (std::nothrow) Sprite();
     if (sprite && sprite->init())
     {
         sprite->autorelease();
@@ -237,10 +236,10 @@ bool Sprite::initWithTexture(Texture2D *texture, const Rect& rect, bool rotated)
         _flippedX = _flippedY = false;
         
         // default transform anchor: center
-        setAnchorPoint(Point(0.5f, 0.5f));
+        setAnchorPoint(Vec2(0.5f, 0.5f));
         
         // zwoptex default values
-        _offsetPosition = Point::ZERO;
+        _offsetPosition = Vec2::ZERO;
 
         // clean the Quad
         memset(&_quad, 0, sizeof(_quad));
@@ -251,9 +250,9 @@ bool Sprite::initWithTexture(Texture2D *texture, const Rect& rect, bool rotated)
         _quad.tl.colors = Color4B::WHITE;
         _quad.tr.colors = Color4B::WHITE;
         
-        // shader program
-        setShaderProgram(ShaderCache::getInstance()->getProgram(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR_NO_MVP));
-        
+        // shader state
+        setGLProgramState(GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR_NO_MVP));
+
         // update texture (calls updateBlendFunc)
         setTexture(texture);
         setTextureRect(rect, rotated, rect.size);
@@ -370,7 +369,7 @@ void Sprite::setTextureRect(const Rect& rect, bool rotated, const Size& untrimme
     setVertexRect(rect);
     setTextureCoords(rect);
 
-    Point relativeOffset = _unflippedOffsetPositionFromCenter;
+    Vec2 relativeOffset = _unflippedOffsetPositionFromCenter;
 
     // issue #732
     if (_flippedX)
@@ -402,10 +401,10 @@ void Sprite::setTextureRect(const Rect& rect, bool rotated, const Size& untrimme
         float y2 = y1 + _rect.size.height;
 
         // Don't update Z.
-        _quad.bl.vertices = Vertex3F(x1, y1, 0);
-        _quad.br.vertices = Vertex3F(x2, y1, 0);
-        _quad.tl.vertices = Vertex3F(x1, y2, 0);
-        _quad.tr.vertices = Vertex3F(x2, y2, 0);
+        _quad.bl.vertices = Vec3(x1, y1, 0);
+        _quad.br.vertices = Vec3(x2, y1, 0);
+        _quad.tl.vertices = Vec3(x1, y2, 0);
+        _quad.tr.vertices = Vec3(x2, y2, 0);
     }
 }
 
@@ -508,7 +507,7 @@ void Sprite::updateTransform(void)
         // If it is not visible, or one of its ancestors is not visible, then do nothing:
         if( !_visible || ( _parent && _parent != _batchNode && static_cast<Sprite*>(_parent)->_shouldBeHidden) )
         {
-            _quad.br.vertices = _quad.tl.vertices = _quad.tr.vertices = _quad.bl.vertices = Vertex3F(0,0,0);
+            _quad.br.vertices = _quad.tl.vertices = _quad.tr.vertices = _quad.bl.vertices = Vec3(0,0,0);
             _shouldBeHidden = true;
         }
         else
@@ -522,29 +521,29 @@ void Sprite::updateTransform(void)
             else
             {
                 CCASSERT( dynamic_cast<Sprite*>(_parent), "Logic error in Sprite. Parent must be a Sprite");
-                kmMat4 nodeToParent = getNodeToParentTransform();
-                kmMat4 parentTransform = static_cast<Sprite*>(_parent)->_transformToBatch;
-                kmMat4Multiply(&_transformToBatch, &parentTransform, &nodeToParent);
+                const Mat4 &nodeToParent = getNodeToParentTransform();
+                Mat4 &parentTransform = static_cast<Sprite*>(_parent)->_transformToBatch;
+                _transformToBatch = parentTransform * nodeToParent;
             }
 
             //
             // calculate the Quad based on the Affine Matrix
             //
 
-            Size size = _rect.size;
+            Size &size = _rect.size;
 
             float x1 = _offsetPosition.x;
             float y1 = _offsetPosition.y;
 
             float x2 = x1 + size.width;
             float y2 = y1 + size.height;
-            float x = _transformToBatch.mat[12];
-            float y = _transformToBatch.mat[13];
+            float x = _transformToBatch.m[12];
+            float y = _transformToBatch.m[13];
 
-            float cr = _transformToBatch.mat[0];
-            float sr = _transformToBatch.mat[1];
-            float cr2 = _transformToBatch.mat[5];
-            float sr2 = -_transformToBatch.mat[4];
+            float cr = _transformToBatch.m[0];
+            float sr = _transformToBatch.m[1];
+            float cr2 = _transformToBatch.m[5];
+            float sr2 = -_transformToBatch.m[4];
             float ax = x1 * cr - y1 * sr2 + x;
             float ay = x1 * sr + y1 * cr2 + y;
 
@@ -557,10 +556,10 @@ void Sprite::updateTransform(void)
             float dx = x1 * cr - y2 * sr2 + x;
             float dy = x1 * sr + y2 * cr2 + y;
 
-            _quad.bl.vertices = Vertex3F( RENDER_IN_SUBPIXEL(ax), RENDER_IN_SUBPIXEL(ay), _positionZ );
-            _quad.br.vertices = Vertex3F( RENDER_IN_SUBPIXEL(bx), RENDER_IN_SUBPIXEL(by), _positionZ );
-            _quad.tl.vertices = Vertex3F( RENDER_IN_SUBPIXEL(dx), RENDER_IN_SUBPIXEL(dy), _positionZ );
-            _quad.tr.vertices = Vertex3F( RENDER_IN_SUBPIXEL(cx), RENDER_IN_SUBPIXEL(cy), _positionZ );
+            _quad.bl.vertices = Vec3( RENDER_IN_SUBPIXEL(ax), RENDER_IN_SUBPIXEL(ay), _positionZ );
+            _quad.br.vertices = Vec3( RENDER_IN_SUBPIXEL(bx), RENDER_IN_SUBPIXEL(by), _positionZ );
+            _quad.tl.vertices = Vec3( RENDER_IN_SUBPIXEL(dx), RENDER_IN_SUBPIXEL(dy), _positionZ );
+            _quad.tr.vertices = Vec3( RENDER_IN_SUBPIXEL(cx), RENDER_IN_SUBPIXEL(cy), _positionZ );
         }
 
         // MARMALADE CHANGE: ADDED CHECK FOR nullptr, TO PERMIT SPRITES WITH NO BATCH NODE / TEXTURE ATLAS
@@ -586,14 +585,14 @@ void Sprite::updateTransform(void)
 
 // draw
 
-void Sprite::draw(Renderer *renderer, const kmMat4 &transform, bool transformUpdated)
+void Sprite::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
 {
     // Don't do calculate the culling if the transform was not updated
-    _insideBounds = transformUpdated ? renderer->checkVisibility(transform, _contentSize) : _insideBounds;
+    _insideBounds = (flags & FLAGS_TRANSFORM_DIRTY) ? renderer->checkVisibility(transform, _contentSize) : _insideBounds;
 
     if(_insideBounds)
     {
-        _quadCommand.init(_globalZOrder, _texture->getName(), _shaderProgram, _blendFunc, &_quad, 1, transform);
+        _quadCommand.init(_globalZOrder, _texture->getName(), getGLProgramState(), _blendFunc, &_quad, 1, transform);
         renderer->addCommand(&_quadCommand);
 #if CC_SPRITE_DEBUG_DRAW
         _customDebugDrawCommand.init(_globalZOrder);
@@ -605,19 +604,21 @@ void Sprite::draw(Renderer *renderer, const kmMat4 &transform, bool transformUpd
 #if CC_SPRITE_DEBUG_DRAW
 void Sprite::drawDebugData()
 {
-    kmMat4 oldModelView;
-    kmGLGetMatrix(KM_GL_MODELVIEW, &oldModelView);
-    kmGLLoadMatrix(&_modelViewTransform);
+    Director* director = Director::getInstance();
+    CCASSERT(nullptr != director, "Director is null when seting matrix stack");
+    Mat4 oldModelView;
+    oldModelView = director->getMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+    director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
     // draw bounding box
-    Point vertices[4] = {
-        Point( _quad.bl.vertices.x, _quad.bl.vertices.y ),
-        Point( _quad.br.vertices.x, _quad.br.vertices.y ),
-        Point( _quad.tr.vertices.x, _quad.tr.vertices.y ),
-        Point( _quad.tl.vertices.x, _quad.tl.vertices.y ),
+    Vec2 vertices[4] = {
+        Vec2( _quad.bl.vertices.x, _quad.bl.vertices.y ),
+        Vec2( _quad.br.vertices.x, _quad.br.vertices.y ),
+        Vec2( _quad.tr.vertices.x, _quad.tr.vertices.y ),
+        Vec2( _quad.tl.vertices.x, _quad.tl.vertices.y ),
     };
     DrawPrimitives::drawPoly(vertices, 4, true);
     
-    kmGLLoadMatrix(&oldModelView);
+    director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, oldModelView);
 }
 #endif //CC_SPRITE_DEBUG_DRAW
 
@@ -641,6 +642,27 @@ void Sprite::addChild(Node *child, int zOrder, int tag)
     }
     //CCNode already sets isReorderChildDirty_ so this needs to be after batchNode check
     Node::addChild(child, zOrder, tag);
+}
+
+void Sprite::addChild(Node *child, int zOrder, const std::string &name)
+{
+    CCASSERT(child != nullptr, "Argument must be non-nullptr");
+    
+    if (_batchNode)
+    {
+        Sprite* childSprite = dynamic_cast<Sprite*>(child);
+        CCASSERT( childSprite, "CCSprite only supports Sprites as children when using SpriteBatchNode");
+        CCASSERT(childSprite->getTexture()->getName() == _textureAtlas->getTexture()->getName(), "");
+        //put it in descendants array of batch node
+        _batchNode->appendChild(childSprite);
+        
+        if (!_reorderChildDirty)
+        {
+            setReorderChildDirtyRecursively();
+        }
+    }
+    //CCNode already sets isReorderChildDirty_ so this needs to be after batchNode check
+    Node::addChild(child, zOrder, name);
 }
 
 void Sprite::reorderChild(Node *child, int zOrder)
@@ -743,7 +765,7 @@ void Sprite::setDirtyRecursively(bool bValue)
                         }                               \
                     }
 
-void Sprite::setPosition(const Point& pos)
+void Sprite::setPosition(const Vec2& pos)
 {
     Node::setPosition(pos);
     SET_DIRTY_RECURSIVELY();
@@ -816,7 +838,7 @@ void Sprite::setPositionZ(float fVertexZ)
     SET_DIRTY_RECURSIVELY();
 }
 
-void Sprite::setAnchorPoint(const Point& anchor)
+void Sprite::setAnchorPoint(const Vec2& anchor)
 {
     Node::setAnchorPoint(anchor);
     SET_DIRTY_RECURSIVELY();
@@ -997,15 +1019,15 @@ void Sprite::setBatchNode(SpriteBatchNode *spriteBatchNode)
         float y1 = _offsetPosition.y;
         float x2 = x1 + _rect.size.width;
         float y2 = y1 + _rect.size.height;
-        _quad.bl.vertices = Vertex3F( x1, y1, 0 );
-        _quad.br.vertices = Vertex3F( x2, y1, 0 );
-        _quad.tl.vertices = Vertex3F( x1, y2, 0 );
-        _quad.tr.vertices = Vertex3F( x2, y2, 0 );
+        _quad.bl.vertices = Vec3( x1, y1, 0 );
+        _quad.br.vertices = Vec3( x2, y1, 0 );
+        _quad.tl.vertices = Vec3( x1, y2, 0 );
+        _quad.tr.vertices = Vec3( x2, y2, 0 );
 
     } else {
 
         // using batch
-        kmMat4Identity(&_transformToBatch);
+        _transformToBatch = Mat4::IDENTITY;
         setTextureAtlas(_batchNode->getTextureAtlas()); // weak ref
     }
 }

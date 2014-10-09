@@ -29,8 +29,8 @@ THE SOFTWARE.
 
 #include "renderer/CCRenderer.h"
 #include "renderer/CCGroupCommand.h"
-#include "CCShaderCache.h"
-#include "CCDirector.h"
+#include "renderer/CCGLProgramState.h"
+#include "base/CCDirector.h"
 
 using namespace cocos2d;
 
@@ -61,24 +61,28 @@ BatchNode::~BatchNode()
 bool BatchNode::init()
 {
     bool ret = Node::init();
-    setShaderProgram(ShaderCache::getInstance()->getProgram(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR));
+    setGLProgramState(GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR));
 
     return ret;
-}
-
-void BatchNode::addChild(Node *pChild)
-{
-    Node::addChild(pChild);
-}
-
-void BatchNode::addChild(Node *child, int zOrder)
-{
-    Node::addChild(child, zOrder);
 }
 
 void BatchNode::addChild(Node *child, int zOrder, int tag)
 {
     Node::addChild(child, zOrder, tag);
+    Armature *armature = dynamic_cast<Armature *>(child);
+    if (armature != nullptr)
+    {
+        armature->setBatchNode(this);
+        if (_groupCommand == nullptr)
+        {
+            _groupCommand = new GroupCommand();
+        }
+    }
+}
+
+void BatchNode::addChild(cocos2d::Node *child, int zOrder, const std::string &name)
+{
+    Node::addChild(child, zOrder, name);
     Armature *armature = dynamic_cast<Armature *>(child);
     if (armature != nullptr)
     {
@@ -101,7 +105,7 @@ void BatchNode::removeChild(Node* child, bool cleanup)
     Node::removeChild(child, cleanup);
 }
 
-void BatchNode::visit(Renderer *renderer, const kmMat4 &parentTransform, bool parentTransformUpdated)
+void BatchNode::visit(Renderer *renderer, const Mat4 &parentTransform, uint32_t parentFlags)
 {
     // quick return if not visible. children won't be drawn.
     if (!_visible)
@@ -109,27 +113,25 @@ void BatchNode::visit(Renderer *renderer, const kmMat4 &parentTransform, bool pa
         return;
     }
 
-    bool dirty = parentTransformUpdated || _transformUpdated;
-    if(dirty)
-        _modelViewTransform = transform(parentTransform);
-    _transformUpdated = false;
+    uint32_t flags = processParentFlags(parentTransform, parentFlags);
 
     // IMPORTANT:
-    // To ease the migration to v3.0, we still support the kmGL stack,
+    // To ease the migration to v3.0, we still support the Mat4 stack,
     // but it is deprecated and your code should not rely on it
-    kmGLPushMatrix();
-    kmGLLoadMatrix(&_modelViewTransform);
+    Director* director = Director::getInstance();
+    director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+    director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
 
     sortAllChildren();
-    draw(renderer, _modelViewTransform, dirty);
+    draw(renderer, _modelViewTransform, flags);
 
     // reset for next frame
     _orderOfArrival = 0;
 
-    kmGLPopMatrix();
+    director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 }
 
-void BatchNode::draw(Renderer *renderer, const kmMat4 &transform, bool transformUpdated)
+void BatchNode::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
 {
     if (_children.empty())
     {
@@ -150,14 +152,14 @@ void BatchNode::draw(Renderer *renderer, const kmMat4 &transform, bool transform
                 pushed = true;
             }
         
-            armature->visit(renderer, transform, transformUpdated);
+            armature->visit(renderer, transform, flags);
         }
         else
         {
             renderer->popGroup();
             pushed = false;
             
-            ((Node *)object)->visit(renderer, transform, transformUpdated);
+            ((Node *)object)->visit(renderer, transform, flags);
         }
     }
 }

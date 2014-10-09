@@ -139,7 +139,7 @@ void RequestTable::onPhotoDownloaded(EventCustom *event) {
 }
 
 void RequestTable::updateFishCount() {
-    _fishCount->setString(string("You have ") + utils::StringUtils::toString(Settings::getInstance()->totalFish()) + string(" fish(es)"));
+    _fishCount->setString(string("You have ") + screw::utils::StringUtils::toString(Settings::getInstance()->totalFish()) + string(" fish(es)"));
 }
 
 Size RequestTable::cellSizeForTable(TableView *table) {

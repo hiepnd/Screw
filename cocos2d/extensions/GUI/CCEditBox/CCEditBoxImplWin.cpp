@@ -73,16 +73,16 @@ bool EditBoxImplWin::initWithSize(const Size& size)
     _label = Label::create();
     _label->setSystemFontSize(size.height-12);
 	// align the text vertically center
-    _label->setAnchorPoint(Point(0, 0.5f));
-    _label->setPosition(Point(5, size.height / 2.0f));
+    _label->setAnchorPoint(Vec2(0, 0.5f));
+    _label->setPosition(Vec2(5, size.height / 2.0f));
     _label->setColor(_colText);
     _editBox->addChild(_label);
 
     _labelPlaceHolder = Label::create();
     _labelPlaceHolder->setSystemFontSize(size.height-12);
 	// align the text vertically center
-    _labelPlaceHolder->setAnchorPoint(Point(0, 0.5f));
-    _labelPlaceHolder->setPosition(Point(5, size.height / 2.0f));
+    _labelPlaceHolder->setAnchorPoint(Vec2(0, 0.5f));
+    _labelPlaceHolder->setPosition(Vec2(5, size.height / 2.0f));
     _labelPlaceHolder->setVisible(false);
     _labelPlaceHolder->setColor(_colPlaceHolder);
     _editBox->addChild(_labelPlaceHolder);
@@ -93,12 +93,12 @@ bool EditBoxImplWin::initWithSize(const Size& size)
 
 void EditBoxImplWin::setFont(const char* pFontName, int fontSize)
 {
-	if(_label != NULL) {
+	if(_label != nullptr) {
 		_label->setSystemFontName(pFontName);
 		_label->setSystemFontSize(fontSize);
 	}
 	
-	if(_labelPlaceHolder != NULL) {
+	if(_labelPlaceHolder != nullptr) {
 		_labelPlaceHolder->setSystemFontName(pFontName);
 		_labelPlaceHolder->setSystemFontSize(fontSize);
 	}
@@ -112,7 +112,7 @@ void EditBoxImplWin::setFontColor(const Color3B& color)
 
 void EditBoxImplWin::setPlaceholderFont(const char* pFontName, int fontSize)
 {
-	if(_labelPlaceHolder != NULL) {
+	if(_labelPlaceHolder != nullptr) {
 		_labelPlaceHolder->setSystemFontName(pFontName);
 		_labelPlaceHolder->setSystemFontSize(fontSize);
 	}
@@ -156,7 +156,7 @@ bool EditBoxImplWin::isEditing()
 
 void EditBoxImplWin::setText(const char* pText)
 {
-    if (pText != NULL)
+    if (pText != nullptr)
     {
         _text = pText;
 
@@ -199,7 +199,7 @@ const char*  EditBoxImplWin::getText(void)
 
 void EditBoxImplWin::setPlaceHolder(const char* pText)
 {
-    if (pText != NULL)
+    if (pText != nullptr)
     {
         _placeHolder = pText;
         if (_placeHolder.length() > 0 && _text.length() == 0)
@@ -211,7 +211,7 @@ void EditBoxImplWin::setPlaceHolder(const char* pText)
     }
 }
 
-void EditBoxImplWin::setPosition(const Point& pos)
+void EditBoxImplWin::setPosition(const Vec2& pos)
 {
 	//_label->setPosition(pos);
 	//_labelPlaceHolder->setPosition(pos);
@@ -225,7 +225,7 @@ void EditBoxImplWin::setContentSize(const Size& size)
 {
 }
 
-void EditBoxImplWin::setAnchorPoint(const Point& anchorPoint)
+void EditBoxImplWin::setAnchorPoint(const Vec2& anchorPoint)
 { // don't need to be implemented on win32 platform.
 	
 }
@@ -236,13 +236,13 @@ void EditBoxImplWin::visit(void)
 
 void EditBoxImplWin::openKeyboard()
 {
-    if (_delegate != NULL)
+    if (_delegate != nullptr)
     {
         _delegate->editBoxEditingDidBegin(_editBox);
     }
     
     EditBox* pEditBox = this->getEditBox();
-    if (NULL != pEditBox && 0 != pEditBox->getScriptEditBoxHandler())
+    if (nullptr != pEditBox && 0 != pEditBox->getScriptEditBoxHandler())
     {
         CommonScriptData data(pEditBox->getScriptEditBoxHandler(), "began",pEditBox);
         ScriptEvent event(kCommonEvent,(void*)&data);
@@ -265,7 +265,7 @@ void EditBoxImplWin::openKeyboard()
 	if (didChange) 	
 		setText(pText);
 
-	if (_delegate != NULL) {
+	if (_delegate != nullptr) {
 		if (didChange)
 			_delegate->editBoxTextChanged(_editBox, getText());
 		_delegate->editBoxEditingDidEnd(_editBox);

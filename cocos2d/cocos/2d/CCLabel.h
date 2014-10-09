@@ -27,10 +27,10 @@
 #ifndef _COCOS2D_CCLABEL_H_
 #define _COCOS2D_CCLABEL_H_
 
-#include "CCSpriteBatchNode.h"
-#include "ccTypes.h"
+#include "2d/CCSpriteBatchNode.h"
+#include "base/ccTypes.h"
 #include "renderer/CCCustomCommand.h"
-#include "CCFontAtlas.h"
+#include "2d/CCFontAtlas.h"
 
 NS_CC_BEGIN
 
@@ -91,6 +91,7 @@ public:
 
     /** Creates a label with an initial string,font file,font size, dimension in points, horizontal alignment and vertical alignment.
      * @warning Not support font name.
+     * @warning Cache textures for each different font size or font file.
      */
     static Label * createWithTTF(const std::string& text, const std::string& fontFile, float fontSize,
         const Size& dimensions = Size::ZERO, TextHAlignment hAlignment = TextHAlignment::LEFT,
@@ -98,13 +99,15 @@ public:
 
     /** Create a label with TTF configuration
      * @warning Not support font name.
+     * @warning Cache textures for each different font file when enable distance field.
+     * @warning Cache textures for each different font size or font file when disable distance field.
      */
     static Label* createWithTTF(const TTFConfig& ttfConfig, const std::string& text, TextHAlignment alignment = TextHAlignment::LEFT, int maxLineWidth = 0);
     
     /* Creates a label with an FNT file,an initial string,horizontal alignment,max line width and the offset of image*/
     static Label* createWithBMFont(const std::string& bmfontFilePath, const std::string& text,
         const TextHAlignment& alignment = TextHAlignment::LEFT, int maxLineWidth = 0, 
-        const Point& imageOffset = Point::ZERO);
+        const Vec2& imageOffset = Vec2::ZERO);
     
     static Label * createWithCharMap(const std::string& charMapFile, int itemWidth, int itemHeight, int startCharMap);
     static Label * createWithCharMap(Texture2D* texture, int itemWidth, int itemHeight, int startCharMap);
@@ -114,7 +117,7 @@ public:
     virtual bool setTTFConfig(const TTFConfig& ttfConfig);
     virtual const TTFConfig& getTTFConfig() const { return _fontConfig;}
 
-    virtual bool setBMFontFilePath(const std::string& bmfontFilePath, const Point& imageOffset = Point::ZERO);
+    virtual bool setBMFontFilePath(const std::string& bmfontFilePath, const Vec2& imageOffset = Vec2::ZERO);
     const std::string& getBMFontFilePath() const { return _bmFontPath;}
 
     virtual bool setCharMap(const std::string& charMapFile, int itemWidth, int itemHeight, int startCharMap);
@@ -135,6 +138,17 @@ public:
     virtual void setString(const std::string& text) override;
 
     virtual const std::string& getString() const override {  return _originalUTF8String; }
+
+    /** Sets the text color of the label
+     * Only support for TTF and system font
+     * @warning Different from the color of Node.
+     */
+    virtual void setTextColor(const Color4B &color);
+    /** Returns the text color of this label
+     * Only support for TTF and system font
+     * @warning Different from the color of Node.
+     */
+    const Color4B& getTextColor() const { return _textColor;}
 
     /**
      * Enable shadow for the label
@@ -193,22 +207,34 @@ public:
     /** update content immediately.*/
     virtual void updateContent();
 
-    /** Sets the text color
-     *
-     */
-    virtual void setTextColor(const Color4B &color);
-
-    const Color4B& getTextColor() const { return _textColor;}
-
     virtual Sprite * getLetter(int lettetIndex);
 
     /** clip upper and lower margin for reduce height of label.
      */
     void setClipMarginEnabled(bool clipEnabled) { _clipEnabled = clipEnabled; }
     bool isClipMarginEnabled() const { return _clipEnabled; }
-    // font related stuff
-    int getCommonLineHeight() const;
-    
+
+    /** Sets the line height of the label
+      @warning Not support system font
+      @since v3.2.0
+     */
+    void setLineHeight(float height);
+    /** Returns the line height of this label
+      @warning Not support system font
+     */
+    float getLineHeight() const;
+
+    /** Sets the additional kerning of the label
+      @warning Not support system font
+      @since v3.2.0
+     */
+    void setAdditionalKerning(float space);
+    /** Returns the additional kerning of this label
+      @warning Not support system font
+      @since v3.2.0
+     */
+    float getAdditionalKerning() const;
+
     // string related stuff
     int getStringNumLines() const { return _currNumLines;}
     int getStringLength() const;
@@ -237,8 +263,8 @@ public:
 
     virtual Rect getBoundingBox() const override;
 
-    virtual void visit(Renderer *renderer, const kmMat4 &parentTransform, bool parentTransformUpdated) override;
-    virtual void draw(Renderer *renderer, const kmMat4 &transform, bool transformUpdated) override;
+    virtual void visit(Renderer *renderer, const Mat4 &parentTransform, uint32_t parentFlags) override;
+    virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
 
     CC_DEPRECATED_ATTRIBUTE static Label* create(const std::string& text, const std::string& font, float fontSize,
         const Size& dimensions = Size::ZERO, TextHAlignment hAlignment = TextHAlignment::LEFT,
@@ -247,14 +273,16 @@ public:
     CC_DEPRECATED_ATTRIBUTE virtual void setFontDefinition(const FontDefinition& textDefinition);
     CC_DEPRECATED_ATTRIBUTE const FontDefinition& getFontDefinition() const { return _fontDefinition; }
 
+    CC_DEPRECATED_ATTRIBUTE int getCommonLineHeight() const { return getLineHeight();}
+
 protected:
-    void onDraw(const kmMat4& transform, bool transformUpdated);
+    void onDraw(const Mat4& transform, bool transformUpdated);
 
     struct LetterInfo
     {
         FontLetterDefinition def;
 
-        Point position;
+        Vec2 position;
         Size  contentSize;
         int   atlasIndex;
     };
@@ -279,16 +307,15 @@ protected:
 
     virtual void setFontAtlas(FontAtlas* atlas,bool distanceFieldEnabled = false, bool useA8Shader = false);
 
-    bool recordLetterInfo(const cocos2d::Point& point,const FontLetterDefinition& letterDef, int spriteIndex);
+    bool recordLetterInfo(const cocos2d::Vec2& point,const FontLetterDefinition& letterDef, int spriteIndex);
     bool recordPlaceholderInfo(int spriteIndex);
 
     void setFontScale(float fontScale);
     
     virtual void alignText();
     
-    bool computeHorizontalKernings(unsigned short int *stringToRender);
-    bool setCurrentString(unsigned short *stringToSet);
-    bool setOriginalString(unsigned short *stringToSet);
+    bool computeHorizontalKernings(const std::u16string& stringToRender);
+
     void computeStringNumLines();
 
     void updateQuads();
@@ -299,7 +326,7 @@ protected:
 
     void drawShadowWithoutBlur();
 
-    void drawTextSprite(Renderer *renderer, bool parentTransformUpdated);
+    void drawTextSprite(Renderer *renderer, uint32_t parentFlags);
 
     void createSpriteWithFontDefinition();
 
@@ -311,7 +338,7 @@ protected:
     bool _isOpacityModifyRGB;
     bool _contentDirty;
 
-    bool _fontDirty;
+    bool _systemFontDirty;
     std::string _systemFont;
     float         _systemFontSize;
     LabelType _currentLabelType;
@@ -332,6 +359,7 @@ protected:
     Rect _reusedRect;
     int _limitShowCount;
 
+    float _additionalKerning;
     float _commonLineHeight;
     bool  _lineBreakWithoutSpaces;
     int * _horizontalKernings;
@@ -344,8 +372,7 @@ protected:
     TextVAlignment _vAlignment;
 
     int           _currNumLines;
-    unsigned short int * _currentUTF16String;
-    unsigned short int * _originalUTF16String;
+    std::u16string _currentUTF16String;
     std::string          _originalUTF8String;
 
     float _fontScale;
@@ -365,7 +392,7 @@ protected:
     bool    _shadowEnabled;
     Size    _shadowOffset;
     int     _shadowBlurRadius;
-    kmMat4  _shadowTransform;
+    Mat4  _shadowTransform;
     Color3B _shadowColor;
     float   _shadowOpacity;
     Sprite*   _shadowNode;
@@ -377,6 +404,7 @@ protected:
 
     bool _clipEnabled;
     bool _blendFuncDirty;
+    bool _insideBounds;                     /// whether or not the sprite was inside bounds the previous frame
 
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(Label);

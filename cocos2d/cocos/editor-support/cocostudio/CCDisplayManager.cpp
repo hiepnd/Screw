@@ -28,7 +28,7 @@ THE SOFTWARE.
 #include "cocostudio/CCUtilMath.h"
 #include "cocostudio/CCSkin.h"
 
-#include "CCParticleSystemQuad.h"
+#include "2d/CCParticleSystemQuad.h"
 
 using namespace cocos2d;
 
@@ -361,7 +361,7 @@ void DisplayManager::initDisplayList(BoneData *boneData)
 }
 
 
-bool DisplayManager::containPoint(Point &point)
+bool DisplayManager::containPoint(Vec2 &point)
 {
     if(!_visible || _displayIndex < 0)
     {
@@ -380,7 +380,7 @@ bool DisplayManager::containPoint(Point &point)
          *
          */
 
-        Point outPoint = Point(0, 0);
+        Vec2 outPoint = Vec2(0, 0);
 
         Sprite *sprite = (Sprite *)_currentDecoDisplay->getDisplay();
         sprite = (Sprite *)sprite->getChildByTag(0);
@@ -398,7 +398,7 @@ bool DisplayManager::containPoint(Point &point)
 
 bool DisplayManager::containPoint(float x, float y)
 {
-    Point p = Point(x, y);
+    Vec2 p = Vec2(x, y);
     return containPoint(p);
 }
 
@@ -431,15 +431,15 @@ Rect DisplayManager::getBoundingBox() const
 }
 
 
-Point DisplayManager::getAnchorPoint() const
+Vec2 DisplayManager::getAnchorPoint() const
 {
-    CS_RETURN_IF(!_displayRenderNode) Point(0, 0);
+    CS_RETURN_IF(!_displayRenderNode) Vec2(0, 0);
     return _displayRenderNode->getAnchorPoint();
 }
 
-Point DisplayManager::getAnchorPointInPoints() const
+Vec2 DisplayManager::getAnchorPointInPoints() const
 {
-    CS_RETURN_IF(!_displayRenderNode) Point(0, 0);
+    CS_RETURN_IF(!_displayRenderNode) Vec2(0, 0);
     return _displayRenderNode->getAnchorPointInPoints();
 }
 

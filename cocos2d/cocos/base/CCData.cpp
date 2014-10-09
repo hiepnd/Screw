@@ -23,9 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "CCData.h"
+#include "base/CCData.h"
 #include "platform/CCCommon.h"
-#include "ccMacros.h"
+#include "base/ccMacros.h"
 
 #include <string>
 

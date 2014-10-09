@@ -236,7 +236,7 @@ void Home::updateAvatar() {
 }
 
 void Home::updateFishCount() {
-    _fishCount->setString(string("You have ") + utils::StringUtils::toString(Settings::getInstance()->totalFish()) + string(" fish(es)"));
+    _fishCount->setString(string("You have ") + screw::utils::StringUtils::toString(Settings::getInstance()->totalFish()) + string(" fish(es)"));
 }
 
 void Home::login() {

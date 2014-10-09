@@ -64,7 +64,7 @@ bool RelativeBox::init()
 {
     if (Layout::init())
     {
-        setLayoutType(LAYOUT_RELATIVE);
+        setLayoutType(Layout::Type::RELATIVE);
         return true;
     }
     return false;
@@ -74,7 +74,7 @@ bool RelativeBox::initWithSize(const Size& size)
 {
     if (init())
     {
-        setSize(size);
+        setContentSize(size);
         return true;
     }
     return false;

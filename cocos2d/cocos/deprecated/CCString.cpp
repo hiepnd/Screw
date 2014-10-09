@@ -25,10 +25,11 @@ Copyright (c) 2013-2014 Chukong Technologies
 
 #include "deprecated/CCString.h"
 #include "platform/CCFileUtils.h"
-#include "ccMacros.h"
+#include "base/ccMacros.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include "CCArray.h"
+#include "base/ccUtils.h"
 
 NS_CC_BEGIN
 
@@ -69,7 +70,7 @@ bool __String::initWithFormatAndValist(const char* format, va_list ap)
 {
     bool bRet = false;
     char* pBuf = (char*)malloc(kMaxStringLen);
-    if (pBuf != NULL)
+    if (pBuf != nullptr)
     {
         vsnprintf(pBuf, kMaxStringLen, format, ap);
         _string = pBuf;
@@ -118,7 +119,7 @@ float __String::floatValue() const
     {
         return 0.0f;
     }
-    return (float)atof(_string.c_str());
+    return (float)utils::atof(_string.c_str());
 }
 
 double __String::doubleValue() const
@@ -127,7 +128,7 @@ double __String::doubleValue() const
     {
         return 0.0;
     }
-    return atof(_string.c_str());
+    return utils::atof(_string.c_str());
 }
 
 bool __String::boolValue() const
@@ -170,7 +171,7 @@ void __String::appendWithFormat(const char* format, ...)
     va_start(ap, format);
     
     char* pBuf = (char*)malloc(kMaxStringLen);
-    if (pBuf != NULL)
+    if (pBuf != nullptr)
     {
         vsnprintf(pBuf, kMaxStringLen, format, ap);
         _string.append(pBuf);
@@ -207,7 +208,7 @@ bool __String::isEqual(const Ref* pObject)
 {
     bool bRet = false;
     const __String* pStr = dynamic_cast<const __String*>(pObject);
-    if (pStr != NULL)
+    if (pStr != nullptr)
     {
         if (0 == _string.compare(pStr->_string))
         {
@@ -226,11 +227,11 @@ __String* __String::create(const std::string& str)
 
 __String* __String::createWithData(const unsigned char* data, size_t nLen)
 {
-    __String* ret = NULL;
-    if (data != NULL)
+    __String* ret = nullptr;
+    if (data != nullptr)
     {
         char* pStr = (char*)malloc(nLen+1);
-        if (pStr != NULL)
+        if (pStr != nullptr)
         {
             pStr[nLen] = '\0';
             if (nLen > 0)
@@ -256,7 +257,7 @@ __String* __String::createWithFormat(const char* format, ...)
     return ret;
 }
 
-__String* __String::createWithContentsOfFile(const char* filename)
+__String* __String::createWithContentsOfFile(const std::string &filename)
 {
     std::string str = FileUtils::getInstance()->getStringFromFile(filename);
     return __String::create(std::move(str));
@@ -272,4 +273,29 @@ __String* __String::clone() const
     return __String::create(_string);
 }
 
+namespace StringUtils {
+
+std::string format(const char* format, ...)
+{
+#define CC_MAX_STRING_LENGTH (1024*100)
+    
+    std::string ret;
+    
+    va_list ap;
+    va_start(ap, format);
+    
+    char* buf = (char*)malloc(CC_MAX_STRING_LENGTH);
+    if (buf != nullptr)
+    {
+        vsnprintf(buf, CC_MAX_STRING_LENGTH, format, ap);
+        ret = buf;
+        free(buf);
+    }
+    va_end(ap);
+    
+    return ret;
+}
+
+} // namespace StringUtils {
+    
 NS_CC_END

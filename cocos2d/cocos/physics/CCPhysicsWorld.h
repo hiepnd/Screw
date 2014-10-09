@@ -25,12 +25,12 @@
 #ifndef __CCPHYSICS_WORLD_H__
 #define __CCPHYSICS_WORLD_H__
 
-#include "ccConfig.h"
+#include "base/ccConfig.h"
 #if CC_USE_PHYSICS
 
-#include "CCVector.h"
-#include "CCRef.h"
-#include "CCGeometry.h"
+#include "base/CCVector.h"
+#include "base/CCRef.h"
+#include "math/CCGeometry.h"
 
 #include <list>
 
@@ -42,7 +42,7 @@ class PhysicsWorldInfo;
 class PhysicsShape;
 class PhysicsContact;
 
-typedef Point Vect;
+typedef Vec2 Vect;
 
 class Node;
 class Sprite;
@@ -55,9 +55,9 @@ class PhysicsWorld;
 typedef struct PhysicsRayCastInfo
 {
     PhysicsShape* shape;
-    Point start;
-    Point end;              //< in lua, it's name is "ended"
-    Point contact;
+    Vec2 start;
+    Vec2 end;              //< in lua, it's name is "ended"
+    Vec2 contact;
     Vect normal;
     float fraction;
     void* data;
@@ -105,15 +105,15 @@ public:
     virtual void removeAllBodies();
     
     /** Searches for physics shapes that intersects the ray. */
-    void rayCast(PhysicsRayCastCallbackFunc func, const Point& start, const Point& end, void* data);
+    void rayCast(PhysicsRayCastCallbackFunc func, const Vec2& start, const Vec2& end, void* data);
     /** Searches for physics shapes that contains in the rect. */
     void queryRect(PhysicsQueryRectCallbackFunc func, const Rect& rect, void* data);
     /** Searches for physics shapes that contains the point. */
-    void queryPoint(PhysicsQueryPointCallbackFunc func, const Point& point, void* data);
+    void queryPoint(PhysicsQueryPointCallbackFunc func, const Vec2& point, void* data);
     /** Get phsyics shapes that contains the point. */
-    Vector<PhysicsShape*> getShapes(const Point& point) const;
+    Vector<PhysicsShape*> getShapes(const Vec2& point) const;
     /** return physics shape that contains the point. */
-    PhysicsShape* getShape(const Point& point) const;
+    PhysicsShape* getShape(const Vec2& point) const;
     /** Get all the bodys that in the physics world. */
     const Vector<PhysicsBody*>& getAllBodies() const;
     /** Get body by tag */

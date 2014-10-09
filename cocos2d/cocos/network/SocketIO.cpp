@@ -28,8 +28,8 @@
  ****************************************************************************/
 
 #include "SocketIO.h"
-#include "CCDirector.h"
-#include "CCScheduler.h"
+#include "base/CCDirector.h"
+#include "base/CCScheduler.h"
 #include "WebSocket.h"
 #include "HttpClient.h"
 #include <algorithm>
@@ -124,7 +124,7 @@ void SIOClientImpl::handshake()
     request->setUrl(pre.str().c_str());
     request->setRequestType(HttpRequest::Type::GET);
 
-    request->setResponseCallback(this, httpresponse_selector(SIOClientImpl::handshakeResponse));
+    request->setResponseCallback(CC_CALLBACK_2(SIOClientImpl::handshakeResponse, this));
     request->setTag("handshake");
 
     log("SIOClientImpl::handshake() waiting");
@@ -401,9 +401,9 @@ void SIOClientImpl::onMessage(WebSocket* ws, const WebSocket::Data& data)
 
 
     s_data = payload;
-    SIOClient *c = NULL;
+    SIOClient *c = nullptr;
     c = getClient(endpoint);
-    if (c == NULL) log("SIOClientImpl::onMessage client lookup returned NULL");
+    if (c == nullptr) log("SIOClientImpl::onMessage client lookup returned nullptr");
 
     switch(control)
     {
@@ -671,7 +671,7 @@ SIOClient* SocketIO::connect(const std::string& uri, SocketIO::SIODelegate& dele
         //check if already connected to endpoint, handle
         c = socket->getClient(path);
 
-        if(c == NULL)
+        if(c == nullptr)
         {
             c = new SIOClient(host, port, path, socket, delegate);
 

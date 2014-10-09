@@ -25,9 +25,14 @@ THE SOFTWARE.
 #ifndef __UIHELPER_H__
 #define __UIHELPER_H__
 
+#include <string>
+#include "base/CCPlatformMacros.h"
+
 NS_CC_BEGIN
 
 namespace ui {
+    
+    class Widget;
 
 /**
 *   @js NA
@@ -56,7 +61,7 @@ public:
      *
      * @return finded result.
      */
-    static Widget* seekWidgetByName(Widget* root, const char* name);
+    static Widget* seekWidgetByName(Widget* root, const std::string& name);
     
     /*temp action*/
     static Widget* seekActionWidgetByActionTag(Widget* root, int tag);

@@ -26,27 +26,30 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #include <stdarg.h>
-#include "CCLayer.h"
-#include "CCDirector.h"
-#include "CCScriptSupport.h"
-#include "CCShaderCache.h"
-#include "CCGLProgram.h"
-#include "ccGLStateCache.h"
-#include "TransformUtils.h"
-// extern
-#include "kazmath/GL/matrix.h"
-#include "CCEventDispatcher.h"
-#include "CCEventListenerTouch.h"
-#include "CCEventTouch.h"
-#include "CCEventKeyboard.h"
-#include "CCEventListenerKeyboard.h"
-#include "CCEventAcceleration.h"
-#include "CCEventListenerAcceleration.h"
+#include "2d/CCLayer.h"
+#include "base/CCScriptSupport.h"
 #include "platform/CCDevice.h"
-#include "CCScene.h"
+#include "2d/CCScene.h"
+#include "renderer/CCGLProgramState.h"
+#include "renderer/CCGLProgram.h"
 #include "renderer/CCCustomCommand.h"
 #include "renderer/CCRenderer.h"
+#include "renderer/ccGLStateCache.h"
+#include "base/CCDirector.h"
+#include "base/CCEventDispatcher.h"
+#include "base/CCEventListenerTouch.h"
+#include "base/CCEventTouch.h"
+#include "base/CCEventKeyboard.h"
+#include "base/CCEventListenerKeyboard.h"
+#include "base/CCEventAcceleration.h"
+#include "base/CCEventListenerAcceleration.h"
+#include "math/TransformUtils.h"
+
 #include "deprecated/CCString.h"
+
+#if CC_USE_PHYSICS
+#include "physics/CCPhysicsBody.h"
+#endif
 
 NS_CC_BEGIN
 
@@ -62,7 +65,7 @@ Layer::Layer()
 , _swallowsTouches(true)
 {
     _ignoreAnchorPointForPosition = true;
-    setAnchorPoint(Point(0.5f, 0.5f));
+    setAnchorPoint(Vec2(0.5f, 0.5f));
 }
 
 Layer::~Layer()
@@ -72,16 +75,9 @@ Layer::~Layer()
 
 bool Layer::init()
 {
-    bool ret = false;
-    do 
-    {        
-        Director * director;
-        CC_BREAK_IF(!(director = Director::getInstance()));
-        this->setContentSize(director->getWinSize());
-        // success
-        ret = true;
-    } while(0);
-    return ret;
+    Director * director = Director::getInstance();
+    setContentSize(director->getWinSize());
+    return true;
 }
 
 Layer *Layer::create()
@@ -531,7 +527,7 @@ bool LayerColor::initWithColor(const Color4B& color, GLfloat w, GLfloat h)
         updateColor();
         setContentSize(Size(w, h));
 
-        setShaderProgram(ShaderCache::getInstance()->getProgram(GLProgram::SHADER_NAME_POSITION_COLOR_NO_MVP));
+        setGLProgramState(GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_COLOR_NO_MVP));
         return true;
     }
     return false;
@@ -581,32 +577,33 @@ void LayerColor::updateColor()
     }
 }
 
-void LayerColor::draw(Renderer *renderer, const kmMat4 &transform, bool transformUpdated)
+void LayerColor::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
 {
     _customCommand.init(_globalZOrder);
-    _customCommand.func = CC_CALLBACK_0(LayerColor::onDraw, this, transform, transformUpdated);
+    _customCommand.func = CC_CALLBACK_0(LayerColor::onDraw, this, transform, flags);
     renderer->addCommand(&_customCommand);
     
     for(int i = 0; i < 4; ++i)
     {
-        kmVec3 pos;
+        Vec4 pos;
         pos.x = _squareVertices[i].x; pos.y = _squareVertices[i].y; pos.z = _positionZ;
-        kmVec3TransformCoord(&pos, &pos, &_modelViewTransform);
-        _noMVPVertices[i] = Vertex3F(pos.x,pos.y,pos.z);
+        pos.w = 1;
+        _modelViewTransform.transformVector(&pos);
+        _noMVPVertices[i] = Vec3(pos.x,pos.y,pos.z)/pos.w;
     }
 }
 
-void LayerColor::onDraw(const kmMat4& transform, bool transformUpdated)
+void LayerColor::onDraw(const Mat4& transform, uint32_t flags)
 {
-    getShaderProgram()->use();
-    getShaderProgram()->setUniformsForBuiltins(transform);
+    getGLProgram()->use();
+    getGLProgram()->setUniformsForBuiltins(transform);
 
     GL::enableVertexAttribs( GL::VERTEX_ATTRIB_FLAG_POSITION | GL::VERTEX_ATTRIB_FLAG_COLOR );
     //
     // Attributes
     //
 #ifdef EMSCRIPTEN
-    setGLBufferData(_noMVPVertices, 4 * sizeof(Vertex3F), 0);
+    setGLBufferData(_noMVPVertices, 4 * sizeof(Vec3), 0);
     glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
     setGLBufferData(_squareColors, 4 * sizeof(Color4F), 1);
@@ -636,7 +633,7 @@ LayerGradient::LayerGradient()
 , _endColor(Color4B::BLACK)
 , _startOpacity(255)
 , _endOpacity(255)
-, _alongVector(Point(0, -1))
+, _alongVector(Vec2(0, -1))
 , _compressedInterpolation(true)
 {
     
@@ -658,7 +655,7 @@ LayerGradient* LayerGradient::create(const Color4B& start, const Color4B& end)
     return nullptr;
 }
 
-LayerGradient* LayerGradient::create(const Color4B& start, const Color4B& end, const Point& v)
+LayerGradient* LayerGradient::create(const Color4B& start, const Color4B& end, const Vec2& v)
 {
     LayerGradient * layer = new LayerGradient();
     if( layer && layer->initWithColor(start, end, v))
@@ -691,10 +688,10 @@ bool LayerGradient::init()
 
 bool LayerGradient::initWithColor(const Color4B& start, const Color4B& end)
 {
-    return initWithColor(start, end, Point(0, -1));
+    return initWithColor(start, end, Vec2(0, -1));
 }
 
-bool LayerGradient::initWithColor(const Color4B& start, const Color4B& end, const Point& v)
+bool LayerGradient::initWithColor(const Color4B& start, const Color4B& end, const Vec2& v)
 {
     _endColor.r  = end.r;
     _endColor.g  = end.g;
@@ -718,7 +715,7 @@ void LayerGradient::updateColor()
         return;
 
     float c = sqrtf(2.0f);
-    Point u = Point(_alongVector.x / h, _alongVector.y / h);
+    Vec2 u = Vec2(_alongVector.x / h, _alongVector.y / h);
 
     // Compressed Interpolation mode
     if (_compressedInterpolation)
@@ -808,13 +805,13 @@ GLubyte LayerGradient::getEndOpacity() const
     return _endOpacity;
 }
 
-void LayerGradient::setVector(const Point& var)
+void LayerGradient::setVector(const Vec2& var)
 {
     _alongVector = var;
     updateColor();
 }
 
-const Point& LayerGradient::getVector() const
+const Vec2& LayerGradient::getVector() const
 {
     return _alongVector;
 }
@@ -849,7 +846,7 @@ LayerMultiplex::~LayerMultiplex()
     }
 }
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8)
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
 LayerMultiplex * LayerMultiplex::createVariadic(Layer * layer, ...)
 {
     va_list args;
@@ -887,7 +884,7 @@ LayerMultiplex * LayerMultiplex::create(Layer * layer, ...)
 
 LayerMultiplex * LayerMultiplex::createWithLayer(Layer* layer)
 {
-    return LayerMultiplex::create(layer, NULL);
+    return LayerMultiplex::create(layer, nullptr);
 }
 
 LayerMultiplex* LayerMultiplex::create()

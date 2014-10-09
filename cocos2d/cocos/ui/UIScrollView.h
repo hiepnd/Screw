@@ -26,28 +26,12 @@ THE SOFTWARE.
 #define __UISCROLLVIEW_H__
 
 #include "ui/UILayout.h"
-#include "ui/UIScrollInterface.h"
 
 NS_CC_BEGIN
 
-namespace ui {
-    
-class ScrollInnerContainer : public Layout
-{
-public:
-    ScrollInnerContainer();
-    virtual ~ScrollInnerContainer();
-    static ScrollInnerContainer* create();
-    virtual const Size& getLayoutSize() override;
-};
+class EventFocusListener;
 
-enum SCROLLVIEW_DIR
-{
-    SCROLLVIEW_DIR_NONE,
-    SCROLLVIEW_DIR_VERTICAL,
-    SCROLLVIEW_DIR_HORIZONTAL,
-    SCROLLVIEW_DIR_BOTH
-};
+namespace ui {
 
 typedef enum
 {
@@ -66,12 +50,34 @@ typedef void (Ref::*SEL_ScrollViewEvent)(Ref*, ScrollviewEventType);
 #define scrollvieweventselector(_SELECTOR) (SEL_ScrollViewEvent)(&_SELECTOR)
 
 
-class ScrollView : public Layout , public UIScrollInterface
+class ScrollView : public Layout
 {
     
     DECLARE_CLASS_GUI_INFO
     
 public:
+    enum class Direction
+    {
+        NONE,
+        VERTICAL,
+        HORIZONTAL,
+        BOTH
+    };
+    
+    enum class EventType
+    {
+        SCROLL_TO_TOP,
+        SCROLL_TO_BOTTOM,
+        SCROLL_TO_LEFT,
+        SCROLL_TO_RIGHT,
+        SCROLLING,
+        BOUNCE_TOP,
+        BOUNCE_BOTTOM,
+        BOUNCE_LEFT,
+        BOUNCE_RIGHT
+    };
+    typedef std::function<void(Ref*, EventType)> ccScrollViewCallback;
+   
     /**
      * Default constructor
      */
@@ -81,7 +87,6 @@ public:
      * Default destructor
      */
     virtual ~ScrollView();
-    
     /**
      * Allocates and initializes.
      */
@@ -90,20 +95,20 @@ public:
     /**
      * Changes scroll direction of scrollview.
      *
-     * @see SCROLLVIEW_DIR      SCROLLVIEW_DIR_VERTICAL means vertical scroll, SCROLLVIEW_DIR_HORIZONTAL means horizontal scroll
+     * @see Direction      Direction::VERTICAL means vertical scroll, Direction::HORIZONTAL means horizontal scroll
      *
-     * @param SCROLLVIEW_DIR
+     * @param dir
      */
-    virtual void setDirection(SCROLLVIEW_DIR dir);
+    virtual void setDirection(Direction dir);
     
     /**
      * Gets scroll direction of scrollview.
      *
-     * @see SCROLLVIEW_DIR      SCROLLVIEW_DIR_VERTICAL means vertical scroll, SCROLLVIEW_DIR_HORIZONTAL means horizontal scroll
+     * @see Direction      Direction::VERTICAL means vertical scroll, Direction::HORIZONTAL means horizontal scroll
      *
-     * @return SCROLLVIEW_DIR
+     * @return Direction
      */
-    SCROLLVIEW_DIR getDirection();
+    Direction getDirection()const;
     
     /**
      * Gets inner container of scrollview.
@@ -112,7 +117,7 @@ public:
      *
      * @return inner container.
      */
-    Layout* getInnerContainer();
+    Layout* getInnerContainer()const;
     
     /**
      * Scroll inner container to bottom boundary of scrollview.
@@ -167,7 +172,7 @@ public:
     /**
      * Scroll inner container to both direction percent position of scrollview.
      */
-    void scrollToPercentBothDirection(const Point& percent, float time, bool attenuated);
+    void scrollToPercentBothDirection(const Vec2& percent, float time, bool attenuated);
     
     /**
      * Move inner container to bottom boundary of scrollview.
@@ -222,7 +227,7 @@ public:
     /**
      * Move inner container to both direction percent position of scrollview.
      */
-    void jumpToPercentBothDirection(const Point& percent);
+    void jumpToPercentBothDirection(const Vec2& percent);
     
     /**
      * Changes inner container size of scrollview.
@@ -245,47 +250,26 @@ public:
     /**
      * Add call back function called scrollview event triggered
      */
-    void addEventListenerScrollView(Ref* target, SEL_ScrollViewEvent selector);
-        
-    virtual void addChild(Node * child) override;
-    /**
-     * Adds a child to the container with a z-order
-     *
-     * If the child is added to a 'running' node, then 'onEnter' and 'onEnterTransitionDidFinish' will be called immediately.
-     *
-     * @param child     A child node
-     * @param zOrder    Z order for drawing priority. Please refer to setLocalZOrder(int)
-     */
-    virtual void addChild(Node * child, int zOrder) override;
-    /**
-     * Adds a child to the container with z order and tag
-     *
-     * If the child is added to a 'running' node, then 'onEnter' and 'onEnterTransitionDidFinish' will be called immediately.
-     *
-     * @param child     A child node
-     * @param zOrder    Z order for drawing priority. Please refer to setLocalZOrder(int)
-     * @param tag       A interger to identify the node easily. Please refer to setTag(int)
-     */
+    CC_DEPRECATED_ATTRIBUTE void addEventListenerScrollView(Ref* target, SEL_ScrollViewEvent selector);
+    virtual void addEventListener(const ccScrollViewCallback& callback);
+    
+    //all of these functions are related to innerContainer.
+    virtual void addChild(Node* child)override;
+    virtual void addChild(Node * child, int localZOrder)override;
     virtual void addChild(Node* child, int zOrder, int tag) override;
+    virtual void addChild(Node* child, int zOrder, const std::string &name) override;
     
-    //override "removeAllChildrenAndCleanUp" method of widget.
     virtual void removeAllChildren() override;
-    
     virtual void removeAllChildrenWithCleanup(bool cleanup) override;
-    
-    //override "removeChild" method of widget.
 	virtual void removeChild(Node* child, bool cleaup = true) override;
     
-    //override "getChildren" method of widget.
     virtual Vector<Node*>& getChildren() override;
     virtual const Vector<Node*>& getChildren() const override;
-    
     virtual ssize_t getChildrenCount() const override;
+    virtual Node * getChildByTag(int tag) const override;
+    virtual Node* getChildByName(const std::string& name)const override;
     
-    virtual Node * getChildByTag(int tag) override;
-    
-    virtual Widget* getChildByName(const char* name) override;
-    
+    //handle touch event
     virtual bool onTouchBegan(Touch *touch, Event *unusedEvent) override;
     virtual void onTouchMoved(Touch *touch, Event *unusedEvent) override;
     virtual void onTouchEnded(Touch *touch, Event *unusedEvent) override;
@@ -308,7 +292,7 @@ public:
      *
      * @param LayoutType
      */
-    virtual void setLayoutType(LayoutType type) override;
+    virtual void setLayoutType(Type type) override;
     
     /**
      * Gets LayoutType.
@@ -317,7 +301,7 @@ public:
      *
      * @return LayoutType
      */
-    virtual LayoutType getLayoutType() const override;
+    virtual Type getLayoutType() const override;
     
     /**
      * Returns the "class name" of widget.
@@ -325,59 +309,79 @@ public:
     virtual std::string getDescription() const override;
     
     virtual void onEnter() override;
+    
+    /**
+     *  When a widget is in a layout, you could call this method to get the next focused widget within a specified direction.
+     *  If the widget is not in a layout, it will return itself
+     *@param dir the direction to look for the next focused widget in a layout
+     *@param current  the current focused widget
+     *@return the next focused widget in a layout
+     */
+    virtual Widget* findNextFocusedWidget(FocusDirection direction, Widget* current) override;
 
 CC_CONSTRUCTOR_ACCESS:
     virtual bool init() override;
-
+    
 protected:
     virtual void initRenderer() override;
+    
+    virtual void onSizeChanged() override;
+    virtual void doLayout() override;
+
+    virtual Widget* createCloneInstance() override;
+    virtual void copySpecialProperties(Widget* model) override;
+    virtual void copyClonedWidgetChildren(Widget* model) override;
+    
+    
     void moveChildren(float offsetX, float offsetY);
     void autoScrollChildren(float dt);
     void bounceChildren(float dt);
     void checkBounceBoundary();
     bool checkNeedBounce();
-    void startAutoScrollChildrenWithOriginalSpeed(const Point& dir, float v, bool attenuated, float acceleration);
-    void startAutoScrollChildrenWithDestination(const Point& des, float time, bool attenuated);
-    void jumpToDestination(const Point& des);
+    void startAutoScrollChildrenWithOriginalSpeed(const Vec2& dir, float v, bool attenuated, float acceleration);
+    void startAutoScrollChildrenWithDestination(const Vec2& des, float time, bool attenuated);
+    void jumpToDestination(const Vec2& des);
     void stopAutoScrollChildren();
     void startBounceChildren(float v);
     void stopBounceChildren();
     bool checkCustomScrollDestination(float* touchOffsetX, float* touchOffsetY);
+    
     virtual bool scrollChildren(float touchOffsetX, float touchOffsetY);
+
+    bool scrollChildrenVertical(float touchOffsetX, float touchOffsetY);
+    bool scrollChildrenHorizontal(float touchOffsetX, float touchOffestY);
+    bool scrollChildrenBoth(float touchOffsetX, float touchOffsetY);
+
+    
     bool bounceScrollChildren(float touchOffsetX, float touchOffsetY);
     void startRecordSlidAction();
     virtual void endRecordSlidAction();
-    virtual void handlePressLogic(const Point &touchPoint) override;
-    virtual void handleMoveLogic(const Point &touchPoint) override;
-    virtual void handleReleaseLogic(const Point &touchPoint) override;
-    virtual void interceptTouchEvent(int handleState,Widget* sender,const Point &touchPoint) override;
-    virtual void checkChildInfo(int handleState,Widget* sender,const Point &touchPoint) override;
+    
+    //ScrollViewProtocol
+    virtual void handlePressLogic(Touch *touch) ;
+    virtual void handleMoveLogic(Touch *touch) ;
+    virtual void handleReleaseLogic(Touch *touch) ;
+    
+    virtual void interceptTouchEvent(Widget::TouchEventType event,Widget* sender,Touch *touch) override;
+    
     void recordSlidTime(float dt);
+    
     void scrollToTopEvent();
     void scrollToBottomEvent();
     void scrollToLeftEvent();
     void scrollToRightEvent();
     void scrollingEvent();
+    
     void bounceTopEvent();
     void bounceBottomEvent();
     void bounceLeftEvent();
     void bounceRightEvent();
-    virtual void onSizeChanged() override;
-    virtual Widget* createCloneInstance() override;
-    virtual void copySpecialProperties(Widget* model) override;
-    virtual void copyClonedWidgetChildren(Widget* model) override;
-    virtual void setClippingEnabled(bool able) override{Layout::setClippingEnabled(able);};
-    virtual void doLayout() override;
+    
 protected:
     Layout* _innerContainer;
     
-    SCROLLVIEW_DIR _direction;
-
-    Point _touchBeganPoint;
-    Point _touchMovedPoint;
-    Point _touchEndedPoint;
-    Point _touchMovingPoint;
-    Point _autoScrollDir;
+    Direction _direction;
+    Vec2 _autoScrollDir;
     
     float _topBoundary;
     float _bottomBoundary;
@@ -397,11 +401,11 @@ protected:
     float _autoScrollAcceleration;
     bool _isAutoScrollSpeedAttenuated;
     bool _needCheckAutoScrollDestination;
-    Point _autoScrollDestination;
+    Vec2 _autoScrollDestination;
     
     bool _bePressed;
     float _slidTime;
-    Point _moveChildPoint;
+    Vec2 _moveChildPoint;
     float _childFocusCancelOffset;
     
     bool _leftBounceNeeded;
@@ -411,14 +415,24 @@ protected:
     
     bool _bounceEnabled;
     bool _bouncing;
-    Point _bounceDir;
+    Vec2 _bounceDir;
     float _bounceOriginalSpeed;
     bool _inertiaScrollEnabled;
-
-
     
     Ref* _scrollViewEventListener;
+#if defined(__GNUC__) && ((__GNUC__ >= 4) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#elif _MSC_VER >= 1400 //vs 2005 or higher
+#pragma warning (push)
+#pragma warning (disable: 4996)
+#endif
     SEL_ScrollViewEvent _scrollViewEventSelector;
+#if defined(__GNUC__) && ((__GNUC__ >= 4) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
+#pragma GCC diagnostic warning "-Wdeprecated-declarations"
+#elif _MSC_VER >= 1400 //vs 2005 or higher
+#pragma warning (pop)
+#endif
+    ccScrollViewCallback _eventCallback;
 };
 
 }

@@ -31,6 +31,7 @@ THE SOFTWARE.
 #include "cocostudio/CCArmatureAnimation.h"
 #include "cocostudio/CCSpriteFrameCacheHelper.h"
 #include "cocostudio/CCArmatureDataManager.h"
+#include "math/CCMath.h"
 
 class b2Body;
 struct cpBody;
@@ -156,14 +157,14 @@ public:
      * @js NA
      * @lua NA
      */
-    virtual void visit(cocos2d::Renderer *renderer, const kmMat4 &parentTransform, bool parentTransformUpdated) override;
-    virtual void draw(cocos2d::Renderer *renderer, const kmMat4 &transform, bool transformUpdated) override;
+    virtual void visit(cocos2d::Renderer *renderer, const cocos2d::Mat4 &parentTransform, uint32_t parentFlags) override;
+    virtual void draw(cocos2d::Renderer *renderer, const cocos2d::Mat4 &transform, uint32_t flags) override;
     virtual void update(float dt) override;
 
     virtual void onEnter() override;
     virtual void onExit() override; 
 
-    virtual const kmMat4& getNodeToParentTransform() const override;
+    virtual const cocos2d::Mat4& getNodeToParentTransform() const override;
     /**
      *  @js NA
      *  @lua NA
@@ -180,8 +181,8 @@ public:
      * Set contentsize and Calculate anchor point.
      */
     virtual void updateOffsetPoint();
-    virtual void setAnchorPoint(const cocos2d::Point& point) override;
-    virtual const cocos2d::Point& getAnchorPointInPoints() const override;
+    virtual void setAnchorPoint(const cocos2d::Vec2& point) override;
+    virtual const cocos2d::Vec2& getAnchorPointInPoints() const override;
 
     virtual void setAnimation(ArmatureAnimation *animation);
     virtual ArmatureAnimation *getAnimation() const;
@@ -198,9 +199,6 @@ public:
 
     virtual void setArmatureData(ArmatureData *armatureData) { _armatureData = armatureData; }
     virtual ArmatureData *getArmatureData() const { return _armatureData; }
-
-    virtual void setName(const std::string &name) { _name = name; }
-    virtual const std::string &getName() const { return _name; } 
 
 
     virtual void setParentBone(Bone *parentBone);
@@ -256,7 +254,6 @@ protected:
 
     BatchNode *_batchNode;
 
-    std::string _name;
     Bone *_parentBone;
     float _version;
 
@@ -268,8 +265,8 @@ protected:
 
     cocos2d::BlendFunc _blendFunc;                    //! It's required for CCTextureProtocol inheritance
 
-    cocos2d::Point _offsetPoint;
-    cocos2d::Point _realAnchorPointInPoints;
+    cocos2d::Vec2 _offsetPoint;
+    cocos2d::Vec2 _realAnchorPointInPoints;
 
     ArmatureAnimation *_animation;
 

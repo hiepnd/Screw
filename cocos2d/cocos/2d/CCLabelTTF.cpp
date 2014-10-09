@@ -24,7 +24,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 #include "CCLabelTTF.h"
-#include "CCLabel.h"
+#include "2d/CCLabel.h"
 #include "deprecated/CCString.h"
 
 NS_CC_BEGIN
@@ -39,9 +39,9 @@ NS_CC_BEGIN
 LabelTTF::LabelTTF()
 {
     _renderLabel = Label::create();
-    _renderLabel->setAnchorPoint(Point::ANCHOR_BOTTOM_LEFT);
+    _renderLabel->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
     this->addChild(_renderLabel);
-    this->setAnchorPoint(Point::ANCHOR_MIDDLE);
+    this->setAnchorPoint(Vec2::ANCHOR_MIDDLE);
 
     _contentDirty = false;
     _cascadeColorEnabled = true;
@@ -262,14 +262,14 @@ void LabelTTF::setFlippedY(bool flippedY)
     }
 }
 
-void LabelTTF::visit(Renderer *renderer, const kmMat4 &parentTransform, bool parentTransformUpdated)
+void LabelTTF::visit(Renderer *renderer, const Mat4 &parentTransform, uint32_t parentFlags)
 {
     if (_contentDirty)
     {
         this->setContentSize(_renderLabel->getContentSize());
         _contentDirty = false;
     }
-    Node::visit(renderer,parentTransform,parentTransformUpdated);
+    Node::visit(renderer,parentTransform, parentFlags);
 }
 
 const Size& LabelTTF::getContentSize() const

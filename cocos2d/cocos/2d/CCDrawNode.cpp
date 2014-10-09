@@ -21,80 +21,80 @@
  * SOFTWARE.
  */
 
-#include "CCDrawNode.h"
-#include "CCShaderCache.h"
+#include "2d/CCDrawNode.h"
 #include "CCGL.h"
-#include "CCEventType.h"
-#include "CCConfiguration.h"
+#include "base/CCEventType.h"
+#include "base/CCConfiguration.h"
 #include "renderer/CCCustomCommand.h"
 #include "renderer/CCRenderer.h"
-#include "CCDirector.h"
-#include "CCEventListenerCustom.h"
-#include "CCEventDispatcher.h"
+#include "renderer/CCGLProgramState.h"
+#include "base/CCDirector.h"
+#include "base/CCEventListenerCustom.h"
+#include "base/CCEventDispatcher.h"
 
 NS_CC_BEGIN
 
-// Vertex2F == CGPoint in 32-bits, but not in 64-bits (OS X)
+// Vec2 == CGPoint in 32-bits, but not in 64-bits (OS X)
 // that's why the "v2f" functions are needed
-static Vertex2F v2fzero(0.0f,0.0f);
+static Vec2 v2fzero(0.0f,0.0f);
 
-static inline Vertex2F v2f(float x, float y)
+static inline Vec2 v2f(float x, float y)
 {
-    Vertex2F ret(x, y);
+    Vec2 ret(x, y);
 	return ret;
 }
 
-static inline Vertex2F v2fadd(const Vertex2F &v0, const Vertex2F &v1)
+static inline Vec2 v2fadd(const Vec2 &v0, const Vec2 &v1)
 {
 	return v2f(v0.x+v1.x, v0.y+v1.y);
 }
 
-static inline Vertex2F v2fsub(const Vertex2F &v0, const Vertex2F &v1)
+static inline Vec2 v2fsub(const Vec2 &v0, const Vec2 &v1)
 {
 	return v2f(v0.x-v1.x, v0.y-v1.y);
 }
 
-static inline Vertex2F v2fmult(const Vertex2F &v, float s)
+static inline Vec2 v2fmult(const Vec2 &v, float s)
 {
 	return v2f(v.x * s, v.y * s);
 }
 
-static inline Vertex2F v2fperp(const Vertex2F &p0)
+static inline Vec2 v2fperp(const Vec2 &p0)
 {
 	return v2f(-p0.y, p0.x);
 }
 
-static inline Vertex2F v2fneg(const Vertex2F &p0)
+static inline Vec2 v2fneg(const Vec2 &p0)
 {
 	return v2f(-p0.x, - p0.y);
 }
 
-static inline float v2fdot(const Vertex2F &p0, const Vertex2F &p1)
+static inline float v2fdot(const Vec2 &p0, const Vec2 &p1)
 {
 	return  p0.x * p1.x + p0.y * p1.y;
 }
 
-static inline Vertex2F v2fforangle(float _a_)
+static inline Vec2 v2fforangle(float _a_)
 {
 	return v2f(cosf(_a_), sinf(_a_));
 }
 
-static inline Vertex2F v2fnormalize(const Vertex2F &p)
+static inline Vec2 v2fnormalize(const Vec2 &p)
 {
-	Point r = Point(p.x, p.y).normalize();
+	Vec2 r = Vec2(p.x, p.y).getNormalized();
 	return v2f(r.x, r.y);
 }
 
-static inline Vertex2F __v2f(const Point &v)
+static inline Vec2 __v2f(const Vec2 &v)
 {
 //#ifdef __LP64__
 	return v2f(v.x, v.y);
 // #else
-// 	return * ((Vertex2F*) &v);
+// 	return * ((Vec2*) &v);
 // #endif
 }
 
-static inline Tex2F __t(const Vertex2F &v)
+static inline Tex2F __t(const Vec2 &v)
 {
 	return *(Tex2F*)&v;
 }
@@ -158,7 +158,7 @@ bool DrawNode::init()
 {
     _blendFunc = BlendFunc::ALPHA_PREMULTIPLIED;
 
-    setShaderProgram(ShaderCache::getInstance()->getProgram(GLProgram::SHADER_NAME_POSITION_LENGTH_TEXTURE_COLOR));
+    setGLProgramState(GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_LENGTH_TEXTURE_COLOR));
     
     ensureCapacity(512);
     
@@ -178,8 +178,8 @@ bool DrawNode::init()
     glEnableVertexAttribArray(GLProgram::VERTEX_ATTRIB_COLOR);
     glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(V2F_C4B_T2F), (GLvoid *)offsetof(V2F_C4B_T2F, colors));
     
-    glEnableVertexAttribArray(GLProgram::VERTEX_ATTRIB_TEX_COORDS);
-    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_TEX_COORDS, 2, GL_FLOAT, GL_FALSE, sizeof(V2F_C4B_T2F), (GLvoid *)offsetof(V2F_C4B_T2F, texCoords));
+    glEnableVertexAttribArray(GLProgram::VERTEX_ATTRIB_TEX_COORD);
+    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_TEX_COORD, 2, GL_FLOAT, GL_FALSE, sizeof(V2F_C4B_T2F), (GLvoid *)offsetof(V2F_C4B_T2F, texCoords));
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     
@@ -194,8 +194,8 @@ bool DrawNode::init()
     
 #if CC_ENABLE_CACHE_TEXTURE_DATA
     // Need to listen the event only when not use batchnode, because it will use VBO
-    auto listener = EventListenerCustom::create(EVENT_COME_TO_FOREGROUND, [this](EventCustom* event){
-    /** listen the event that coming to foreground on Android */
+    auto listener = EventListenerCustom::create(EVENT_RENDERER_RECREATED, [this](EventCustom* event){
+   /** listen the event that renderer was recreated on Android/WP8 */
         this->init();
     });
 
@@ -205,17 +205,18 @@ bool DrawNode::init()
     return true;
 }
 
-void DrawNode::draw(Renderer *renderer, const kmMat4 &transform, bool transformUpdated)
+void DrawNode::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
 {
     _customCommand.init(_globalZOrder);
-    _customCommand.func = CC_CALLBACK_0(DrawNode::onDraw, this, transform, transformUpdated);
+    _customCommand.func = CC_CALLBACK_0(DrawNode::onDraw, this, transform, flags);
     renderer->addCommand(&_customCommand);
 }
 
-void DrawNode::onDraw(const kmMat4 &transform, bool transformUpdated)
+void DrawNode::onDraw(const Mat4 &transform, uint32_t flags)
 {
-    getShaderProgram()->use();
-    getShaderProgram()->setUniformsForBuiltins(transform);
+    auto glProgram = getGLProgram();
+    glProgram->use();
+    glProgram->setUniformsForBuiltins(transform);
 
     GL::blendFunc(_blendFunc.src, _blendFunc.dst);
 
@@ -241,7 +242,7 @@ void DrawNode::onDraw(const kmMat4 &transform, bool transformUpdated)
         glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(V2F_C4B_T2F), (GLvoid *)offsetof(V2F_C4B_T2F, colors));
 
         // texcood
-        glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_TEX_COORDS, 2, GL_FLOAT, GL_FALSE, sizeof(V2F_C4B_T2F), (GLvoid *)offsetof(V2F_C4B_T2F, texCoords));
+        glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_TEX_COORD, 2, GL_FLOAT, GL_FALSE, sizeof(V2F_C4B_T2F), (GLvoid *)offsetof(V2F_C4B_T2F, texCoords));
     }
 
     glDrawArrays(GL_TRIANGLES, 0, _bufferCount);
@@ -251,15 +252,15 @@ void DrawNode::onDraw(const kmMat4 &transform, bool transformUpdated)
     CHECK_GL_ERROR_DEBUG();
 }
 
-void DrawNode::drawDot(const Point &pos, float radius, const Color4F &color)
+void DrawNode::drawDot(const Vec2 &pos, float radius, const Color4F &color)
 {
     unsigned int vertex_count = 2*3;
     ensureCapacity(vertex_count);
 	
-	V2F_C4B_T2F a = {Vertex2F(pos.x - radius, pos.y - radius), Color4B(color), Tex2F(-1.0, -1.0) };
-	V2F_C4B_T2F b = {Vertex2F(pos.x - radius, pos.y + radius), Color4B(color), Tex2F(-1.0,  1.0) };
-	V2F_C4B_T2F c = {Vertex2F(pos.x + radius, pos.y + radius), Color4B(color), Tex2F( 1.0,  1.0) };
-	V2F_C4B_T2F d = {Vertex2F(pos.x + radius, pos.y - radius), Color4B(color), Tex2F( 1.0, -1.0) };
+	V2F_C4B_T2F a = {Vec2(pos.x - radius, pos.y - radius), Color4B(color), Tex2F(-1.0, -1.0) };
+	V2F_C4B_T2F b = {Vec2(pos.x - radius, pos.y + radius), Color4B(color), Tex2F(-1.0,  1.0) };
+	V2F_C4B_T2F c = {Vec2(pos.x + radius, pos.y + radius), Color4B(color), Tex2F( 1.0,  1.0) };
+	V2F_C4B_T2F d = {Vec2(pos.x + radius, pos.y - radius), Color4B(color), Tex2F( 1.0, -1.0) };
 	
 	V2F_C4B_T2F_Triangle *triangles = (V2F_C4B_T2F_Triangle *)(_buffer + _bufferCount);
     V2F_C4B_T2F_Triangle triangle0 = {a, b, c};
@@ -272,28 +273,28 @@ void DrawNode::drawDot(const Point &pos, float radius, const Color4F &color)
 	_dirty = true;
 }
 
-void DrawNode::drawSegment(const Point &from, const Point &to, float radius, const Color4F &color)
+void DrawNode::drawSegment(const Vec2 &from, const Vec2 &to, float radius, const Color4F &color)
 {
     unsigned int vertex_count = 6*3;
     ensureCapacity(vertex_count);
 	
-	Vertex2F a = __v2f(from);
-	Vertex2F b = __v2f(to);
+	Vec2 a = __v2f(from);
+	Vec2 b = __v2f(to);
 	
 	
-	Vertex2F n = v2fnormalize(v2fperp(v2fsub(b, a)));
-	Vertex2F t = v2fperp(n);
+	Vec2 n = v2fnormalize(v2fperp(v2fsub(b, a)));
+	Vec2 t = v2fperp(n);
 	
-	Vertex2F nw = v2fmult(n, radius);
-	Vertex2F tw = v2fmult(t, radius);
-	Vertex2F v0 = v2fsub(b, v2fadd(nw, tw));
-	Vertex2F v1 = v2fadd(b, v2fsub(nw, tw));
-	Vertex2F v2 = v2fsub(b, nw);
-	Vertex2F v3 = v2fadd(b, nw);
-	Vertex2F v4 = v2fsub(a, nw);
-	Vertex2F v5 = v2fadd(a, nw);
-	Vertex2F v6 = v2fsub(a, v2fsub(nw, tw));
-	Vertex2F v7 = v2fadd(a, v2fadd(nw, tw));
+	Vec2 nw = v2fmult(n, radius);
+	Vec2 tw = v2fmult(t, radius);
+	Vec2 v0 = v2fsub(b, v2fadd(nw, tw));
+	Vec2 v1 = v2fadd(b, v2fsub(nw, tw));
+	Vec2 v2 = v2fsub(b, nw);
+	Vec2 v3 = v2fadd(b, nw);
+	Vec2 v4 = v2fsub(a, nw);
+	Vec2 v5 = v2fadd(a, nw);
+	Vec2 v6 = v2fsub(a, v2fsub(nw, tw));
+	Vec2 v7 = v2fadd(a, v2fadd(nw, tw));
 	
 	
 	V2F_C4B_T2F_Triangle *triangles = (V2F_C4B_T2F_Triangle *)(_buffer + _bufferCount);
@@ -345,24 +346,24 @@ void DrawNode::drawSegment(const Point &from, const Point &to, float radius, con
 	_dirty = true;
 }
 
-void DrawNode::drawPolygon(Point *verts, int count, const Color4F &fillColor, float borderWidth, const Color4F &borderColor)
+void DrawNode::drawPolygon(Vec2 *verts, int count, const Color4F &fillColor, float borderWidth, const Color4F &borderColor)
 {
     CCASSERT(count >= 0, "invalid count value");
 
-    struct ExtrudeVerts {Vertex2F offset, n;};
+    struct ExtrudeVerts {Vec2 offset, n;};
 	struct ExtrudeVerts* extrude = (struct ExtrudeVerts*)malloc(sizeof(struct ExtrudeVerts)*count);
 	memset(extrude, 0, sizeof(struct ExtrudeVerts)*count);
 	
 	for (int i = 0; i < count; i++)
     {
-		Vertex2F v0 = __v2f(verts[(i-1+count)%count]);
-		Vertex2F v1 = __v2f(verts[i]);
-		Vertex2F v2 = __v2f(verts[(i+1)%count]);
+		Vec2 v0 = __v2f(verts[(i-1+count)%count]);
+		Vec2 v1 = __v2f(verts[i]);
+		Vec2 v2 = __v2f(verts[(i+1)%count]);
         
-		Vertex2F n1 = v2fnormalize(v2fperp(v2fsub(v1, v0)));
-		Vertex2F n2 = v2fnormalize(v2fperp(v2fsub(v2, v1)));
+		Vec2 n1 = v2fnormalize(v2fperp(v2fsub(v1, v0)));
+		Vec2 n2 = v2fnormalize(v2fperp(v2fsub(v2, v1)));
 		
-		Vertex2F offset = v2fmult(v2fadd(n1, n2), 1.0/(v2fdot(n1, n2) + 1.0));
+		Vec2 offset = v2fmult(v2fadd(n1, n2), 1.0/(v2fdot(n1, n2) + 1.0));
         struct ExtrudeVerts tmp = {offset, n2};
 		extrude[i] = tmp;
 	}
@@ -379,9 +380,9 @@ void DrawNode::drawPolygon(Point *verts, int count, const Color4F &fillColor, fl
 	float inset = (outline == false ? 0.5 : 0.0);
 	for (int i = 0; i < count-2; i++)
     {
-		Vertex2F v0 = v2fsub(__v2f(verts[0  ]), v2fmult(extrude[0  ].offset, inset));
-		Vertex2F v1 = v2fsub(__v2f(verts[i+1]), v2fmult(extrude[i+1].offset, inset));
-		Vertex2F v2 = v2fsub(__v2f(verts[i+2]), v2fmult(extrude[i+2].offset, inset));
+		Vec2 v0 = v2fsub(__v2f(verts[0  ]), v2fmult(extrude[0  ].offset, inset));
+		Vec2 v1 = v2fsub(__v2f(verts[i+1]), v2fmult(extrude[i+1].offset, inset));
+		Vec2 v2 = v2fsub(__v2f(verts[i+2]), v2fmult(extrude[i+2].offset, inset));
 		
         V2F_C4B_T2F_Triangle tmp = {
             {v0, Color4B(fillColor), __t(v2fzero)},
@@ -395,20 +396,20 @@ void DrawNode::drawPolygon(Point *verts, int count, const Color4F &fillColor, fl
 	for(int i = 0; i < count; i++)
     {
 		int j = (i+1)%count;
-		Vertex2F v0 = __v2f(verts[i]);
-		Vertex2F v1 = __v2f(verts[j]);
+		Vec2 v0 = __v2f(verts[i]);
+		Vec2 v1 = __v2f(verts[j]);
 		
-		Vertex2F n0 = extrude[i].n;
+		Vec2 n0 = extrude[i].n;
 		
-		Vertex2F offset0 = extrude[i].offset;
-		Vertex2F offset1 = extrude[j].offset;
+		Vec2 offset0 = extrude[i].offset;
+		Vec2 offset1 = extrude[j].offset;
 		
 		if(outline)
         {
-			Vertex2F inner0 = v2fsub(v0, v2fmult(offset0, borderWidth));
-			Vertex2F inner1 = v2fsub(v1, v2fmult(offset1, borderWidth));
-			Vertex2F outer0 = v2fadd(v0, v2fmult(offset0, borderWidth));
-			Vertex2F outer1 = v2fadd(v1, v2fmult(offset1, borderWidth));
+			Vec2 inner0 = v2fsub(v0, v2fmult(offset0, borderWidth));
+			Vec2 inner1 = v2fsub(v1, v2fmult(offset1, borderWidth));
+			Vec2 outer0 = v2fadd(v0, v2fmult(offset0, borderWidth));
+			Vec2 outer1 = v2fadd(v1, v2fmult(offset1, borderWidth));
 			
             V2F_C4B_T2F_Triangle tmp1 = {
                 {inner0, Color4B(borderColor), __t(v2fneg(n0))},
@@ -425,10 +426,10 @@ void DrawNode::drawPolygon(Point *verts, int count, const Color4F &fillColor, fl
 			*cursor++ = tmp2;
 		}
         else {
-			Vertex2F inner0 = v2fsub(v0, v2fmult(offset0, 0.5));
-			Vertex2F inner1 = v2fsub(v1, v2fmult(offset1, 0.5));
-			Vertex2F outer0 = v2fadd(v0, v2fmult(offset0, 0.5));
-			Vertex2F outer1 = v2fadd(v1, v2fmult(offset1, 0.5));
+			Vec2 inner0 = v2fsub(v0, v2fmult(offset0, 0.5));
+			Vec2 inner1 = v2fsub(v1, v2fmult(offset1, 0.5));
+			Vec2 outer0 = v2fadd(v0, v2fmult(offset0, 0.5));
+			Vec2 outer1 = v2fadd(v1, v2fmult(offset1, 0.5));
 			
             V2F_C4B_T2F_Triangle tmp1 = {
                 {inner0, Color4B(fillColor), __t(v2fzero)},
@@ -453,15 +454,15 @@ void DrawNode::drawPolygon(Point *verts, int count, const Color4F &fillColor, fl
     free(extrude);
 }
 
-void DrawNode::drawTriangle(const Point &p1, const Point &p2, const Point &p3, const Color4F &color)
+void DrawNode::drawTriangle(const Vec2 &p1, const Vec2 &p2, const Vec2 &p3, const Color4F &color)
 {
     unsigned int vertex_count = 2*3;
     ensureCapacity(vertex_count);
 
     Color4B col = Color4B(color);
-    V2F_C4B_T2F a = {Vertex2F(p1.x, p1.y), col, Tex2F(0.0, 0.0) };
-    V2F_C4B_T2F b = {Vertex2F(p2.x, p2.y), col, Tex2F(0.0,  0.0) };
-    V2F_C4B_T2F c = {Vertex2F(p3.x, p3.y), col, Tex2F(0.0,  0.0) };
+    V2F_C4B_T2F a = {Vec2(p1.x, p1.y), col, Tex2F(0.0, 0.0) };
+    V2F_C4B_T2F b = {Vec2(p2.x, p2.y), col, Tex2F(0.0,  0.0) };
+    V2F_C4B_T2F c = {Vec2(p3.x, p3.y), col, Tex2F(0.0,  0.0) };
 
     V2F_C4B_T2F_Triangle *triangles = (V2F_C4B_T2F_Triangle *)(_buffer + _bufferCount);
     V2F_C4B_T2F_Triangle triangle = {a, b, c};
@@ -471,23 +472,23 @@ void DrawNode::drawTriangle(const Point &p1, const Point &p2, const Point &p3, c
     _dirty = true;
 }
 
-void DrawNode::drawCubicBezier(const Point& from, const Point& control1, const Point& control2, const Point& to, unsigned int segments, const Color4F &color)
+void DrawNode::drawCubicBezier(const Vec2& from, const Vec2& control1, const Vec2& control2, const Vec2& to, unsigned int segments, const Color4F &color)
 {
     unsigned int vertex_count = (segments + 1) * 3;
     ensureCapacity(vertex_count);
 
     Tex2F texCoord = Tex2F(0.0, 0.0);
     Color4B col = Color4B(color);
-    Vertex2F vertex;
-    Vertex2F firstVertex = Vertex2F(from.x, from.y);
-    Vertex2F lastVertex = Vertex2F(to.x, to.y);
+    Vec2 vertex;
+    Vec2 firstVertex = Vec2(from.x, from.y);
+    Vec2 lastVertex = Vec2(to.x, to.y);
 
     float t = 0;
     for(unsigned int i = segments + 1; i > 0; i--)
     {
         float x = powf(1 - t, 3) * from.x + 3.0f * powf(1 - t, 2) * t * control1.x + 3.0f * (1 - t) * t * t * control2.x + t * t * t * to.x;
         float y = powf(1 - t, 3) * from.y + 3.0f * powf(1 - t, 2) * t * control1.y + 3.0f * (1 - t) * t * t * control2.y + t * t * t * to.y;
-        vertex = Vertex2F(x, y);
+        vertex = Vec2(x, y);
 
         V2F_C4B_T2F a = {firstVertex, col, texCoord };
         V2F_C4B_T2F b = {lastVertex, col, texCoord };
@@ -502,23 +503,23 @@ void DrawNode::drawCubicBezier(const Point& from, const Point& control1, const P
     _dirty = true;
 }
 
-void DrawNode::drawQuadraticBezier(const Point& from, const Point& control, const Point& to, unsigned int segments, const Color4F &color)
+void DrawNode::drawQuadraticBezier(const Vec2& from, const Vec2& control, const Vec2& to, unsigned int segments, const Color4F &color)
 {
     unsigned int vertex_count = (segments + 1) * 3;
     ensureCapacity(vertex_count);
 
     Tex2F texCoord = Tex2F(0.0, 0.0);
     Color4B col = Color4B(color);
-    Vertex2F vertex;
-    Vertex2F firstVertex = Vertex2F(from.x, from.y);
-    Vertex2F lastVertex = Vertex2F(to.x, to.y);
+    Vec2 vertex;
+    Vec2 firstVertex = Vec2(from.x, from.y);
+    Vec2 lastVertex = Vec2(to.x, to.y);
 
     float t = 0;
     for(unsigned int i = segments + 1; i > 0; i--)
     {
         float x = powf(1 - t, 2) * from.x + 2.0f * (1 - t) * t * control.x + t * t * to.x;
         float y = powf(1 - t, 2) * from.y + 2.0f * (1 - t) * t * control.y + t * t * to.y;
-        vertex = Vertex2F(x, y);
+        vertex = Vec2(x, y);
 
         V2F_C4B_T2F a = {firstVertex, col, texCoord };
         V2F_C4B_T2F b = {lastVertex, col, texCoord };

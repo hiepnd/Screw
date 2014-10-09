@@ -22,8 +22,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "CCNodeGrid.h"
-#include "CCGrid.h"
+#include "2d/CCNodeGrid.h"
+#include "2d/CCGrid.h"
 
 #include "renderer/CCGroupCommand.h"
 #include "renderer/CCRenderer.h"
@@ -82,7 +82,7 @@ void NodeGrid::onGridEndDraw()
     }
 }
 
-void NodeGrid::visit(Renderer *renderer, const kmMat4 &parentTransform, bool parentTransformUpdated)
+void NodeGrid::visit(Renderer *renderer, const Mat4 &parentTransform, uint32_t parentFlags)
 {
     // quick return if not visible. children won't be drawn.
     if (!_visible)
@@ -94,16 +94,19 @@ void NodeGrid::visit(Renderer *renderer, const kmMat4 &parentTransform, bool par
     renderer->addCommand(&_groupCommand);
     renderer->pushGroup(_groupCommand.getRenderQueueID());
 
-    bool dirty = parentTransformUpdated || _transformUpdated;
+    bool dirty = (parentFlags & FLAGS_TRANSFORM_DIRTY) || _transformUpdated;
     if(dirty)
         _modelViewTransform = this->transform(parentTransform);
     _transformUpdated = false;
 
     // IMPORTANT:
-    // To ease the migration to v3.0, we still support the kmGL stack,
+    // To ease the migration to v3.0, we still support the Mat4 stack,
     // but it is deprecated and your code should not rely on it
-    kmGLPushMatrix();
-    kmGLLoadMatrix(&_modelViewTransform);
+    Director* director = Director::getInstance();
+    CCASSERT(nullptr != director, "Director is null when seting matrix stack");
+    
+    director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+    director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
 
     Director::Projection beforeProjectionType = Director::Projection::DEFAULT;
     if(_nodeGrid && _nodeGrid->isActive())
@@ -155,7 +158,6 @@ void NodeGrid::visit(Renderer *renderer, const kmMat4 &parentTransform, bool par
     if(_nodeGrid && _nodeGrid->isActive())
     {
         // restore projection
-        Director *director = Director::getInstance();
         director->setProjection(beforeProjectionType);
     }
 
@@ -165,7 +167,7 @@ void NodeGrid::visit(Renderer *renderer, const kmMat4 &parentTransform, bool par
 
     renderer->popGroup();
  
-    kmGLPopMatrix();
+    director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 }
 
 void NodeGrid::setGrid(GridBase *grid)

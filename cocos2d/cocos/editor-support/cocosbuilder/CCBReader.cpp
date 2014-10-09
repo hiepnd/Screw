@@ -1,11 +1,11 @@
 #include <ctype.h>
 #include <algorithm>
 
-#include "CCDirector.h"
+#include "base/CCDirector.h"
 #include "platform/CCFileUtils.h"
-#include "CCScene.h"
-#include "CCTextureCache.h"
-#include "CCSpriteFrameCache.h"
+#include "2d/CCScene.h"
+#include "2d/CCSpriteFrameCache.h"
+#include "renderer/CCTextureCache.h"
 
 #include "CCBReader.h"
 #include "CCNodeLoader.h"

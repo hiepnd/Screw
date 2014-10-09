@@ -28,13 +28,14 @@ THE SOFTWARE.
 #ifndef __ACTION_CCINTERVAL_ACTION_H__
 #define __ACTION_CCINTERVAL_ACTION_H__
 
-#include "CCNode.h"
-#include "CCAction.h"
-#include "CCProtocols.h"
-#include "CCSpriteFrame.h"
-#include "CCAnimation.h"
-#include "CCVector.h"
 #include <vector>
+
+#include "2d/CCNode.h"
+#include "2d/CCAction.h"
+#include "2d/CCSpriteFrame.h"
+#include "2d/CCAnimation.h"
+#include "base/CCProtocols.h"
+#include "base/CCVector.h"
 
 NS_CC_BEGIN
 
@@ -79,10 +80,11 @@ public:
     virtual ActionInterval* reverse() const override = 0;
 	virtual ActionInterval *clone() const override = 0;
 
-protected:
+CC_CONSTRUCTOR_ACCESS:
     /** initializes the action */
     bool initWithDuration(float d);
 
+protected:
     float _elapsed;
     bool   _firstTick;
 };
@@ -93,7 +95,7 @@ class CC_DLL Sequence : public ActionInterval
 {
 public:
     /** helper constructor to create an array of sequenceable actions */
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8)
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
     // WP8 in VS2012 does not support nullptr in variable args lists and variadic templates are also not supported
     typedef FiniteTimeAction* M;
     static Sequence* create(M m1, std::nullptr_t listEnd) { return variadicCreate(m1, NULL); }
@@ -267,7 +269,7 @@ public:
      * in lua :local create(local object1,local object2, ...)
      * @endcode
      */
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8)
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
     // WP8 in VS2012 does not support nullptr in variable args lists and variadic templates are also not supported
     typedef FiniteTimeAction* M;
     static Spawn* create(M m1, std::nullptr_t listEnd) { return variadicCreate(m1, NULL); }
@@ -369,8 +371,9 @@ class CC_DLL RotateBy : public ActionInterval
 public:
     /** creates the action */
     static RotateBy* create(float duration, float deltaAngle);
+    /** @warning The physics body contained in Node doesn't support rotate with different x and y angle. */
     static RotateBy* create(float duration, float deltaAngleZ_X, float deltaAngleZ_Y);
-    static RotateBy* create(float duration, const Vertex3F& deltaAngle3D);
+    static RotateBy* create(float duration, const Vec3& deltaAngle3D);
 
     //
     // Override
@@ -386,8 +389,9 @@ CC_CONSTRUCTOR_ACCESS:
 
     /** initializes the action */
     bool initWithDuration(float duration, float deltaAngle);
+    /** @warning The physics body contained in Node doesn't support rotate with different x and y angle. */
     bool initWithDuration(float duration, float deltaAngleZ_X, float deltaAngleZ_Y);
-    bool initWithDuration(float duration, const Vertex3F& deltaAngle3D);
+    bool initWithDuration(float duration, const Vec3& deltaAngle3D);
     
 protected:
     float _angleZ_X;
@@ -396,8 +400,8 @@ protected:
     float _startAngleZ_Y;
 
     bool _is3D;
-    Vertex3F _angle3D;
-    Vertex3F _startAngle3D;
+    Vec3 _angle3D;
+    Vec3 _startAngle3D;
 
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(RotateBy);
@@ -413,7 +417,7 @@ class CC_DLL MoveBy : public ActionInterval
 {
 public:
     /** creates the action */
-    static MoveBy* create(float duration, const Point& deltaPosition);
+    static MoveBy* create(float duration, const Vec2& deltaPosition);
 
     //
     // Overrides
@@ -428,12 +432,12 @@ CC_CONSTRUCTOR_ACCESS:
     virtual ~MoveBy() {}
 
     /** initializes the action */
-    bool initWithDuration(float duration, const Point& deltaPosition);
+    bool initWithDuration(float duration, const Vec2& deltaPosition);
 
 protected:
-    Point _positionDelta;
-    Point _startPosition;
-    Point _previousPosition;
+    Vec2 _positionDelta;
+    Vec2 _startPosition;
+    Vec2 _previousPosition;
 
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(MoveBy);
@@ -448,7 +452,7 @@ class CC_DLL MoveTo : public MoveBy
 {
 public:
     /** creates the action */
-    static MoveTo* create(float duration, const Point& position);
+    static MoveTo* create(float duration, const Vec2& position);
 
     //
     // Overrides
@@ -461,10 +465,10 @@ CC_CONSTRUCTOR_ACCESS:
     virtual ~MoveTo() {}
 
     /** initializes the action */
-    bool initWithDuration(float duration, const Point& position);
+    bool initWithDuration(float duration, const Vec2& position);
 
 protected:
-    Point _endPosition;
+    Vec2 _endPosition;
 
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(MoveTo);
@@ -539,7 +543,7 @@ class CC_DLL JumpBy : public ActionInterval
 {
 public:
     /** creates the action */
-    static JumpBy* create(float duration, const Point& position, float height, int jumps);
+    static JumpBy* create(float duration, const Vec2& position, float height, int jumps);
 
     //
     // Overrides
@@ -554,14 +558,14 @@ CC_CONSTRUCTOR_ACCESS:
     virtual ~JumpBy() {}
 
     /** initializes the action */
-    bool initWithDuration(float duration, const Point& position, float height, int jumps);
+    bool initWithDuration(float duration, const Vec2& position, float height, int jumps);
 
 protected:
-    Point           _startPosition;
-    Point           _delta;
+    Vec2           _startPosition;
+    Vec2           _delta;
     float           _height;
     int             _jumps;
-    Point           _previousPos;
+    Vec2           _previousPos;
 
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(JumpBy);
@@ -573,7 +577,7 @@ class CC_DLL JumpTo : public JumpBy
 {
 public:
     /** creates the action */
-    static JumpTo* create(float duration, const Point& position, float height, int jumps);
+    static JumpTo* create(float duration, const Vec2& position, float height, int jumps);
 
     //
     // Override
@@ -582,9 +586,11 @@ public:
     virtual JumpTo* clone() const override;
 	virtual JumpTo* reverse(void) const override;
 
-private:
+CC_CONSTRUCTOR_ACCESS:
     JumpTo() {}
     virtual ~JumpTo() {}
+
+private:
     CC_DISALLOW_COPY_AND_ASSIGN(JumpTo);
 };
 
@@ -592,11 +598,11 @@ private:
  */
 typedef struct _ccBezierConfig {
     //! end position of the bezier
-    Point endPosition;
+    Vec2 endPosition;
     //! Bezier control point 1
-    Point controlPoint_1;
+    Vec2 controlPoint_1;
     //! Bezier control point 2
-    Point controlPoint_2;
+    Vec2 controlPoint_2;
 } ccBezierConfig;
 
 /** @brief An action that moves the target with a cubic Bezier curve by a certain distance.
@@ -630,8 +636,8 @@ CC_CONSTRUCTOR_ACCESS:
 
 protected:
     ccBezierConfig _config;
-    Point _startPosition;
-    Point _previousPosition;
+    Vec2 _startPosition;
+    Vec2 _previousPosition;
 
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(BezierBy);
@@ -674,6 +680,7 @@ private:
 
 /** @brief Scales a Node object to a zoom factor by modifying it's scale attribute.
  @warning This action doesn't support "reverse"
+ @warning The physics body contained in Node doesn't support this action.
  */
 class CC_DLL ScaleTo : public ActionInterval
 {
@@ -725,6 +732,7 @@ private:
 };
 
 /** @brief Scales a Node object a zoom factor by modifying it's scale attribute.
+ @warning The physics body contained in Node doesn't support this action.
 */
 class CC_DLL ScaleBy : public ScaleTo
 {
@@ -745,7 +753,7 @@ public:
     virtual ScaleBy* clone() const override;
 	virtual ScaleBy* reverse(void) const override;
 
-protected:
+CC_CONSTRUCTOR_ACCESS:
     ScaleBy() {}
     virtual ~ScaleBy() {}
 
@@ -765,7 +773,7 @@ public:
     // Overrides
     //
     virtual Blink* clone() const override;
-	virtual Blink* reverse(void) const override;
+	virtual Blink* reverse() const override;
     virtual void update(float time) override;
     virtual void startWithTarget(Node *target) override;
     virtual void stop() override;
@@ -837,7 +845,7 @@ public:
     
     void setReverseAction(FadeTo* ac);
 
-protected:
+CC_CONSTRUCTOR_ACCESS:
     FadeIn():_reverseAction(nullptr) {}
     virtual ~FadeIn() {}
 
@@ -864,7 +872,7 @@ public:
     
     void setReverseAction(FadeTo* ac);
 
-protected:
+CC_CONSTRUCTOR_ACCESS:
     FadeOut():_reverseAction(nullptr) {}
     virtual ~FadeOut() {}
 private:
@@ -956,7 +964,7 @@ public:
     virtual DelayTime* reverse() const override;
     virtual DelayTime* clone() const override;
 
-protected:
+CC_CONSTRUCTOR_ACCESS:
     DelayTime() {}
     virtual ~DelayTime() {}
 
@@ -1037,6 +1045,8 @@ protected:
     unsigned int    _executedLoops;
     Animation*      _animation;
 
+    EventCustom*    _frameDisplayedEvent;
+    AnimationFrame::DisplayedEventInfo _frameDisplayedEventInfo;
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(Animate);
 };

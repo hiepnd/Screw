@@ -69,7 +69,7 @@ void Skeleton::initialize () {
     
 	setOpacityModifyRGB(true);
 
-    setShaderProgram(ShaderCache::getInstance()->getProgram(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR));
+    setGLProgramState(GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR));
 }
 
 void Skeleton::setSkeletonData (spSkeletonData *skeletonData, bool isOwnsSkeletonData) {
@@ -125,18 +125,18 @@ void Skeleton::update (float deltaTime) {
 	spSkeleton_update(skeleton, deltaTime * timeScale);
 }
 
-void Skeleton::draw(cocos2d::Renderer *renderer, const kmMat4 &transform, bool transformUpdated)
+void Skeleton::draw(cocos2d::Renderer *renderer, const Mat4 &transform, uint32_t flags)
 {
 
     _customCommand.init(_globalZOrder);
-    _customCommand.func = CC_CALLBACK_0(Skeleton::onDraw, this, transform, transformUpdated);
+    _customCommand.func = CC_CALLBACK_0(Skeleton::onDraw, this, transform, flags);
     renderer->addCommand(&_customCommand);
 }
     
-void Skeleton::onDraw(const kmMat4 &transform, bool transformUpdated)
+void Skeleton::onDraw(const Mat4 &transform, uint32_t flags)
 {
-    getShaderProgram()->use();
-    getShaderProgram()->setUniformsForBuiltins(transform);
+    getGLProgram()->use();
+    getGLProgram()->setUniformsForBuiltins(transform);
 
     GL::blendFunc(blendFunc.src, blendFunc.dst);
 	Color3B color = getColor();
@@ -193,24 +193,26 @@ void Skeleton::onDraw(const kmMat4 &transform, bool transformUpdated)
 	}
 
     if(debugBones || debugSlots) {
-        kmGLPushMatrix();
-        kmGLLoadMatrix(&transform);
+        Director* director = Director::getInstance();
+        CCASSERT(nullptr != director, "Director is null when seting matrix stack");
+        director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+        director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, transform);
 
         if (debugSlots) {
             // Slots.
             DrawPrimitives::setDrawColor4B(0, 0, 255, 255);
             glLineWidth(1);
-            Point points[4];
+            Vec2 points[4];
             V3F_C4B_T2F_Quad tmpQuad;
             for (int i = 0, n = skeleton->slotCount; i < n; i++) {
                 spSlot* slot = skeleton->drawOrder[i];
                 if (!slot->attachment || slot->attachment->type != ATTACHMENT_REGION) continue;
                 spRegionAttachment* attachment = (spRegionAttachment*)slot->attachment;
                 spRegionAttachment_updateQuad(attachment, slot, &tmpQuad);
-                points[0] = Point(tmpQuad.bl.vertices.x, tmpQuad.bl.vertices.y);
-                points[1] = Point(tmpQuad.br.vertices.x, tmpQuad.br.vertices.y);
-                points[2] = Point(tmpQuad.tr.vertices.x, tmpQuad.tr.vertices.y);
-                points[3] = Point(tmpQuad.tl.vertices.x, tmpQuad.tl.vertices.y);
+                points[0] = Vec2(tmpQuad.bl.vertices.x, tmpQuad.bl.vertices.y);
+                points[1] = Vec2(tmpQuad.br.vertices.x, tmpQuad.br.vertices.y);
+                points[2] = Vec2(tmpQuad.tr.vertices.x, tmpQuad.tr.vertices.y);
+                points[3] = Vec2(tmpQuad.tl.vertices.x, tmpQuad.tl.vertices.y);
                 DrawPrimitives::drawPoly(points, 4, true);
             }
         }
@@ -222,19 +224,19 @@ void Skeleton::onDraw(const kmMat4 &transform, bool transformUpdated)
                 spBone *bone = skeleton->bones[i];
                 float x = bone->data->length * bone->m00 + bone->worldX;
                 float y = bone->data->length * bone->m10 + bone->worldY;
-                DrawPrimitives::drawLine(Point(bone->worldX, bone->worldY), Point(x, y));
+                DrawPrimitives::drawLine(Vec2(bone->worldX, bone->worldY), Vec2(x, y));
             }
             // Bone origins.
             DrawPrimitives::setPointSize(4);
             DrawPrimitives::setDrawColor4B(0, 0, 255, 255); // Root bone is blue.
             for (int i = 0, n = skeleton->boneCount; i < n; i++) {
                 spBone *bone = skeleton->bones[i];
-                DrawPrimitives::drawPoint(Point(bone->worldX, bone->worldY));
+                DrawPrimitives::drawPoint(Vec2(bone->worldX, bone->worldY));
                 if (i == 0) DrawPrimitives::setDrawColor4B(0, 255, 0, 255);
             }
         }
         
-        kmGLPopMatrix();
+        director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
     }
 }
 
@@ -269,12 +271,20 @@ Rect Skeleton::getBoundingBox () const {
 		maxX = max(maxX, vertices[VERTEX_X3] * scaleX);
 		maxY = max(maxY, vertices[VERTEX_Y3] * scaleY);
 	}
-	Point position = getPosition();
+	Vec2 position = getPosition();
 	return Rect(position.x + minX, position.y + minY, maxX - minX, maxY - minY);
 }
 
 void Skeleton::onEnter() {
-	Node::onEnter();
+#if CC_ENABLE_SCRIPT_BINDING
+    if (_scriptType == kScriptTypeJavascript)
+    {
+        if (ScriptEngineManager::sendNodeEventToJSExtended(this, kNodeOnEnter))
+            return;
+    }
+#endif
+    
+    Node::onEnter();
 	scheduleUpdate();
 }
 	

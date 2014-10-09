@@ -26,28 +26,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-#include "CCSpriteBatchNode.h"
-#include "ccConfig.h"
-#include "CCSprite.h"
-#include "CCGrid.h"
-#include "CCDrawingPrimitives.h"
-#include "CCTextureCache.h"
-#include "CCShaderCache.h"
-#include "CCGLProgram.h"
-#include "ccGLStateCache.h"
-#include "CCDirector.h"
-#include "TransformUtils.h"
-#include "CCProfiling.h"
-#include "CCLayer.h"
-#include "CCScene.h"
+#include "2d/CCSpriteBatchNode.h"
+
+#include <algorithm>
+
+#include "2d/CCSprite.h"
+#include "2d/CCGrid.h"
+#include "2d/CCDrawingPrimitives.h"
+#include "2d/CCLayer.h"
+#include "2d/CCScene.h"
+#include "base/ccConfig.h"
+#include "base/CCDirector.h"
+#include "base/CCProfiling.h"
+#include "renderer/CCTextureCache.h"
+#include "renderer/CCGLProgramState.h"
+#include "renderer/CCGLProgram.h"
+#include "renderer/ccGLStateCache.h"
 #include "renderer/CCRenderer.h"
 #include "renderer/CCQuadCommand.h"
-// external
-#include "kazmath/GL/matrix.h"
+#include "math/TransformUtils.h"
 
 #include "deprecated/CCString.h" // For StringUtils::format
 
-#include <algorithm>
 
 NS_CC_BEGIN
 
@@ -85,6 +85,10 @@ bool SpriteBatchNode::initWithTexture(Texture2D *tex, ssize_t capacity)
     CCASSERT(capacity>=0, "Capacity must be >= 0");
     
     _blendFunc = BlendFunc::ALPHA_PREMULTIPLIED;
+    if(tex->hasPremultipliedAlpha())
+    {
+        _blendFunc = BlendFunc::ALPHA_NON_PREMULTIPLIED;
+    }
     _textureAtlas = new TextureAtlas();
 
     if (capacity == 0)
@@ -100,7 +104,7 @@ bool SpriteBatchNode::initWithTexture(Texture2D *tex, ssize_t capacity)
 
     _descendants.reserve(capacity);
     
-    setShaderProgram(ShaderCache::getInstance()->getProgram(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR));
+    setGLProgramState(GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR));
     return true;
 }
 
@@ -132,7 +136,7 @@ SpriteBatchNode::~SpriteBatchNode()
 
 // override visit
 // don't call visit on it's children
-void SpriteBatchNode::visit(Renderer *renderer, const kmMat4 &parentTransform, bool parentTransformUpdated)
+void SpriteBatchNode::visit(Renderer *renderer, const Mat4 &parentTransform, uint32_t parentFlags)
 {
     CC_PROFILER_START_CATEGORY(kProfilerCategoryBatchSprite, "CCSpriteBatchNode - visit");
 
@@ -150,21 +154,21 @@ void SpriteBatchNode::visit(Renderer *renderer, const kmMat4 &parentTransform, b
 
     sortAllChildren();
 
-    bool dirty = parentTransformUpdated || _transformUpdated;
-    if(dirty)
-        _modelViewTransform = transform(parentTransform);
-    _transformUpdated = false;
+    uint32_t flags = processParentFlags(parentTransform, parentFlags);
 
     // IMPORTANT:
-    // To ease the migration to v3.0, we still support the kmGL stack,
+    // To ease the migration to v3.0, we still support the Mat4 stack,
     // but it is deprecated and your code should not rely on it
-    kmGLPushMatrix();
-    kmGLLoadMatrix(&_modelViewTransform);
+    Director* director = Director::getInstance();
+    director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+    director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
 
-    draw(renderer, _modelViewTransform, dirty);
+    draw(renderer, _modelViewTransform, flags);
 
-    kmGLPopMatrix();
-    setOrderOfArrival(0);
+    director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+    // FIX ME: Why need to set _orderOfArrival to 0??
+    // Please refer to https://github.com/cocos2d/cocos2d-x/pull/6920
+//    setOrderOfArrival(0);
 
     CC_PROFILER_STOP_CATEGORY(kProfilerCategoryBatchSprite, "CCSpriteBatchNode - visit");
 }
@@ -179,6 +183,19 @@ void SpriteBatchNode::addChild(Node *child, int zOrder, int tag)
 
     Node::addChild(child, zOrder, tag);
 
+    appendChild(sprite);
+}
+
+void SpriteBatchNode::addChild(Node * child, int zOrder, const std::string &name)
+{
+    CCASSERT(child != nullptr, "child should not be null");
+    CCASSERT(dynamic_cast<Sprite*>(child) != nullptr, "CCSpriteBatchNode only supports Sprites as children");
+    Sprite *sprite = static_cast<Sprite*>(child);
+    // check Sprite is using the same texture id
+    CCASSERT(sprite->getTexture()->getName() == _textureAtlas->getTexture()->getName(), "CCSprite is not using the same texture id");
+    
+    Node::addChild(child, zOrder, name);
+    
     appendChild(sprite);
 }
 
@@ -354,7 +371,7 @@ void SpriteBatchNode::reorderBatch(bool reorder)
     _reorderChildDirty=reorder;
 }
 
-void SpriteBatchNode::draw(Renderer *renderer, const kmMat4 &transform, bool transformUpdated)
+void SpriteBatchNode::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
 {
     // Optimization: Fast Dispatch
     if( _textureAtlas->getTotalQuads() == 0 )
@@ -367,7 +384,7 @@ void SpriteBatchNode::draw(Renderer *renderer, const kmMat4 &transform, bool tra
 
     _batchCommand.init(
                        _globalZOrder,
-                       _shaderProgram,
+                       getGLProgram(),
                        _blendFunc,
                        _textureAtlas,
                        transform);

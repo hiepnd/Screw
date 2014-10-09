@@ -26,7 +26,7 @@
 #ifndef __CCEDITTEXT_H__
 #define __CCEDITTEXT_H__
 
-#include "CCIMEDelegate.h"
+#include "base/CCIMEDelegate.h"
 #include "extensions/ExtensionMacros.h"
 #include "../CCControlExtension/CCControlExtensions.h"
 
@@ -371,15 +371,15 @@ public:
     void setReturnType(EditBox::KeyboardReturnType returnType);
     
     /* override functions */
-    virtual void setPosition(const Point& pos) override;
+    virtual void setPosition(const Vec2& pos) override;
     virtual void setVisible(bool visible) override;
     virtual void setContentSize(const Size& size) override;
-	virtual void setAnchorPoint(const Point& anchorPoint) override;
+	virtual void setAnchorPoint(const Vec2& anchorPoint) override;
     /**
      * @js NA
      * @lua NA
      */
-    virtual void visit(Renderer *renderer, const kmMat4 &parentTransform, bool parentTransformUpdated) override;
+    virtual void visit(Renderer *renderer, const Mat4 &parentTransform, uint32_t parentFlags) override;
     /**
      * @js NA
      * @lua NA

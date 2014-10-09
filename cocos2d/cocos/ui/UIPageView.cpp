@@ -32,27 +32,25 @@ IMPLEMENT_CLASS_GUI_INFO(PageView)
 
 PageView::PageView():
 _curPageIdx(0),
-_touchMoveDir(PAGEVIEW_TOUCHLEFT),
-_touchStartLocation(0.0f),
-_touchMoveStartLocation(0.0f),
-_movePagePoint(Point::ZERO),
-_leftChild(nullptr),
-_rightChild(nullptr),
+_touchMoveDirection(TouchDirection::LEFT),
+_leftBoundaryChild(nullptr),
+_rightBoundaryChild(nullptr),
 _leftBoundary(0.0f),
 _rightBoundary(0.0f),
 _isAutoScrolling(false),
 _autoScrollDistance(0.0f),
 _autoScrollSpeed(0.0f),
-_autoScrollDir(0),
+_autoScrollDirection(AutoScrollDirection::LEFT),
 _childFocusCancelOffset(5.0f),
 _pageViewEventListener(nullptr),
-_pageViewEventSelector(nullptr)
+_pageViewEventSelector(nullptr),
+_eventCallback(nullptr)
 {
+    this->setTouchEnabled(true);
 }
 
 PageView::~PageView()
 {
-    _pages.clear();
     _pageViewEventListener = nullptr;
     _pageViewEventSelector = nullptr;
 }
@@ -71,6 +69,14 @@ PageView* PageView::create()
     
 void PageView::onEnter()
 {
+#if CC_ENABLE_SCRIPT_BINDING
+    if (_scriptType == kScriptTypeJavascript)
+    {
+        if (ScriptEngineManager::sendNodeEventToJSExtended(this, kNodeOnEnter))
+            return;
+    }
+#endif
+    
     Layout::onEnter();
     scheduleUpdate();
 }
@@ -80,7 +86,6 @@ bool PageView::init()
     if (Layout::init())
     {
         setClippingEnabled(true);
-        setTouchEnabled(true);
         return true;
     }
     return false;
@@ -88,15 +93,12 @@ bool PageView::init()
 
 void PageView::addWidgetToPage(Widget *widget, ssize_t pageIdx, bool forceCreate)
 {
-    if (!widget)
+    if (!widget || pageIdx < 0)
     {
         return;
     }
-    if (pageIdx < 0)
-    {
-        return;
-    }
-    ssize_t pageCount = _pages.size();
+   
+    ssize_t pageCount = this->getPageCount();
     if (pageIdx < 0 || pageIdx >= pageCount)
     {
         if (forceCreate)
@@ -112,7 +114,7 @@ void PageView::addWidgetToPage(Widget *widget, ssize_t pageIdx, bool forceCreate
     }
     else
     {
-        Layout * page = _pages.at(pageIdx);
+        Node * page = _pages.at(pageIdx);
         page->addChild(widget);
     }
 }
@@ -120,57 +122,33 @@ void PageView::addWidgetToPage(Widget *widget, ssize_t pageIdx, bool forceCreate
 Layout* PageView::createPage()
 {
     Layout* newPage = Layout::create();
-    newPage->setSize(getSize());
+    newPage->setContentSize(getContentSize());
     return newPage;
 }
 
 void PageView::addPage(Layout* page)
 {
-    if (!page)
+    if (!page || _pages.contains(page))
     {
         return;
     }
-    if (page->getWidgetType() != WidgetTypeContainer)
-    {
-        return;
-    }
-    if (_pages.contains(page))
-    {
-        return;
-    }
-    Size pSize = page->getSize();
-    Size pvSize = getSize();
-    if (!pSize.equals(pvSize))
-    {
-        CCLOG("page size does not match pageview size, it will be force sized!");
-        page->setSize(pvSize);
-    }
-    page->setPosition(Point(getPositionXByIndex(_pages.size()), 0));
-    _pages.pushBack(page);
+
+    
     addChild(page);
-    updateBoundaryPages();
+    _pages.pushBack(page);
+    
+    _doLayoutDirty = true;
 }
 
 void PageView::insertPage(Layout* page, int idx)
 {
-    if (idx < 0)
+    if (idx < 0 || !page || _pages.contains(page))
     {
         return;
     }
-    if (!page)
-    {
-        return;
-    }
-    if (page->getWidgetType() != WidgetTypeContainer)
-    {
-        return;
-    }
-    if (_pages.contains(page))
-    {
-        return;
-    }
+   
     
-    ssize_t pageCount = _pages.size();
+    ssize_t pageCount = this->getPageCount();
     if (idx >= pageCount)
     {
         addPage(page);
@@ -178,23 +156,11 @@ void PageView::insertPage(Layout* page, int idx)
     else
     {
         _pages.insert(idx, page);
-        page->setPosition(Point(getPositionXByIndex(idx), 0));
         addChild(page);
-        Size pSize = page->getSize();
-        Size pvSize = getSize();
-        if (!pSize.equals(pvSize))
-        {
-            CCLOG("page size does not match pageview size, it will be force sized!");
-            page->setSize(pvSize);
-        }
-        ssize_t length = _pages.size();
-        for (ssize_t i=(idx+1); i<length; i++){
-            Widget* behindPage = _pages.at(i);
-            Point formerPos = behindPage->getPosition();
-            behindPage->setPosition(Point(formerPos.x+getSize().width, 0));
-        }
-        updateBoundaryPages();
+        
     }
+    
+    _doLayoutDirty = true;
 }
 
 void PageView::removePage(Layout* page)
@@ -204,13 +170,14 @@ void PageView::removePage(Layout* page)
         return;
     }
     removeChild(page);
-    updateChildrenPosition();
-    updateBoundaryPages();
+    _pages.eraseObject(page);
+    
+    _doLayoutDirty = true;
 }
 
 void PageView::removePageAtIndex(ssize_t index)
 {
-    if (index < 0 || index >= _pages.size())
+    if (index < 0 || index >= this->getPages().size())
     {
         return;
     }
@@ -220,109 +187,88 @@ void PageView::removePageAtIndex(ssize_t index)
     
 void PageView::removeAllPages()
 {
-    removeAllChildren();
+    for(const auto& node : _pages)
+    {
+        removeChild(node);
+    }
+    _pages.clear();
 }
 
 void PageView::updateBoundaryPages()
 {
     if (_pages.size() <= 0)
     {
-        _leftChild = nullptr;
-        _rightChild = nullptr;
+        _leftBoundaryChild = nullptr;
+        _rightBoundaryChild = nullptr;
         return;
     }
-    _leftChild = _pages.at(0);
-    _rightChild = _pages.at(_pages.size()-1);
+    _leftBoundaryChild = _pages.at(0);
+    _rightBoundaryChild = _pages.at(this->getPageCount()-1);
 }
 
-float PageView::getPositionXByIndex(ssize_t idx)
+ssize_t PageView::getPageCount()const
 {
-    return (getSize().width*(idx-_curPageIdx));
-}
-    
-void PageView::addChild(Node *child)
-{
-    Layout::addChild(child);
+    return _pages.size();
 }
 
-void PageView::addChild(Node * child, int zOrder)
+float PageView::getPositionXByIndex(ssize_t idx)const
 {
-    Layout::addChild(child, zOrder);
-}
-
-void PageView::addChild(Node *child, int zOrder, int tag)
-{
-    Layout::addChild(child, zOrder, tag);
-}
-
-void PageView::removeChild(Node *child, bool cleanup)
-{
-    if (_pages.contains(static_cast<Layout*>(child)))
-    {
-        _pages.eraseObject(static_cast<Layout*>(child));
-    }
-    Layout::removeChild(child, cleanup);
+    return (getContentSize().width * (idx-_curPageIdx));
 }
 
 void PageView::onSizeChanged()
 {
     Layout::onSizeChanged();
-    _rightBoundary = getSize().width;
-    updateChildrenSize();
-    updateChildrenPosition();
+    _rightBoundary = getContentSize().width;
+    
+    _doLayoutDirty = true;
 }
 
-void PageView::updateChildrenSize()
+void PageView::updateAllPagesSize()
 {
-    Size selfSize = getSize();
+    Size selfSize = getContentSize();
     for (auto& page : _pages)
     {
-        page->setSize(selfSize);
+        page->setContentSize(selfSize);
     }
 }
 
-void PageView::updateChildrenPosition()
+void PageView::updateAllPagesPosition()
 {
-    ssize_t pageCount = _pages.size();
+    ssize_t pageCount = this->getPageCount();
+    
     if (pageCount <= 0)
     {
         _curPageIdx = 0;
         return;
     }
+    
     if (_curPageIdx >= pageCount)
     {
         _curPageIdx = pageCount-1;
     }
-    float pageWidth = getSize().width;
+    
+    float pageWidth = getContentSize().width;
     for (int i=0; i<pageCount; i++)
     {
         Layout* page = _pages.at(i);
-        page->setPosition(Point((i-_curPageIdx)*pageWidth, 0));
+        page->setPosition(Vec2((i-_curPageIdx) * pageWidth, 0));
+        
     }
 }
 
-void PageView::removeAllChildren()
-{
-    removeAllChildrenWithCleanup(true);
-}
-    
-void PageView::removeAllChildrenWithCleanup(bool cleanup)
-{
-    _pages.clear();
-    Layout::removeAllChildrenWithCleanup(cleanup);
-}
 
 void PageView::scrollToPage(ssize_t idx)
 {
-    if (idx < 0 || idx >= _pages.size())
+    if (idx < 0 || idx >= this->getPageCount())
     {
         return;
     }
     _curPageIdx = idx;
-    Widget* curPage = _pages.at(idx);
+    Layout* curPage = _pages.at(idx);
     _autoScrollDistance = -(curPage->getPosition().x);
     _autoScrollSpeed = fabs(_autoScrollDistance)/0.2f;
-    _autoScrollDir = _autoScrollDistance > 0 ? 1 : 0;
+    _autoScrollDirection = _autoScrollDistance > 0 ? AutoScrollDirection::RIGHT : AutoScrollDirection::LEFT;
     _isAutoScrolling = true;
 }
 
@@ -330,9 +276,15 @@ void PageView::update(float dt)
 {
     if (_isAutoScrolling)
     {
-        switch (_autoScrollDir)
+        this->autoScroll(dt);
+    }
+}
+    
+void PageView::autoScroll(float dt)
+    {
+        switch (_autoScrollDirection)
         {
-            case 0:
+            case AutoScrollDirection::LEFT:
             {
                 float step = _autoScrollSpeed*dt;
                 if (_autoScrollDistance + step >= 0.0f)
@@ -353,7 +305,7 @@ void PageView::update(float dt)
                 break;
             }
                 break;
-            case 1:
+            case AutoScrollDirection::RIGHT:
             {
                 float step = _autoScrollSpeed*dt;
                 if (_autoScrollDistance - step <= 0.0f)
@@ -367,36 +319,33 @@ void PageView::update(float dt)
                     _autoScrollDistance -= step;
                 }
                 scrollPages(step);
+                
                 if (!_isAutoScrolling)
                 {
                     pageTurningEvent();
                 }
+                
                 break;
             }
             default:
                 break;
         }
+
     }
-}
 
 bool PageView::onTouchBegan(Touch *touch, Event *unusedEvent)
 {
     bool pass = Layout::onTouchBegan(touch, unusedEvent);
-    if (_hitted)
-    {
-        handlePressLogic(touch->getLocation());
-    }
     return pass;
 }
 
 void PageView::onTouchMoved(Touch *touch, Event *unusedEvent)
 {
-    _touchMovePos = touch->getLocation();
-    handleMoveLogic(_touchMovePos);
+    handleMoveLogic(touch);
     Widget* widgetParent = getWidgetParent();
     if (widgetParent)
     {
-        widgetParent->checkChildInfo(1,this,_touchMovePos);
+        widgetParent->interceptTouchEvent(TouchEventType::MOVED,this,touch);
     }
     moveEvent();
 }
@@ -404,54 +353,70 @@ void PageView::onTouchMoved(Touch *touch, Event *unusedEvent)
 void PageView::onTouchEnded(Touch *touch, Event *unusedEvent)
 {
     Layout::onTouchEnded(touch, unusedEvent);
-    handleReleaseLogic(_touchEndPos);
+    handleReleaseLogic(touch);
 }
     
 void PageView::onTouchCancelled(Touch *touch, Event *unusedEvent)
 {
     Layout::onTouchCancelled(touch, unusedEvent);
-    handleReleaseLogic(touch->getLocation());
+    handleReleaseLogic(touch);
+}
+
+void PageView::doLayout()
+{
+    if (!_doLayoutDirty)
+    {
+        return;
+    }
+    
+    updateAllPagesPosition();
+    updateAllPagesSize();
+    updateBoundaryPages();
+
+    
+    _doLayoutDirty = false;
 }
 
 void PageView::movePages(float offset)
 {
-    for (auto& page : _pages)
+    for (auto& page : this->getPages())
     {
-        _movePagePoint.x = page->getPosition().x + offset;
-        _movePagePoint.y = page->getPosition().y;
-        page->setPosition(_movePagePoint);
+        page->setPosition(Vec2(page->getPosition().x + offset,
+                               page->getPosition().y));
     }
 }
 
 bool PageView::scrollPages(float touchOffset)
 {
-    if (_pages.size() <= 0)
+    if (this->getPageCount() <= 0)
     {
         return false;
     }
     
-    if (!_leftChild || !_rightChild)
+    if (!_leftBoundaryChild || !_rightBoundaryChild)
     {
         return false;
     }
     
     float realOffset = touchOffset;
     
-    switch (_touchMoveDir)
+    switch (_touchMoveDirection)
     {
-        case PAGEVIEW_TOUCHLEFT: // left
-            if (_rightChild->getRightInParent() + touchOffset <= _rightBoundary)
+        case TouchDirection::LEFT: // left
+
+            if (_rightBoundaryChild->getRightBoundary() + touchOffset <= _rightBoundary)
             {
-                realOffset = _rightBoundary - _rightChild->getRightInParent();
+                realOffset = _rightBoundary - _rightBoundaryChild->getRightBoundary();
                 movePages(realOffset);
                 return false;
             }
             break;
             
-        case PAGEVIEW_TOUCHRIGHT: // right
-            if (_leftChild->getLeftInParent() + touchOffset >= _leftBoundary)
+        case TouchDirection::RIGHT: // right
+
+            if (_leftBoundaryChild->getLeftBoundary() + touchOffset >= _leftBoundary)
             {
-                realOffset = _leftBoundary - _leftChild->getLeftInParent();
+                realOffset = _leftBoundary - _leftBoundaryChild->getLeftBoundary();
                 movePages(realOffset);
                 return false;
             }
@@ -464,44 +429,38 @@ bool PageView::scrollPages(float touchOffset)
     return true;
 }
 
-void PageView::handlePressLogic(const Point &touchPoint)
-{
-    Point nsp = convertToNodeSpace(touchPoint);
-    _touchMoveStartLocation = nsp.x;
-    _touchStartLocation = nsp.x;
-}
 
-void PageView::handleMoveLogic(const Point &touchPoint)
+void PageView::handleMoveLogic(Touch *touch)
 {
-    Point nsp = convertToNodeSpace(touchPoint);
+    Vec2 touchPoint = touch->getLocation();
+    
     float offset = 0.0;
-    float moveX = nsp.x;
-    offset = moveX - _touchMoveStartLocation;
-    _touchMoveStartLocation = moveX;
+    offset = touchPoint.x - touch->getPreviousLocation().x;
+    
     if (offset < 0)
     {
-        _touchMoveDir = PAGEVIEW_TOUCHLEFT;
+        _touchMoveDirection = TouchDirection::LEFT;
     }
     else if (offset > 0)
     {
-        _touchMoveDir = PAGEVIEW_TOUCHRIGHT;
+        _touchMoveDirection = TouchDirection::RIGHT;
     }
     scrollPages(offset);
 }
 
-void PageView::handleReleaseLogic(const Point &touchPoint)
+void PageView::handleReleaseLogic(Touch *touch)
 {
-    if (_pages.size() <= 0)
+    if (this->getPageCount() <= 0)
     {
         return;
     }
-    Widget* curPage = _pages.at(_curPageIdx);
+    Widget* curPage = dynamic_cast<Widget*>(this->getPages().at(_curPageIdx));
     if (curPage)
     {
-        Point curPagePos = curPage->getPosition();
-        ssize_t pageCount = _pages.size();
+        Vec2 curPagePos = curPage->getPosition();
+        ssize_t pageCount = this->getPageCount();
         float curPageLocation = curPagePos.x;
-        float pageWidth = getSize().width;
+        float pageWidth = getContentSize().width;
         float boundary = pageWidth/2.0f;
         if (curPageLocation <= -boundary)
         {
@@ -532,35 +491,30 @@ void PageView::handleReleaseLogic(const Point &touchPoint)
     }
 }
 
-void PageView::checkChildInfo(int handleState,Widget* sender, const Point &touchPoint)
-{
-    interceptTouchEvent(handleState, sender, touchPoint);
-}
 
-void PageView::interceptTouchEvent(int handleState, Widget *sender, const Point &touchPoint)
+void PageView::interceptTouchEvent(TouchEventType event, Widget *sender, Touch *touch)
 {
-    switch (handleState)
+    Vec2 touchPoint = touch->getLocation();
+    
+    switch (event)
     {
-        case 0:
-            handlePressLogic(touchPoint);
+        case TouchEventType::BEGAN:
+            //no-op
             break;
-        case 1:
+        case TouchEventType::MOVED:
         {
             float offset = 0;
-            offset = fabs(sender->getTouchStartPos().x - touchPoint.x);
+            offset = fabs(sender->getTouchBeganPosition().x - touchPoint.x);
             if (offset > _childFocusCancelOffset)
             {
-                sender->setFocused(false);
-                handleMoveLogic(touchPoint);
+                sender->setHighlighted(false);
+                handleMoveLogic(touch);
             }
         }
             break;
-        case 2:
-            handleReleaseLogic(touchPoint);
-            break;
-            
-        case 3:
-            handleReleaseLogic(touchPoint);
+        case TouchEventType::CANCELED:
+        case TouchEventType::ENDED:
+            handleReleaseLogic(touch);
             break;
     }
 }
@@ -571,12 +525,20 @@ void PageView::pageTurningEvent()
     {
         (_pageViewEventListener->*_pageViewEventSelector)(this, PAGEVIEW_EVENT_TURNING);
     }
+    if (_eventCallback) {
+        _eventCallback(this,EventType::TURNING);
+    }
 }
 
 void PageView::addEventListenerPageView(Ref *target, SEL_PageViewEvent selector)
 {
     _pageViewEventListener = target;
     _pageViewEventSelector = selector;
+}
+    
+void PageView::addEventListener(const ccPageViewCallback& callback)
+{
+    _eventCallback = callback;
 }
 
 ssize_t PageView::getCurPageIndex() const
@@ -591,7 +553,7 @@ Vector<Layout*>& PageView::getPages()
     
 Layout* PageView::getPage(ssize_t index)
 {
-    if (index < 0 || index >= _pages.size())
+    if (index < 0 || index >= this->getPages().size())
     {
         return nullptr;
     }
@@ -610,10 +572,10 @@ Widget* PageView::createCloneInstance()
 
 void PageView::copyClonedWidgetChildren(Widget* model)
 {
-    auto& modelPages = static_cast<PageView*>(model)->getPages();
+    auto modelPages = static_cast<PageView*>(model)->getPages();
     for (auto& page : modelPages)
     {
-        addPage(dynamic_cast<Layout*>(page->clone()));
+        addPage(static_cast<Layout*>(page->clone()));
     }
 }
 
@@ -623,6 +585,9 @@ void PageView::copySpecialProperties(Widget *widget)
     if (pageView)
     {
         Layout::copySpecialProperties(widget);
+        _eventCallback = pageView->_eventCallback;
+        _pageViewEventListener = pageView->_pageViewEventListener;
+        _pageViewEventSelector = pageView->_pageViewEventSelector;
     }
 }
 

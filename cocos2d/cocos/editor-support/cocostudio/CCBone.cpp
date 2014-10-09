@@ -72,7 +72,7 @@ Bone::Bone()
     _displayManager = nullptr;
     _ignoreMovementBoneData = false;
 //    _worldTransform = AffineTransformMake(1, 0, 0, 1, 0, 0);
-    kmMat4Identity(&_worldTransform);
+    _worldTransform = Mat4::IDENTITY;
     _boneTransformDirty = true;
     _blendFunc = BlendFunc::ALPHA_NON_PREMULTIPLIED;
     _blendDirty = false;
@@ -201,8 +201,8 @@ void Bone::update(float delta)
         _worldInfo->y = _tweenData->y + _position.y;
         _worldInfo->scaleX = _tweenData->scaleX * _scaleX;
         _worldInfo->scaleY = _tweenData->scaleY * _scaleY;
-        _worldInfo->skewX = _tweenData->skewX + _skewX + _rotationX;
-        _worldInfo->skewY = _tweenData->skewY + _skewY - _rotationY;
+        _worldInfo->skewX = _tweenData->skewX + _skewX + _rotationZ_X;
+        _worldInfo->skewY = _tweenData->skewY + _skewY - _rotationZ_Y;
 
         if(_parentBone)
         {
@@ -238,8 +238,8 @@ void Bone::applyParentTransform(Bone *parent)
 {
     float x = _worldInfo->x;
     float y = _worldInfo->y;
-    _worldInfo->x = x * parent->_worldTransform.mat[0] + y * parent->_worldTransform.mat[4] + parent->_worldInfo->x;
-    _worldInfo->y = x * parent->_worldTransform.mat[1] + y * parent->_worldTransform.mat[5] + parent->_worldInfo->y;
+    _worldInfo->x = x * parent->_worldTransform.m[0] + y * parent->_worldTransform.m[4] + parent->_worldInfo->x;
+    _worldInfo->y = x * parent->_worldTransform.m[1] + y * parent->_worldTransform.m[5] + parent->_worldInfo->y;
     _worldInfo->scaleX = _worldInfo->scaleX * parent->_worldInfo->scaleX;
     _worldInfo->scaleY = _worldInfo->scaleY * parent->_worldInfo->scaleY;
     _worldInfo->skewX = _worldInfo->skewX + parent->_worldInfo->skewX;
@@ -380,12 +380,12 @@ void Bone::setLocalZOrder(int zOrder)
         Node::setLocalZOrder(zOrder);
 }
 
-kmMat4 Bone::getNodeToArmatureTransform() const
+Mat4 Bone::getNodeToArmatureTransform() const
 {
     return _worldTransform;
 }
 
-kmMat4 Bone::getNodeToWorldTransform() const
+Mat4 Bone::getNodeToWorldTransform() const
 {
     return TransformConcat(_worldTransform, _armature->getNodeToWorldTransform());
 }

@@ -26,7 +26,7 @@ THE SOFTWARE.
 #ifndef __ACTION_CCPROGRESS_TIMER_H__
 #define __ACTION_CCPROGRESS_TIMER_H__
 
-#include "CCActionInterval.h"
+#include "2d/CCActionInterval.h"
 
 NS_CC_BEGIN
 
@@ -49,7 +49,7 @@ public:
     // Overrides
     //
 	virtual ProgressTo* clone() const override;
-	virtual ProgressTo* reverse(void) const override;
+	virtual ProgressTo* reverse() const override;
     virtual void startWithTarget(Node *target) override;
     virtual void update(float time) override;
     
@@ -82,7 +82,7 @@ public:
     // Overrides
     //
 	virtual ProgressFromTo* clone() const override;
-	virtual ProgressFromTo* reverse(void) const override;
+	virtual ProgressFromTo* reverse() const override;
     virtual void startWithTarget(Node *target) override;
     virtual void update(float time) override;
     

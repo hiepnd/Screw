@@ -25,12 +25,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-#include "CCScene.h"
-#include "CCDirector.h"
-#include "CCLayer.h"
-#include "CCSprite.h"
-#include "CCSpriteBatchNode.h"
-#include "CCPhysicsWorld.h"
+#include "2d/CCScene.h"
+#include "base/CCDirector.h"
+#include "2d/CCLayer.h"
+#include "2d/CCSprite.h"
+#include "2d/CCSpriteBatchNode.h"
+#include "physics/CCPhysicsWorld.h"
 #include "deprecated/CCString.h"
 
 NS_CC_BEGIN
@@ -41,7 +41,7 @@ Scene::Scene()
 #endif
 {
     _ignoreAnchorPointForPosition = true;
-    setAnchorPoint(Point(0.5f, 0.5f));
+    setAnchorPoint(Vec2(0.5f, 0.5f));
 }
 
 Scene::~Scene()
@@ -53,22 +53,35 @@ Scene::~Scene()
 
 bool Scene::init()
 {
-    bool ret = false;
-     do 
-     {
-         Director * director;
-         CC_BREAK_IF( ! (director = Director::getInstance()) );
-         this->setContentSize(director->getWinSize());
-         // success
-         ret = true;
-     } while (0);
-     return ret;
+    auto size = Director::getInstance()->getWinSize();
+    return initWithSize(size);
 }
 
-Scene *Scene::create()
+bool Scene::initWithSize(const Size& size)
+{
+    setContentSize(size);
+    return true;
+}
+
+Scene* Scene::create()
 {
     Scene *ret = new Scene();
     if (ret && ret->init())
+    {
+        ret->autorelease();
+        return ret;
+    }
+    else
+    {
+        CC_SAFE_DELETE(ret);
+        return nullptr;
+    }
+}
+
+Scene* Scene::createWithSize(const Size& size)
+{
+    Scene *ret = new Scene();
+    if (ret && ret->initWithSize(size))
     {
         ret->autorelease();
         return ret;
@@ -85,15 +98,22 @@ std::string Scene::getDescription() const
     return StringUtils::format("<Scene | tag = %d>", _tag);
 }
 
-Scene* Scene::getScene()
+Scene* Scene::getScene() const
 {
-    return this;
+    // FIX ME: should use const_case<> to fix compiling error
+    return const_cast<Scene*>(this);
 }
 
 #if CC_USE_PHYSICS
 void Scene::addChild(Node* child, int zOrder, int tag)
 {
     Node::addChild(child, zOrder, tag);
+    addChildToPhysicsWorld(child);
+}
+
+void Scene::addChild(Node* child, int zOrder, const std::string &name)
+{
+    Node::addChild(child, zOrder, name);
     addChildToPhysicsWorld(child);
 }
 
@@ -106,7 +126,7 @@ void Scene::update(float delta)
     }
 }
 
-Scene *Scene::createWithPhysics()
+Scene* Scene::createWithPhysics()
 {
     Scene *ret = new Scene();
     if (ret && ret->initWithPhysics())

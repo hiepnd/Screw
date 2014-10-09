@@ -1,35 +1,45 @@
 set(COCOS_BASE_SRC
-  ../deprecated/CCSet.cpp
-  ../deprecated/CCArray.cpp
-  ../deprecated/CCDictionary.cpp
-  ../deprecated/CCString.cpp
-  CCAffineTransform.cpp
-  CCAutoreleasePool.cpp
-  CCGeometry.cpp
-  CCNS.cpp
-  CCRef.cpp
-  CCDataVisitor.cpp
-  CCData.cpp
-  CCValue.cpp
-  etc1.cpp
-  s3tc.cpp
-  atitc.cpp
-  CCConsole.cpp
+  base/CCAutoreleasePool.cpp
+  base/CCConfiguration.cpp
+  base/CCConsole.cpp
+  base/CCData.cpp
+  base/CCDataVisitor.cpp
+  base/CCDirector.cpp
+  base/CCEvent.cpp
+  base/CCEventAcceleration.cpp
+  base/CCEventCustom.cpp
+  base/CCEventDispatcher.cpp
+  base/CCEventFocus.cpp
+  base/CCEventKeyboard.cpp
+  base/CCEventListener.cpp
+  base/CCEventListenerAcceleration.cpp
+  base/CCEventListenerCustom.cpp
+  base/CCEventListenerFocus.cpp
+  base/CCEventListenerKeyboard.cpp
+  base/CCEventListenerMouse.cpp
+  base/CCEventListenerTouch.cpp
+  base/CCEventMouse.cpp
+  base/CCEventTouch.cpp
+  base/CCIMEDispatcher.cpp
+  base/CCNS.cpp
+  base/CCProfiling.cpp
+  base/CCRef.cpp
+  base/CCScheduler.cpp
+  base/CCScriptSupport.cpp
+  base/CCTouch.cpp
+  base/CCUserDefault.cpp
+  base/CCUserDefaultAndroid.cpp
+  base/CCValue.cpp
+  base/TGAlib.cpp
+  base/ZipUtils.cpp
+  base/atitc.cpp
+  base/base64.cpp
+  base/ccCArray.cpp
+  base/ccFPSImages.c
+  base/ccTypes.cpp
+  base/ccUTF8.cpp
+  base/ccUtils.cpp
+  base/etc1.cpp
+  base/s3tc.cpp
+  base/ObjectFactory.cpp
 )
-
-add_library(cocosbase STATIC
-  ${COCOS_BASE_SRC}
-)
-
-if(WIN32)
-target_link_libraries(cocosbase
-  Ws2_32
-)
-endif()
-
-set_target_properties(cocosbase
-    PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-)
-

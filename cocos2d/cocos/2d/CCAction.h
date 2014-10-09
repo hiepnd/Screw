@@ -28,8 +28,8 @@ THE SOFTWARE.
 #ifndef __ACTIONS_CCACTION_H__
 #define __ACTIONS_CCACTION_H__
 
-#include "CCRef.h"
-#include "CCGeometry.h"
+#include "base/CCRef.h"
+#include "math/CCGeometry.h"
 
 NS_CC_BEGIN
 
@@ -277,8 +277,8 @@ protected:
     bool _boundaryFullyCovered;
 
     // fast access to the screen dimensions
-    Point _halfScreenSize;
-    Point _fullScreenSize;
+    Vec2 _halfScreenSize;
+    Vec2 _fullScreenSize;
 
     // world boundaries
     float _leftBoundary;

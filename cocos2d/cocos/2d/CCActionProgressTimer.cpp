@@ -23,8 +23,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#include "CCActionProgressTimer.h"
-#include "CCProgressTimer.h"
+#include "2d/CCActionProgressTimer.h"
+#include "2d/CCProgressTimer.h"
 
 NS_CC_BEGIN
 
@@ -72,13 +72,6 @@ void ProgressTo::startWithTarget(Node *target)
 {
     ActionInterval::startWithTarget(target);
     _from = ((kProgressTimerCast)(target))->getPercentage();
-
-    // XXX: Is this correct ?
-    // Adding it to support Repeat
-    if (_from == 100)
-    {
-        _from = 0;
-    }
 }
 
 void ProgressTo::update(float time)
@@ -120,7 +113,7 @@ ProgressFromTo* ProgressFromTo::clone() const
 }
 
 
-ProgressFromTo* ProgressFromTo::reverse(void) const
+ProgressFromTo* ProgressFromTo::reverse() const
 {
     return ProgressFromTo::create(_duration, _to, _from);
 }

@@ -26,12 +26,11 @@ THE SOFTWARE.
 #ifndef __EFFECTS_CCGRID_H__
 #define __EFFECTS_CCGRID_H__
 
-#include "CCRef.h"
-#include "CCNode.h"
-#include "ccTypes.h"
-#include "CCTexture2D.h"
-#include "CCDirector.h"
-#include "kazmath/mat4.h"
+#include "base/CCRef.h"
+#include "base/ccTypes.h"
+#include "base/CCDirector.h"
+#include "2d/CCNode.h"
+#include "renderer/CCTexture2D.h"
 #ifdef EMSCRIPTEN
 #include "CCGLBufferedNode.h"
 #endif // EMSCRIPTEN
@@ -78,8 +77,8 @@ public:
     inline void setGridSize(const Size& gridSize) { _gridSize = gridSize; }
 
     /** pixels between the grids */
-    inline const Point& getStep(void) const { return _step; }
-    inline void setStep(const Point& step) { _step = step; }
+    inline const Vec2& getStep(void) const { return _step; }
+    inline void setStep(const Vec2& step) { _step = step; }
 
     /** is texture flipped */
     inline bool isTextureFlipped(void) const { return _isTextureFlipped; }
@@ -98,7 +97,7 @@ protected:
     int  _reuseGrid;
     Size _gridSize;
     Texture2D *_texture;
-    Point _step;
+    Vec2 _step;
     Grabber *_grabber;
     bool _isTextureFlipped;
     GLProgram* _shaderProgram;
@@ -132,28 +131,28 @@ public:
      * @js NA
      * @lua NA
      */
-    Vertex3F getVertex(const Point& pos) const;
+    Vec3 getVertex(const Vec2& pos) const;
     /** @deprecated Use getVertex() instead 
      * @js NA
      * @lua NA
      */
-    CC_DEPRECATED_ATTRIBUTE Vertex3F vertex(const Point& pos) const { return getVertex(pos); }
+    CC_DEPRECATED_ATTRIBUTE Vec3 vertex(const Vec2& pos) const { return getVertex(pos); }
     /** returns the original (non-transformed) vertex at a given position
      * @js NA
      * @lua NA
      */
-    Vertex3F getOriginalVertex(const Point& pos) const;
+    Vec3 getOriginalVertex(const Vec2& pos) const;
     /** @deprecated Use getOriginalVertex() instead 
      * @js NA
      * @lua NA
      */
-    CC_DEPRECATED_ATTRIBUTE Vertex3F originalVertex(const Point& pos) const { return getOriginalVertex(pos); }
+    CC_DEPRECATED_ATTRIBUTE Vec3 originalVertex(const Vec2& pos) const { return getOriginalVertex(pos); }
 
     /** sets a new vertex at a given position 
      * @js NA
      * @lua NA
      */
-    void setVertex(const Point& pos, const Vertex3F& vertex);
+    void setVertex(const Vec2& pos, const Vec3& vertex);
 
     // Overrides
     virtual void blit() override;
@@ -195,28 +194,28 @@ public:
      * @js NA
      * @lua NA
      */
-    Quad3 getTile(const Point& pos) const;
+    Quad3 getTile(const Vec2& pos) const;
     /** returns the tile at the given position 
      * @js NA
      * @lua NA
      */
-    CC_DEPRECATED_ATTRIBUTE Quad3 tile(const Point& pos) const { return getTile(pos); }
+    CC_DEPRECATED_ATTRIBUTE Quad3 tile(const Vec2& pos) const { return getTile(pos); }
     /** returns the original tile (untransformed) at the given position 
      * @js NA
      * @lua NA
      */
-    Quad3 getOriginalTile(const Point& pos) const;
+    Quad3 getOriginalTile(const Vec2& pos) const;
     /** returns the original tile (untransformed) at the given position 
      * @js NA
      * @lua NA
      */
-    CC_DEPRECATED_ATTRIBUTE Quad3 originalTile(const Point& pos) const { return getOriginalTile(pos); }
+    CC_DEPRECATED_ATTRIBUTE Quad3 originalTile(const Vec2& pos) const { return getOriginalTile(pos); }
 
     /** sets a new tile 
      * @js NA
      * @lua NA
      */
-    void setTile(const Point& pos, const Quad3& coords);
+    void setTile(const Vec2& pos, const Quad3& coords);
 
     // Overrides
     virtual void blit() override;
