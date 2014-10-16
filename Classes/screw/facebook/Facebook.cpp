@@ -95,11 +95,13 @@ GraphUser *Facebook::getUser() {
 
 Vector<GraphUser *> Facebook::getFriends() {
     Vector<GraphUser *> friends;
-    ValueMap &friendData = _data->get(FacebookDataProfilesKey).asValueMap();
-    string uid = _data->getString(FacebookDataUserIDKey);
-    for (auto i : friendData) {
-        if (i.first != uid) {
-            friends.pushBack(GraphUser::create(i.second));
+    if (!_data->get(FacebookDataProfilesKey).isNull()) {
+        ValueMap &friendData = _data->get(FacebookDataProfilesKey).asValueMap();
+        string uid = _data->getString(FacebookDataUserIDKey);
+        for (auto i : friendData) {
+            if (i.first != uid) {
+                friends.pushBack(GraphUser::create(i.second));
+            }
         }
     }
     

@@ -57,12 +57,15 @@ AppRequests::~AppRequests() {
 }
 
 Vector<GraphRequest *> AppRequests::getRequests() {
-    ValueMap &raw = _data->get(AppRequestsRequestsKey).asValueMap();
     Vector<GraphRequest *> ret;
-    for (auto i : raw) {
-        GraphRequest *r = GraphRequest::create(i.second);
-        ret.pushBack(r);
+    if (!_data->get(AppRequestsRequestsKey).isNull()) {
+        ValueMap &raw = _data->get(AppRequestsRequestsKey).asValueMap();
+        for (auto i : raw) {
+            GraphRequest *r = GraphRequest::create(i.second);
+            ret.pushBack(r);
+        }
     }
+    
     return ret;
 }
 
