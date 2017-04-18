@@ -25,7 +25,7 @@ Requirements
 
 Features
 --------
-###Basic
+### Basic
 * Facebook Login with permissions, default audience, login behavior parameters
 * Request new read/publish permissions
 * Facebook logout/deauthorize
@@ -35,7 +35,7 @@ Features
 * Various builders to send app requests, publish Open Graph stories and share link/status
 * Callback as `std::function`
 
-###Extended
+### Extended
 * App Requests Manager (`screw::facebook::AppRequests`)
 * `screw::PhotoLoader` to download profile photos and load textures
 * `screw::Data` to read/write plist file with convenient path based key getters/setters
@@ -45,13 +45,13 @@ Features
 Setup
 -----
 All the sources lie under `Classes/screw`, `proj.ios_mac/screw`, `proj.android/jni/screw` and `proj.android/src/com/screw`, so basically you should mimic this structure in your project.
-###Integrate Screw into your iOS cocos2d-x app###
+### Integrate Screw into your iOS cocos2d-x app ###
 * Copy `Classes/screw` and `proj.ios_mac/ios/screw` to the corresponding folders and add them as groups into your Xcode project
 * Modify your `AppDelegate.cpp` to include `screw/screw.h` and add `screw::facebook::Session::start();` as the first command in `AppDelegate::applicationDidFinishLaunching()`
 * Modify `- (BOOL) application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation ` in your `AppControler.mm` to invoke `[FBAppCall handleOpenURL:url sourceApplication:sourceApplication];`
 * Copy `fb-default.png` to `Resources` folder and add it to Xcode project
 
-###Integrate Screw into your Android cocos2d-x app###
+### Integrate Screw into your Android cocos2d-x app ###
 * Copy `Classes/screw` to your project if you haven't
 * Modify `AppDelegate.cpp` as with iOS project
 * Copy `proj.android/jni/screw` and `proj.android/src/com/screw` to corresponding locations in your project
@@ -66,7 +66,7 @@ All the sources lie under `Classes/screw`, `proj.ios_mac/screw`, `proj.android/j
 Tutorial
 --------
 The codes below assume that you have  `#include "screw/screw.h"` and `using namespace screw::facebook`.
-###Login/Logout
+### Login/Logout
 Open loaded session without UI
 ```
 if (Session::getActiveSession()->getState() == Session::State::CREATED_TOKEN_LOADED) {
@@ -91,12 +91,12 @@ Logout
 Session::getActiveSession()->close();
 ```
 
-###Request new permissions
+### Request new permissions
 ```
 Session::getActiveSession()->requestPublishPermissions({"publish_actions"});
 ```
 
-###Fetch User Details
+### Fetch User Details
 Using `screw::facebook::Request` directly
 ```
 Request::requestForMe([](int error, GraphUser *user){
@@ -125,7 +125,7 @@ _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
 Facebook::getInstance()->fetchUserDetail();
 ```
 
-###Fetch Friends
+### Fetch Friends
 Using `screw::facebook::Request`
 ```
 Request::requestForFriends([](int error, const Vector<GraphUser *> &friends){
@@ -146,7 +146,7 @@ _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
 Facebook::getInstance()->fetchFriends();
 ```
 
-###Fetch Scores
+### Fetch Scores
 Using `screw::facebook::Request`
 ```
 Request::requestForScores([](int error, const Vector<GraphScore *> &scores){
@@ -170,13 +170,13 @@ _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
 Facebook::getInstance()->fetchScores();
 ```
 
-###Post Score
+### Post Score
 ```
 // This call first fetches score from facebook, and if the fetched score  is less than the passed score it then posts the new score
 Facebook::getInstance()->postScore(score);
 ```
 
-###App requests
+### App requests
 Screw helps support 'typed' app requests by implementing the 'data' extra field of a request as a JSON string and provides helper functions to manipulate this data.
 
 Simplest form
@@ -256,7 +256,7 @@ Clear app request
 AppRequests::getInstance()->clearRequest(requestId);
 ```
 
-###Sharing
+### Sharing
 Share a link
 ```
 ShareDialogParams *params = ShareDialogParams::create();
@@ -322,7 +322,7 @@ if (Dialog::canPresent(params)) {
 }
 ```
 
-###Photo Loader
+### Photo Loader
 Download profile picture
 ```
 PhotoLoader::getInstance()->download(uid, size);
